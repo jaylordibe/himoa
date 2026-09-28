@@ -316,7 +316,7 @@ asked.
 plugins/himoa/       the plugin
 docs/                                these documents
 evals/                               behavioural cases and grader rubrics
-fixtures/                            eleven tiny repositories: six shapes, five situations
+fixtures/                            twelve tiny repositories: six shapes, six situations
 tests/                               validators, decision tables, robustness and doctor suites
 .github/workflows/ci.yml             everything above, on every push
 ```

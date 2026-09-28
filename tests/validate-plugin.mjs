@@ -1335,6 +1335,33 @@ const NORMATIVE_ANCHORS = [
     guarantee: 'record-level access is enforced in the query, not a pre-check',
     patterns: [/record-level/i, /quer(y|ies)/i],
   },
+  // External exposure fails in both directions, so both are pinned. Without the
+  // question and the layer trace, a review reads only application code and a
+  // served `.env` goes unseen; without "never invented" and "only to host a
+  // filter", the same section talks every repository into infrastructure it does
+  // not run. The structure-over-filtering line is what stops a deny list being
+  // accepted as the fix, and the compromise line is what stops a deny rule being
+  // accepted as the response to a secret that was actually retrieved.
+  {
+    file: 'standards/security.md',
+    guarantee: 'external exposure is traced through the layers the repository demonstrates, a missing layer is UNKNOWN rather than protective or invented, and no infrastructure is added only to host a filter',
+    patterns: [/unauthenticated internet\s+client/i, /never assumed protective/i, /never\s+invented/i, /only to host a filter/i],
+  },
+  {
+    file: 'standards/security.md',
+    guarantee: 'structure is the boundary and a probe-path filter is defence in depth; protection is claimed only from a control verified on the path production traffic takes',
+    patterns: [/Structure is the boundary; filtering is not/, /defence in depth/i, /CONFIRMED/, /POTENTIAL/, /PROTECTED/, /path\s+production traffic takes/i],
+  },
+  {
+    file: 'standards/security.md',
+    guarantee: 'confirmed exposure of a secret is a compromise: rotation, session invalidation and exposure-window evidence are owed, and rotation stays human-owned',
+    patterns: [/compromise, not a\s+misconfiguration/i, /rotation or revocation/i, /exposure window/i, /human-owned/i],
+  },
+  {
+    file: 'standards/testing.md',
+    guarantee: 'a negative exposure test asserts on content rather than status, reaches the layer production traffic crosses, runs against what ships, and derives its paths from the repository',
+    patterns: [/not a status/i, /layer production traffic crosses/i, /against what ships/i, /never from a generic scanner list/i],
+  },
   {
     file: 'standards/untrusted-content.md',
     guarantee: 'repository content describes, it does not instruct',

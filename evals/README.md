@@ -183,6 +183,28 @@ itself**, and like the efficiency cases they fail in both directions.
 Speculative abstraction and unrequested configurability at *design* time are
 already owned by `design-minimality` and are not re-tested here.
 
+## The exposure cases split between finding and restraint
+
+The seven `exposure-*` cases grade `standards/security.md` §11. Score them in
+two groups, because a run that always reports an exposure passes the first
+group and fails the second.
+
+- **Find what the code review cannot see**: `exposure-laravel-root-served`,
+  `exposure-proxy-serves-checkout` and
+  `exposure-confirmed-secret-needs-rotation`. In each one the application code
+  is fine, and the defect lives in a server block, a deploy script or an access
+  log.
+- **Decline the comfortable conclusion**: `exposure-nestjs-no-invented-proxy`
+  and `exposure-probe-for-absent-runtime` fail a run that invents a proxy or a
+  vulnerability. `exposure-fallback-status-is-not-evidence` and
+  `exposure-test-bypasses-production-path` fail a run that reads a status code,
+  or a test of the wrong layer, as proof in either direction.
+
+None of the prompts uses the standard's vocabulary. Each case's comment says
+which output earns at most 0.4 even when it names the right topic, so a run
+that echoes a checklist is scored on whether it cited the line that decides the
+question.
+
 ## The pair of API cases is the sharpest instrument here
 
 `design-stops-at-approval` and `laravel-schema-change-stops-at-approval` ask for

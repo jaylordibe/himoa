@@ -4,7 +4,7 @@ description: Independently reviews the current diff for conformance to the appro
 disable-model-invocation: true
 ---
 
-<!-- GENERATED from plugins/himoa/skills/gate-review/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.8.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/gate-review/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.9.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Review the current change
 
@@ -76,7 +76,7 @@ returning `No findings.`
 | `himoa:contract` | Anything a consumer can observe: an entry point or its shape, a field's presence, nullability or type, an enumerated value, a stable error identifier, status semantics, pagination or ordering, an event or webhook payload, a generated schema |
 | `himoa:data` | Persistence: a query, a persisted shape, a constraint or index, a transaction boundary, a migration or backfill, lifecycle or delete semantics, ownership or tenancy in data access |
 | `himoa:performance` | Workload-sensitive behaviour: query shape, unbounded work, asynchronous or scheduled work, an external call, timeouts, retries, idempotency, caching, resource limits |
-| `himoa:security` | Any trust boundary or sensitive operation — authentication, authorization, tenancy, personal or financial data, uploads, webhooks, secrets, untrusted input reaching a sensitive sink |
+| `himoa:security` | Any trust boundary or sensitive operation — authentication, authorization, tenancy, personal or financial data, uploads, webhooks, secrets, untrusted input reaching a sensitive sink, or what the deployment serves publicly — serving, proxy, ingress or container configuration, packaging, published ports |
 | `himoa:tester` | The tier requires it, or coverage adequacy is material to whether this change is correct |
 | `himoa:architect` | Cross-cutting or structural change, a new component, an ownership or boundary decision — and every Critical change. Not ordinary localized work |
 

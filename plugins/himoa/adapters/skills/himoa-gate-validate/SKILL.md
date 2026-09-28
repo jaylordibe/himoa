@@ -4,7 +4,7 @@ description: Performs read-only evidence validation for a reviewed change using 
 disable-model-invocation: true
 ---
 
-<!-- GENERATED from plugins/himoa/skills/gate-validate/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.8.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/gate-validate/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.9.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Validate the reviewed change
 
@@ -140,6 +140,8 @@ and another actor's record · not-found versus forbidden disclosure behaviour ·
 stable error identifiers and result shapes · sensitive fields excluded at
 runtime and in generated artefacts · rate limiting on public and
 message-sending paths · audit records with the right actor · log redaction ·
+sensitive resources not retrievable through the deployed public surface, when
+the change reaches it (`@HIMOA_HOME@/standards/testing.md` §4) ·
 any dependency or security scan this repository actually supports · consumer
 compatibility.
 

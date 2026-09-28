@@ -1,4 +1,4 @@
-<!-- GENERATED from plugins/himoa/standards/testing.md by tests/validate-adapter-projection.mjs (himoa 3.8.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/standards/testing.md by tests/validate-adapter-projection.mjs (himoa 3.9.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Testing standard
 
@@ -63,6 +63,8 @@ to it is an accepted risk, and must be stated as one rather than left implicit.
 - time-zone, date boundary and daylight-saving behaviour;
 - monetary rounding and currency handling;
 - backward compatibility of a changed contract;
+- sensitive resources not retrievable through the deployed public surface, when
+  the change reaches it (`security.md` §11);
 - a regression case reproducing any defect that was fixed.
 
 ## 4. Quality
@@ -82,6 +84,26 @@ Reject, in your own tests and in review:
 
 Tests are part of the change, not a follow-up. A behaviour change whose test
 was not updated is an unfinished change.
+
+### A negative exposure test proves absence of content, on the path that ships
+
+A test that a sensitive resource is not retrievable is worth what it asserts and
+where it runs:
+
+- **It asserts that no sensitive content came back, not a status.** A fallback
+  page or catch-all route answers with success and no secret; a redirect can
+  lead to the content; a not-found can come from a layer production does not
+  use. Follow redirects and judge the body. The invariant is that nothing
+  sensitive is returned — not-found is often preferable, since it confirms
+  nothing, but no single status is required.
+- **It exercises the layer production traffic crosses.** A request to the
+  application server says nothing about a proxy, edge or static root in front of
+  it; the verdict is scoped to the layer it reached (`evidence.md` §2).
+- **It runs against what ships.** An artifact built differently for tests — files
+  excluded, another root, another configuration — proves nothing about the
+  production one.
+- **Its paths come from this repository** — its files, its framework's
+  diagnostic routes, its deployment layout — never from a generic scanner list.
 
 ## 5. Evidence
 

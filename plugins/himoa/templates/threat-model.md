@@ -81,6 +81,8 @@ ones that do not apply:
 - **Data exposure** — internal error detail, secrets in logs, over-broad
   response shape, generated documentation exposing a hidden field.
 - **Audit gaps** — a privileged action that leaves no record of who did it.
+- **External exposure** — a file, diagnostic surface or service the deployed
+  system serves to the internet that was never meant to be public.
 
 ## 5. Controls this change adds or relies on
 

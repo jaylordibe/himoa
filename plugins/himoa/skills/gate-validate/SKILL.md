@@ -142,6 +142,8 @@ and another actor's record · not-found versus forbidden disclosure behaviour ·
 stable error identifiers and result shapes · sensitive fields excluded at
 runtime and in generated artefacts · rate limiting on public and
 message-sending paths · audit records with the right actor · log redaction ·
+sensitive resources not retrievable through the deployed public surface, when
+the change reaches it (`${CLAUDE_PLUGIN_ROOT}/standards/testing.md` §4) ·
 any dependency or security scan this repository actually supports · consumer
 compatibility.
 

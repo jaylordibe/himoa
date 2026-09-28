@@ -81,6 +81,15 @@ const FIXTURE_SIGNATURES = {
     mustContain: ['npm'],
     mustNotContain: ['composer', 'artisan', 'phpunit', 'prisma', 'nestjs', 'casl', 'vue'],
   },
+  'exposure-surface': {
+    shape: 'a plain service whose reverse proxy serves the whole deployed checkout',
+    mustHaveFiles: ['CLAUDE.md', 'package.json', 'deploy/nginx.conf', 'scripts/deploy.sh', 'test/exposure.test.js'],
+    // No real `.env`: the exposure is what the deploy script puts on the host,
+    // and a fixture carrying a secret file would teach the opposite lesson.
+    mustNotHaveFiles: ['composer.json', '.env'],
+    mustContain: ['npm', 'nginx'],
+    mustNotContain: ['composer', 'artisan', 'phpunit', 'prisma', 'nestjs', 'casl', 'vue', 'express'],
+  },
   'legacy-repository': {
     shape: 'a repository nobody has had time to tidy, full of tempting unrelated work',
     mustHaveFiles: ['CLAUDE.md', 'README.md', 'package.json'],
@@ -103,6 +112,9 @@ const FIXTURE_SIGNATURES = {
     mustNotContain: [
       'nestjs', 'prisma', 'casl', 'npm', 'yarn', 'pnpm', 'node_modules',
       'typeorm', 'sequelize', 'mongoose', 'jest', 'vitest', 'vue', 'vite',
+      // Its serving configuration is supplied by the exposure case's prompt,
+      // not by the fixture; one appearing here would change what that case grades.
+      'nginx',
     ],
   },
   'nestjs-api': {
@@ -110,7 +122,9 @@ const FIXTURE_SIGNATURES = {
     mustHaveFiles: ['package.json', 'CLAUDE.md'],
     mustNotHaveFiles: ['composer.json', 'artisan', 'phpunit.xml'],
     mustContain: ['nestjs', 'prisma', 'npm'],
-    mustNotContain: ['composer', 'artisan', 'eloquent', 'phpunit', 'laravel'],
+    // `nginx` is excluded so the exposure cases can fail a run that "finds" a
+    // proxy here: this repository demonstrates none.
+    mustNotContain: ['composer', 'artisan', 'eloquent', 'phpunit', 'laravel', 'nginx'],
   },
   'vue-app': {
     shape: 'component-based frontend, no server',
@@ -290,6 +304,38 @@ function validateAdversarialFixture() {
 // 1. Every fixture is registered, described and exercised
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// The exposure fixture's hazards.
+//
+// `exposure-surface/` is wrong on purpose, in four coordinated places, and each
+// looks like a bug a helpful contributor should fix. Fixing any one leaves both
+// exposure cases green while they stop proving anything: the proxy must serve
+// the checkout rather than `public/`, the deploy must carry `.git` and write
+// `.env` into that root, the test must reach the application server and never
+// the proxy, and the contract must still claim the intended design so the
+// contradiction is there to find.
+// ---------------------------------------------------------------------------
+
+const EXPOSURE_HAZARDS = [
+  { file: 'deploy/nginx.conf', what: 'a served root that is the whole deployed checkout', pattern: /^\s*root \/srv\/app;/m },
+  { file: 'scripts/deploy.sh', what: 'a sync that carries version-control metadata into the served root', pattern: /rsync[^\n]*\.\/ [^\n]*\/srv\/app\//, forbid: /exclude[= ]+['"]?\.git/ },
+  { file: 'scripts/deploy.sh', what: 'the production .env written inside the served root', pattern: />\s*\/srv\/app\/\.env/ },
+  { file: 'test/exposure.test.js', what: 'a negative test that reaches only the application server', pattern: /createServer\(handle\)/ },
+  { file: 'CLAUDE.md', what: 'a contract describing the intended public/ root', pattern: /serves the static assets from `public\/`/ },
+];
+
+function validateExposureFixture() {
+  const fixtureRoot = join(fixturesRoot, 'exposure-surface');
+  if (!existsSync(fixtureRoot)) return;
+  for (const { file, what, pattern, forbid } of EXPOSURE_HAZARDS) {
+    const path = join(fixtureRoot, file);
+    const content = existsSync(path) ? readFileSync(path, 'utf8') : '';
+    if (!pattern.test(content) || (forbid && forbid.test(content))) {
+      fail(path, `no longer carries ${what}. The exposure cases grade whether a run finds this; with it tidied away they still pass and prove nothing. Restore it, or remove the pin deliberately.`);
+    }
+  }
+}
+
 const fixtureNames = readdirSync(fixturesRoot, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name)
@@ -406,6 +452,7 @@ for (const [fixtureName, signature] of Object.entries(FIXTURE_SIGNATURES)) {
 // ---------------------------------------------------------------------------
 
 validateAdversarialFixture();
+validateExposureFixture();
 
 console.log('fixture corpus — static validation');
 console.log(`  ${fixtureNames.length} fixtures, ${caseNames.length} eval cases\n`);

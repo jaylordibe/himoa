@@ -1,4 +1,4 @@
-<!-- GENERATED from plugins/himoa/standards/evidence.md by tests/validate-adapter-projection.mjs (himoa 3.8.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/standards/evidence.md by tests/validate-adapter-projection.mjs (himoa 3.9.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Evidence standard
 
@@ -73,6 +73,7 @@ when all three passed.
 | Static review | Nobody spotted a defect | The absence of a defect |
 | Manual runtime exercise | That path worked once, in that environment | Reproducibility, load behaviour, or other paths |
 | A dependency scanner is quiet | No *known* advisory matched | That the code is not vulnerable |
+| A request for a sensitive resource returns nothing sensitive | That layer, for that path, did not serve it | That the deployed path — proxy, edge, production artifact — does not |
 
 Never claim **secure**, **battle-tested**, **production-ready**, **works** or
 **done** more broadly than the row above supports.

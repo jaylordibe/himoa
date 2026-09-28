@@ -1,4 +1,4 @@
-<!-- GENERATED from plugins/himoa/standards/security.md by tests/validate-adapter-projection.mjs (himoa 3.8.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/standards/security.md by tests/validate-adapter-projection.mjs (himoa 3.9.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Application security standard
 
@@ -226,10 +226,78 @@ stated justification and human security review, custom code.
 - **Compare secrets and authentication tags in constant time** (§1).
 
 A change to cryptography is Critical risk: automated review is never sufficient
-and human security review is required (§11). The `domain-cryptography` playbook
+and human security review is required (§12). The `domain-cryptography` playbook
 carries these decisions and their failure modes in full.
 
-## 11. Proportionality
+## 11. External exposure and the deployment boundary
+
+Application security includes what the running system exposes, not only what
+its code does. A secret-bearing file served by accident is as exploitable as an
+injection, and no review of application code will find it. This section applies
+when a change reaches the deployment boundary — serving, proxy, ingress, edge or
+container configuration, build or deployment packaging, static or uploaded
+content, published ports, secret or configuration loading, a new public entry
+point — or when the review is explicitly a security or production-readiness
+review. Other changes do not pull it.
+
+**The question is: what can an unauthenticated internet client retrieve or reach
+that was never intended to be public?** Trace it through the layers the
+repository demonstrates — source tree → build or deployment artifact → runtime
+or container → proxy, ingress or edge → public surface — and at each one
+establish what is served or listening, from which root, and what was carried
+into it. A layer with no evidence is `UNKNOWN`: never assumed protective, and
+never invented. A repository with no proxy has no proxy finding, and does not
+gain a proxy to host a control.
+
+Where the layer exists, look for:
+
+- **Files that must never be served** — environment and configuration files,
+  credentials, version-control metadata, backups, temporary files, logs, data
+  dumps, source, dependency and build internals, deployment files — reaching a
+  served root, a published artifact or an image.
+- **Diagnostic and development surfaces** — debug, profiling, diagnostic or test
+  routes, development tooling, administrative tools, unintended API
+  documentation, source maps, and health or metrics responses that say more than
+  their audience needs (§6).
+- **The static boundary** — the document or static root, dotfile handling,
+  fallback and rewrite rules, uploaded, generated or public storage, symlinks,
+  traversal (§4), and the whole checkout served where one subdirectory was meant.
+- **Network surface** — data stores, caches, queues, monitoring and internal
+  services listening on, or published to, more than their intended audience.
+
+**Structure is the boundary; filtering is not.** Prefer a served root holding
+only public content, deny-by-default exposure, secrets outside every served tree
+and artifact, internal services left unpublished, and production-safe framework
+configuration. Rejecting known probe paths at an edge the system already has is
+defence in depth, never the fix: a deny list misses the next spelling, and
+blocking a scanner does not close an exposure. Controls follow the deployment
+model the repository actually has — never block what its runtime legitimately
+executes, and never add infrastructure only to host a filter.
+
+**Probing is a signal, not a finding.** Automated requests for sensitive-looking
+paths say what attackers expect to exist; the finding is whether any of it is
+retrievable here. A probe aimed at a runtime this system does not run is not an
+application vulnerability.
+
+Report each exposure concern as exactly one of **CONFIRMED** (retrieved, with
+the evidence) · **POTENTIAL** (configuration or packaging permits it, not
+observed) · **PROTECTED** (a control located and verified on the path
+production traffic takes) · **N/A** (the layer or resource does not exist here)
+· **UNKNOWN** (deployment evidence is missing; say what would settle it).
+Protection is never claimed from a control you did not locate, or from one
+verified only on a path production traffic does not take.
+
+**Confirmed exposure of a secret-bearing resource is a compromise, not a
+misconfiguration.** Blocking or removing the resource ends the exposure; it does
+not undo it. The report owes every credential, key and token the resource held,
+for rotation or revocation (§7) — signing and encryption keys included, with the
+sessions and tokens they issued; the exposure window and the access-log evidence
+of who retrieved it; and every environment sharing those values. Rotation and
+revocation are human-owned: prepare the list, do not perform them.
+
+Evidence that a sensitive resource is *not* retrievable follows `testing.md` §4.
+
+## 12. Proportionality
 
 High-risk changes require an explicit threat model and negative tests —
 unauthenticated, wrong permission, another tenant's record, another actor's

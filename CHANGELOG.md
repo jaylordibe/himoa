@@ -12,6 +12,46 @@ act, and MINOR and PATCH never do. Entries below `1.0.0` were released under the
 
 ---
 
+## 3.9.0 — 2026-09-28
+
+**Security review covers what the deployed system actually exposes to the
+internet, not only its source code — improved guidance, no consumer action
+(MINOR).** The security standard, lens and gates reviewed application code. So
+the most common thing automated scanners look for, a secret-bearing file served
+by a web server, proxy or packaging mistake, was invisible to a review in which
+every line of code was correct.
+
+### Added
+- **`standards/security.md` §11 — external exposure and the deployment
+  boundary.** Risk-triggered: it applies to serving, proxy, ingress, container
+  and packaging changes, static or uploaded content, published ports, secret
+  loading, new public entry points, and explicit security or
+  production-readiness reviews. Nothing else pulls it. It asks what an
+  unauthenticated internet client can retrieve or reach that was never meant to
+  be public, traced through the layers the repository actually demonstrates.
+  A missing layer is `UNKNOWN`: never assumed protective, never invented, and
+  never added only to host a filter. Structure is the boundary, and blocking
+  probe paths is defence in depth. Each concern is reported `CONFIRMED`,
+  `POTENTIAL`, `PROTECTED`, `N/A` or `UNKNOWN`. A confirmed secret exposure owes
+  rotation, invalidation and exposure-window evidence, prepared for the human
+  rather than performed.
+- **`standards/testing.md` §4 — a negative exposure test asserts on content
+  rather than status.** It must reach the layer production traffic crosses, run
+  against what ships, and derive its paths from the repository. A matching row
+  in `standards/evidence.md` §3 states what such a request does not prove.
+- Seven behavioural cases (`evals/cases/exposure-*`) and the
+  `exposure-surface` fixture. They grade in both directions: finding a served
+  checkout, and declining to invent a proxy or a vulnerability.
+
+### Changed
+- **The security lens** gains a fourth risk-triggered area. **`gate-review`**
+  launches it for deployment-serving changes. **`gate-validate`** asks for
+  negative retrieval evidence when a change reaches the deployment boundary.
+  The **threat model** lists external exposure. Proportionality moves from
+  `security.md` §11 to §12.
+
+---
+
 ## 3.8.0 — 2026-09-28
 
 **The repository describes the present, and `AGENTS.md` holds only rules —

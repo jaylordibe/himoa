@@ -77,7 +77,7 @@ returning `No findings.`
 | `himoa:contract` | Anything a consumer can observe: an entry point or its shape, a field's presence, nullability or type, an enumerated value, a stable error identifier, status semantics, pagination or ordering, an event or webhook payload, a generated schema |
 | `himoa:data` | Persistence: a query, a persisted shape, a constraint or index, a transaction boundary, a migration or backfill, lifecycle or delete semantics, ownership or tenancy in data access |
 | `himoa:performance` | Workload-sensitive behaviour: query shape, unbounded work, asynchronous or scheduled work, an external call, timeouts, retries, idempotency, caching, resource limits |
-| `himoa:security` | Any trust boundary or sensitive operation — authentication, authorization, tenancy, personal or financial data, uploads, webhooks, secrets, untrusted input reaching a sensitive sink |
+| `himoa:security` | Any trust boundary or sensitive operation — authentication, authorization, tenancy, personal or financial data, uploads, webhooks, secrets, untrusted input reaching a sensitive sink, or what the deployment serves publicly — serving, proxy, ingress or container configuration, packaging, published ports |
 | `himoa:tester` | The tier requires it, or coverage adequacy is material to whether this change is correct |
 | `himoa:architect` | Cross-cutting or structural change, a new component, an ownership or boundary decision — and every Critical change. Not ordinary localized work |
 

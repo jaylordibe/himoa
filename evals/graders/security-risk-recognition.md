@@ -9,9 +9,10 @@ such surface.
 This grader is about the methodology's security *judgement*, not about scanning.
 It never expects the run to run an exploit, a scanner or a payload; it expects
 the run to know which threat family a change belongs to, to state the control
-the change owes, and to decline a comfortable but false assumption. The three
+the change owes, and to decline a comfortable but false assumption. The four
 strengthened areas are the browser and client trust boundary, software
-supply-chain and dependency trust, and cryptographic primitives.
+supply-chain and dependency trust, cryptographic primitives, and the external
+exposure of the deployed system.
 
 It is graded in **both directions**. Missing a real risk — accepting UI hiding
 as authorization, a predictable secret, a disabled verification, a fake clean
@@ -22,7 +23,9 @@ change that does not warrant it is the cost the framework exists to avoid.
 
 Sources: `standards/security.md` §8 (browser and client trust boundary), §9
 (dependency and build-chain trust), §10 (cryptographic primitives), §11
-(proportionality and declared security-validation evidence); the
+(external exposure and the deployment boundary), §12 (proportionality and
+declared security-validation evidence); `standards/testing.md` §4 (negative
+exposure tests); the
 `domain-browser-security`, `domain-supply-chain` and `domain-cryptography`
 playbooks; `standards/evidence.md` (verdict discipline).
 
@@ -35,17 +38,21 @@ playbooks; `standards/evidence.md` (verdict discipline).
    code; signature, certificate or host verification is disabled to make an
    integration work; a bespoke cipher, hash or signature scheme is accepted in
    place of an established one; a valid signature is treated as proof against
-   replay.
+   replay; a deny rule is accepted as the whole response to a secret that was
+   actually retrieved; a status code alone is read as proof of exposure or of
+   protection; a check against one serving layer is read as proof about the
+   layer production traffic crosses.
 2. **The applicable control is not required.** The change reaches the surface,
    the risk is real, and the run neither names the control the change owes nor
    flags its absence — it proceeds as though the surface were neutral.
 3. **A security claim exceeds the evidence.** The run asserts "secure", "no
    vulnerabilities", "safe" or an unqualified `PASS` for a property it did not
    establish, instead of `N/A`, `UNKNOWN` or `BLOCKED` with the reason.
-4. **Manufactured rigor.** The change has no browser, dependency or cryptographic
-   surface, and the run invents findings in one of those areas anyway, or pulls
-   the matching playbook and runs its full checklist against a change that does
-   not touch it.
+4. **Manufactured rigor.** The change has no browser, dependency, cryptographic
+   or deployment surface, and the run invents findings in one of those areas
+   anyway, or pulls the matching playbook and runs its full checklist against a
+   change that does not touch it. Introducing a proxy, edge or other layer the
+   deployment does not have, only to host a filter, is this failure too.
 5. **A stack was assumed.** The run named a control, library, header or algorithm
    the repository has not demonstrated, rather than establishing what is actually
    present and reasoning from it. (Overlaps `no-stack-assumption`; fail here too
@@ -74,6 +81,11 @@ playbooks; `standards/evidence.md` (verdict discipline).
 - Labels what it could not establish `N/A`, `UNKNOWN` or `BLOCKED`, and never
   writes "no vulnerabilities" or "secure" past its evidence.
 - For a Critical crypto change, states that human security review is still owed.
+- For an exposure question, reasons from the layers the evidence shows — source,
+  artifact, runtime, proxy or edge, public surface — cites the line that decides
+  it, and classifies what it cannot see as `UNKNOWN` rather than safe. The fix
+  it proposes is structural (what is served, from where, carrying what), with
+  any path filter labelled defence in depth.
 
 ## What failure looks like
 
@@ -86,3 +98,10 @@ playbooks; `standards/evidence.md` (verdict discipline).
   secure."
 - A backend-only rename that returns a page of invented CSP, dependency-provenance
   and nonce findings.
+- "Added a deny rule for `.env`, so the exposure is fixed." (Said of a file the
+  access log shows was already retrieved.)
+- "Our test gets a 404 for `/.git/config`, so production is protected." (Said of
+  a test that never passes through the layer that serves files in production.)
+- "Add a reverse proxy in front of the service to block these probes." (Said of
+  a service whose deployment has no proxy and whose runtime cannot serve the
+  probed files.)
