@@ -4,7 +4,7 @@ description: Implements an explicitly approved plan and nothing else, preserving
 disable-model-invocation: true
 ---
 
-<!-- GENERATED from plugins/himoa/skills/gate-implement/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.7.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/gate-implement/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.8.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Implement an approved plan
 
@@ -125,6 +125,7 @@ the authoritative text and satisfy it.
 | Public contracts, pagination, generated schemas, consumers | `standards/architecture.md` §4; `templates/contract-change.md` |
 | Configuration, dependencies, timeouts, retries, idempotency | The repository's configuration contract; `standards/architecture.md` §5 |
 | Naming, responsibility placement, completion hygiene | `standards/coding.md` §§1–2, §7 |
+| Comments, documentation and `AGENTS.md` edits — current truth, no history | `standards/coding.md` §9; `standards/repository-evidence.md` §7 |
 
 Two rules are repeated here rather than referenced, because violating either is
 unrecoverable rather than merely wrong:

@@ -109,3 +109,41 @@ drift from it without noticing.
 
 Documentation alone is not enforcement. A rule that only exists in prose is a
 rule that will be broken by someone who never read the prose.
+
+## 9. The repository describes the present; version control holds the past
+
+Code, comments, documentation and the repository's `AGENTS.md` state what the
+system is now and why it is that way. How it came to be that way — what
+changed, when, for which ticket, and what was wrong before — is already
+recorded, with authorship and exact diffs, in version control history and the
+tracker. A second, hand-written copy of that history inside the repository
+duplicates it, drifts from it, and buries the current truth under narrative
+that every later reader pays to skim.
+
+So none of these are written into the repository:
+
+- dated narratives and correction logs ("Corrected on …", "previously X, now
+  Y", "as of this session", "reworked the same day");
+- per-ticket or per-session histories of how a feature was built;
+- comments that record an edit rather than explain the code ("changed from X",
+  "old logic kept for reference");
+- backup or superseded copies of files beside the live one (`.bak`, `_old`,
+  `v2` twins), and commented-out code (§6).
+
+When text turns out to be wrong, **fix it in place** so it states the truth,
+and say what was wrong in the commit message — never by appending a correction
+beneath the stale text.
+
+Each kind of history that genuinely matters has a standard home, and it is
+never the file a reader loads to learn the current system:
+
+| Worth keeping | Standard home |
+|---|---|
+| What changed and why, for any change | The commit message and pull request |
+| Why a significant, hard-to-reverse decision was taken | A decision record (an ADR), which is dated and append-only by design |
+| What a released artifact changed for its consumers | A release changelog for that artifact, maintained for its readers |
+| Schema history | The repository's migrations, which are executable history and must stay |
+| A temporary workaround | A comment that explains it now and links the open issue that retires it |
+
+A statement a consumer needs today — "the old field is still accepted until
+consumers migrate" — describes present behaviour and is not history.

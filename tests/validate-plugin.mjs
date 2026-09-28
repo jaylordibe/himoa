@@ -1206,6 +1206,27 @@ const NORMATIVE_ANCHORS = [
     guarantee: 'the five evidence labels',
     patterns: [/\bFACT\b/, /\bINFERENCE\b/, /\bASSUMPTION\b/, /\bABSENT\b/, /\bUNKNOWN\b/],
   },
+  // The repository describes the present. Pinned in three places because it
+  // fails in three: without coding.md §9 an agent writes correction logs into
+  // comments and docs; without repository-evidence.md §7 it treats AGENTS.md —
+  // loaded on every request — as the place to record each feature; and without
+  // the template paragraph a consuming repository carries no reminder at all,
+  // since the template's instruction comments are deleted on first fill-in.
+  {
+    file: 'standards/coding.md',
+    guarantee: 'the repository describes the present and version control holds the past: no dated narratives or correction logs, wrong text is fixed in place, and each kind of history has a named home',
+    patterns: [/describes the present; version control holds the past/i, /fix it in place/i, /decision record/i, /release changelog/i, /migrations/i],
+  },
+  {
+    file: 'standards/repository-evidence.md',
+    guarantee: 'AGENTS.md admits only rules most changes need, by a stated test, and shipping a feature does not update it',
+    patterns: [/What belongs in `AGENTS\.md`/, /admission test/i, /unrelated change/i, /Shipping a feature does not update `AGENTS\.md`/],
+  },
+  {
+    file: 'reference/AGENTS.md.template',
+    guarantee: 'the template carries a visible rules-not-history paragraph that survives deletion of its instruction comments',
+    patterns: [/\*\*This file holds rules, not history\.\*\*/, /commit history/i],
+  },
   {
     file: 'standards/repository-evidence.md',
     guarantee: 'source precedence, with prior expectations ranked last',

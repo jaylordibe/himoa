@@ -16,6 +16,13 @@
   is, what it is built from, how to verify it, its non-obvious invariants, and
   who breaks when its contracts change.
 
+  Only what an agent needs on MOST changes belongs here; this file is loaded on
+  every request. Feature detail goes to the code, its tests and linked docs;
+  change history stays in version control. The admission test and where
+  everything else goes: the framework's standards/repository-evidence.md §7
+  and standards/coding.md §9. Keep the "rules, not history" paragraph under
+  the title when these comments are deleted: it is what later edits read.
+
   Delete every instruction comment and every unfilled placeholder before
   committing. An unfilled section reads to a later agent exactly like a
   completed one, which is worse than an absent one.
@@ -28,6 +35,10 @@ human-owned operations — comes from Himoa (the `himoa:bootstrap` block above)
 and is not restated here. **Where a generic framework standard conflicts with a
 rule in this file, this file wins**: the framework describes how to work, this
 file describes what is true.
+
+**This file holds rules, not history.** Add a rule only when a change alters
+something most changes need; feature detail belongs in the code, its tests and
+`docs/`, and what changed and when belongs in the commit history.
 
 ## Project
 

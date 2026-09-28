@@ -63,6 +63,13 @@ Check specifically for text copied in from another repository or another
 project's framework: a convention citing a symbol, path, decorator or command
 that does not exist here.
 
+Then check that `AGENTS.md` holds what belongs there. The script flags only the
+measurable signs — dated or correction lines, very long prose lines. Judge the
+rest by the admission test in
+`${CLAUDE_PLUGIN_ROOT}/standards/repository-evidence.md` §7: name each section
+that records one feature's mechanics or the history of a change, and where it
+belongs instead. Recommend the move; do not make it.
+
 ## 3. Check the canonical commands actually work
 
 For each command the repository declares in its `AGENTS.md` canonical-commands

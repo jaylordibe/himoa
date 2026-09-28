@@ -12,6 +12,44 @@ act, and MINOR and PATCH never do. Entries below `1.0.0` were released under the
 
 ---
 
+## 3.8.0 — 2026-09-28
+
+**The repository describes the present, and `AGENTS.md` holds only rules —
+improved guidance and a new doctor warning, no consumer action (MINOR).**
+Nothing said what belongs in `AGENTS.md`, and §6 of the evidence standard told
+agents to fix it when stale. So an agent that had just learnt something treated
+the one file loaded on every request as the place to record it: consuming
+repositories accumulated dated correction logs and per-ticket accounts of
+features, hundreds of lines long, that contradicted the code and each other.
+
+### Added
+- **`standards/coding.md` §9 — the repository describes the present; version
+  control holds the past.** No dated narratives, correction logs, per-ticket
+  histories or edit-recording comments; wrong text is fixed in place and the
+  commit message says what was wrong. Names the standard home for each kind of
+  history that does matter: commit and pull request, decision record, release
+  changelog, migrations, and a comment linking the issue for a temporary
+  workaround.
+- **`standards/repository-evidence.md` §7 — what belongs in `AGENTS.md`.** An
+  admission test (would an agent making an unrelated change next month need
+  this?), what passes it, and where everything else goes. Shipping a feature
+  does not update `AGENTS.md`.
+- **`himoa-doctor` warns when the truth file reads like a change log**: dated or
+  correction lines outside code fences, and prose lines over 400 characters
+  outside tables. Warnings only — but a repository that runs
+  `himoa-doctor --strict` will now fail on them.
+
+### Changed
+- **The `AGENTS.md` template** carries a visible "rules, not history" paragraph
+  under the title, so the reminder survives when its instruction comments are
+  deleted. Existing repositories can copy the paragraph in; nothing requires it.
+- **`gate-implement`** routes comment, documentation and `AGENTS.md` edits to the
+  two new sections; **the reviewer lens** flags history written into the
+  repository; **`framework-doctor`** judges `AGENTS.md` sections against the
+  admission test and recommends where each misplaced one belongs.
+
+---
+
 ## 3.7.0 — 2026-09-24
 
 **The tracker stage hands a changed contract to the people who consume it —

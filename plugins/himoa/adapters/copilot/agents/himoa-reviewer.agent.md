@@ -3,7 +3,7 @@ name: himoa-reviewer
 description: Read-only staff engineer reviewing a diff for correctness, state-transition and concurrency defects, error handling, naming, responsibility placement, dead or duplicated code, completeness of an in-scope migration, and conformance to the conventions this repository actually declares. The default review lens for any change.
 ---
 
-<!-- GENERATED from plugins/himoa/agents/reviewer.md by tests/validate-adapter-projection.mjs (himoa 3.7.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/agents/reviewer.md by tests/validate-adapter-projection.mjs (himoa 3.8.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Mission
 
@@ -192,6 +192,11 @@ than inventing one.
   reason comment.
 - No unrelated formatting, lockfile or generated-output churn mixed into a
   behavioural diff.
+- No change history written into the repository — dated narratives,
+  correction logs or ticket histories in comments, documentation or
+  `AGENTS.md` — and no `AGENTS.md` addition that fails its admission test
+  (`@HIMOA_HOME@/standards/coding.md` §9,
+  `@HIMOA_HOME@/standards/repository-evidence.md` §7).
 
 Do not report taste-only style preferences. If a linter would catch it, it is
 the linter's finding, not yours.

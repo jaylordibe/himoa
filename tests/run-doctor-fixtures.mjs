@@ -239,6 +239,37 @@ const CASES = [
     exit: 0,
     mustReport: ['WARN  .claude/agents/ still exists alongside the plugin.'],
   },
+  // The change-log heuristic, pinned in both directions: it must fire on the
+  // narrative it exists for, and stay quiet on the shapes that legitimately
+  // carry a date or a long line — a date inside a code fence, a long table
+  // row — because a warning that fires on healthy files teaches people to
+  // ignore the doctor.
+  {
+    name: 'a dated correction log in the truth file is warned about',
+    build: {
+      'AGENTS.md': `${HEALTHY_CLAUDE_MD}\n**Correction, 2026-09-22:** the endpoint above was wrong; it is now fixed.\n`,
+    },
+    exit: 0,
+    mustReport: ['WARN  AGENTS.md reads like a change log: 1 dated or correction line(s).', 'coding.md §9'],
+    mustNotReport: ['FAIL', 'holds rules, not history'],
+  },
+  {
+    name: 'a feature narrative on one very long prose line is warned about',
+    build: {
+      'AGENTS.md': `${HEALTHY_CLAUDE_MD}\n${'The edit screen was reworked to load the booking, then '.repeat(9)}\n`,
+    },
+    exit: 0,
+    mustReport: ['WARN  AGENTS.md has 1 prose line(s) over 400 characters.', 'repository-evidence.md §7'],
+  },
+  {
+    name: 'a date in a code fence and a long table row are not narrative',
+    build: {
+      'AGENTS.md': `${HEALTHY_CLAUDE_MD}\n\`\`\`text\nmigrations/2026-09-22_add_index.sql\n\`\`\`\n\n| Path | Why |\n|---|---|\n| \`src/a\` | ${'x'.repeat(450)} |\n`,
+    },
+    exit: 0,
+    mustReport: ['PASS  AGENTS.md holds rules, not history.'],
+    mustNotReport: ['change log', 'over 400 characters'],
+  },
   {
     name: 'a healthy repository reports no failures at all',
     build: {

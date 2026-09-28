@@ -160,6 +160,50 @@ else
       note "  $placeholder_line"
     done
   fi
+
+  # The truth file is loaded on every request, so history written into it is
+  # paid for by every task. Two signals are measurable without judging prose:
+  # a dated or "Correction" line, and a prose line long enough to be an account
+  # of a feature rather than a rule. Code fences are skipped (a date in an
+  # example is not narrative) and tables are exempt from the length signal only.
+  # Warnings, not failures: a heuristic that could block would be a wall built
+  # on a guess. The rule itself is standards/coding.md §9 and
+  # standards/repository-evidence.md §7.
+  narrative_scan=$(awk '
+    /^[[:space:]]*```/ { in_fence = !in_fence; next }
+    in_fence { next }
+    /20[0-9][0-9]-[01][0-9]-[0-3][0-9]/ || /(^|[^[:alpha:]])(Correction|Corrected)[[:space:],:]/ {
+      dated_count++
+      if (dated_count <= 3) dated_lines = dated_lines (dated_lines == "" ? "" : ", ") NR
+    }
+    !/^[[:space:]]*\|/ && length($0) > 400 {
+      long_count++
+      if (long_count <= 3) long_lines = long_lines (long_lines == "" ? "" : ", ") NR
+    }
+    END { printf "%d|%s|%d|%s\n", dated_count, dated_lines, long_count, long_lines }
+  ' "$truth_file")
+  dated_count=${narrative_scan%%|*}
+  narrative_rest=${narrative_scan#*|}
+  dated_lines=${narrative_rest%%|*}
+  narrative_rest=${narrative_rest#*|}
+  long_count=${narrative_rest%%|*}
+  long_lines=${narrative_rest#*|}
+
+  if [ "$dated_count" -gt 0 ]; then
+    warn "$truth_name reads like a change log: $dated_count dated or correction line(s)."
+    note "First at line(s) $dated_lines. This file should state current rules;"
+    note 'what changed and when belongs in version control, and wrong text is'
+    note 'fixed in place. See standards/coding.md §9.'
+  fi
+  if [ "$long_count" -gt 0 ]; then
+    warn "$truth_name has $long_count prose line(s) over 400 characters."
+    note "First at line(s) $long_lines. A paragraph that long is usually an"
+    note 'account of a feature, not a rule: state the rule in a line or two and'
+    note 'move lasting detail to a linked doc. See standards/repository-evidence.md §7.'
+  fi
+  if [ "$dated_count" -eq 0 ] && [ "$long_count" -eq 0 ]; then
+    pass "$truth_name holds rules, not history."
+  fi
 fi
 
 # ---------------------------------------------------------------------------

@@ -195,6 +195,11 @@ than inventing one.
   reason comment.
 - No unrelated formatting, lockfile or generated-output churn mixed into a
   behavioural diff.
+- No change history written into the repository — dated narratives,
+  correction logs or ticket histories in comments, documentation or
+  `AGENTS.md` — and no `AGENTS.md` addition that fails its admission test
+  (`${CLAUDE_PLUGIN_ROOT}/standards/coding.md` §9,
+  `${CLAUDE_PLUGIN_ROOT}/standards/repository-evidence.md` §7).
 
 Do not report taste-only style preferences. If a linter would catch it, it is
 the linter's finding, not yours.

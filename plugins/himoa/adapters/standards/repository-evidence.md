@@ -1,4 +1,4 @@
-<!-- GENERATED from plugins/himoa/standards/repository-evidence.md by tests/validate-adapter-projection.mjs (himoa 3.7.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/standards/repository-evidence.md by tests/validate-adapter-projection.mjs (himoa 3.8.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Repository evidence standard
 
@@ -294,3 +294,37 @@ Repository documentation outranks a ticket but is outranked by code. When
 
 Do not quietly follow the stale document, and do not quietly ignore it. Both
 leave the next reader with the same trap.
+
+The fix is an edit in place that makes the document true, not a correction
+appended beneath it — `@HIMOA_HOME@/standards/coding.md` §9.
+
+## 7. What belongs in `AGENTS.md`
+
+`AGENTS.md` is loaded into every agent's context on every request, so every
+line in it is paid for by every task, whether that task needs it or not. It
+holds the rules that apply to most changes, and nothing else.
+
+**The admission test: would an agent making an unrelated change next month need
+this?** If not, it does not belong here. What passes:
+
+- a canonical command, or a change to one;
+- a convention that applies across the codebase;
+- a high-risk path;
+- an architecture boundary or entry point;
+- a non-obvious invariant that applies across the codebase;
+- a consumer, and the contract rule that goes with it.
+
+What fails, and where it goes instead:
+
+| Knowledge | Home |
+|---|---|
+| How one feature works, its edge cases, its payloads | The code, doc comments at the call site, and the feature's tests |
+| A feature area's longer mechanics or rationale | A README beside the module, or the repository's `docs/`, linked from `AGENTS.md` |
+| An unconfirmed assumption about another system | A comment at the call site that makes it, marked as an assumption |
+| What changed, when and why | Version control history, the tracker, or a decision record — `@HIMOA_HOME@/standards/coding.md` §9 |
+
+**Shipping a feature does not update `AGENTS.md`.** It is updated when the
+change alters something that passes the admission test — and then in the same
+change, as a short rule rather than an account of the work. Each rule is one or
+two short lines; reasoning that is still true moves to the linked document
+rather than growing the line.
