@@ -110,9 +110,10 @@ $ /himoa:work-item "Add rate limiting to the password-reset endpoint"
 </details>
 
 **Need the ticket first?** `write-ticket` drafts one the way a business analyst
-would — a story, current behaviour cited from your code, observable acceptance
-criteria, non-goals and open questions. It contains **no design**; the workflow
-derives that from evidence, with your approval.
+would — the process flow first when the order of steps is part of the outcome, a
+story, current behaviour cited from your code, observable acceptance criteria,
+non-goals and open questions. It contains **no design**; the workflow derives
+that from evidence, with your approval.
 
 <details>
 <summary>Drive the stages yourself, or pick up ad-hoc work</summary>

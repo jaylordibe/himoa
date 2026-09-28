@@ -1,6 +1,6 @@
 ---
 name: write-ticket
-description: Writes a work ticket the way a business analyst or product owner would — a goal in user-story form, current behaviour cited from the repository, observable acceptance criteria, explicit non-goals, a suggested risk tier and the questions still open. Iterates with the human across turns, re-emitting the full substantive draft each time, and never writes a design, a file, or an issue into any system on its own.
+description: Writes a work ticket the way a business analyst or product owner would — the outcome's process flow first when its order is part of the outcome, a goal in user-story form, current behaviour cited from the repository, observable acceptance criteria, explicit non-goals, a suggested risk tier and the questions still open. Iterates with the human across turns, re-emitting the full substantive draft each time, and never writes a design, a file, or an issue into any system on its own.
 argument-hint: "<one-line goal | rough notes | issue key | issue URL | nothing yet>"
 disable-model-invocation: true
 disallowed-tools: Edit, Write, NotebookEdit
@@ -51,11 +51,14 @@ outcomes that would prove it, and stops there on purpose.
 
 ## Non-negotiable boundaries
 
-- **Never write a design.** No implementation steps, no file list, no schema,
-  no chosen mechanism. A mechanism the human names is kept, labelled
-  non-binding, under **Ideas from discussion** (§9 of the ticket) — and it
-  stays there unless the human states that the mechanism itself is a
-  contractual requirement, in which case the ticket records who said so.
+- **Never write a design.** No implementation steps, no ordered list of edits,
+  no file list, no schema, no chosen mechanism. A mechanism the human names is
+  kept, labelled non-binding, under **Ideas from discussion** (§9 of the
+  ticket) — and it stays there unless the human states that the mechanism
+  itself is a contractual requirement, in which case the ticket records who
+  said so. The **process flow** (§4e) is not a design and is not exempted from
+  this rule: every step in it is an event someone outside the system can
+  observe, which is what makes it the goal rather than a plan for it.
 - **Never write anything into the repository.** The ticket lives in the
   message. `disallowed-tools` enforces this for the turn that invokes the
   skill; the rule holds for every turn after it.
@@ -101,7 +104,11 @@ else.
 than a questionnaire they must complete, and a draft with `UNKNOWN` written in
 it is a more precise question than any list. The first turn produces a full
 ticket in the shape of `${CLAUDE_PLUGIN_ROOT}/templates/ticket.md`, with every
-gap labelled.
+gap labelled — and, when the flow's presence condition holds (§4e), it opens
+with the **process flow**. The
+flow is written first because it is the goal told in order: the story, the
+criteria and the edge cases are then written against its steps rather than
+assembled beside them.
 
 Before drafting, read the repository for the area the goal names. This is a
 **bounded, targeted read** in the sense of
@@ -116,6 +123,7 @@ is for:
 |---|---|
 | Where the behaviour lives and what it does today | A **Current behaviour** section stated as `FACT` with `path:line`, so the implementer starts from the truth and not from the reporter's memory of it |
 | Who the actors are — roles, callers, systems | A story whose "As a" names someone the repository actually distinguishes, or someone the human has explicitly introduced — §4d |
+| Who acts, who answers and what settles later — another actor, an external provider, a callback, a state that is not final when the first response returns | The **process flow** (§4e), with each order grounded as §4e says — never guessed |
 | Entry points a consumer can observe — endpoints, events, exports, files | Whether the change touches a public contract, which raises the suggested tier |
 | Tests that pin the current behaviour | Which acceptance criteria are already asserted and which are new |
 | The repository's `AGENTS.md` high-risk paths and canonical commands | The suggested risk tier, and whether the ticket touches something the repository has declared sensitive |
@@ -248,6 +256,14 @@ Outcome: "A caller can tell whether an account belongs to a business."
 Idea:    "is_business column on users" → §9 of the ticket, non-binding.
 ```
 
+The same move, applied to a step of the process flow:
+
+```text
+Given:   "The order service calls the card provider, then saves the result on the order."
+Step:    "The customer learns whether the card was accepted, and the order shows the result."
+Idea:    "order service calls the provider; result saved on the order" → §9, non-binding.
+```
+
 The human will keep saying HOW. That is normal and it is not argued with. The
 outcome goes into the acceptance criteria, the mechanism goes into **Ideas from
 discussion**, and the draft says in one line that it did so. The idea is
@@ -278,6 +294,7 @@ fit the pipeline it will be fed into:
 | Section | Must satisfy | Becomes, in `work-item` |
 |---|---|---|
 | **Title** | Names the outcome, not the mechanism. A verb and an actor. Fits in one line of a board | The item's name |
+| **Process flow** | §4e. First in the ticket; numbered observable steps with their branches; present when its condition in the template's §0 holds | The outline of the requirement gate-design §1 establishes, the steps the test plan and the validation coverage are traced against, and what the developer steers the run by |
 | **Story** | `As a <actor>, I want <capability>, so that <benefit>`. The actor is grounded the way §4d requires; the benefit is real and stated, or the ticket has no goal | The requirement gate-design §1 establishes |
 | **Current behaviour** | What happens today, `FACT` with `path:line`, or `ABSENT` | Half of the reconciliation table — the half the mapper will re-verify |
 | **Problem** | Why the current behaviour is not enough, from the actor's side. No solution words | The WHAT, kept apart from any HOW |
@@ -368,6 +385,57 @@ able to do this. The rule is the same for a product story and for the
 operator, maintainer or on-call engineer of §4c: named by the repository, or
 named by the human, or `UNKNOWN`.
 
+### 4e. The process flow
+
+A ticket is read twice over: by the agent that will implement it and by the
+developer who will steer that agent until the work is done. Both need the
+outcome told **in order** before they need anything else, because the order is
+where an integration silently goes wrong — the call made before the answer it
+depends on, the first response taken as final, the step nobody built because
+every criterion described a different one. The flow is that order, stated
+once, at the top of the ticket.
+
+Write it when the presence condition in `${CLAUDE_PLUGIN_ROOT}/templates/ticket.md`
+§0 holds — that sentence is the one statement of it — and leave it out
+otherwise, the same economy that omits an empty section.
+
+Each step:
+
+- names an actor or an external system, what it does, and what can then be
+  observed — including what is **not yet** true: pending, hidden from someone,
+  not final;
+- is grounded the way every other line is — an order the repository imposes
+  is `FACT` with `path:line`; an order an external provider imposes is
+  established per `${CLAUDE_PLUGIN_ROOT}/standards/repository-evidence.md`
+  §2b or recorded as an `ASSUMPTION`, never a `FACT` without a repository
+  line that shows it; an order the human asked for is theirs; an order none of
+  these establishes is `UNKNOWN` or an open question, never the plausible
+  sequence;
+- names no mechanism, per `${CLAUDE_PLUGIN_ROOT}/standards/repository-evidence.md`
+  §5: an ordered list of edits is a design, an ordered list of observable
+  events is a requirement;
+- leaves screen placement out — whether a step is an inline section, a modal
+  or a separate page is the consumer's design.
+
+Branches — a refusal, a failure, an abandonment, a timeout — are written where
+they leave the main line and are settled by a criterion or an edge-case row.
+Steps are numbered so the rest of the ticket can point at them: each criterion
+and edge case names the step it proves, and a step nothing proves is a gap the
+readiness check reports.
+
+When the ticket is for a **consumer** of a contract that already exists — a
+client building against an API someone else changed — the flow is **derived**
+from that contract's interaction sequence, as the provider's handoff states it
+(`${CLAUDE_PLUGIN_ROOT}/templates/contract-change.md` §1b), not re-imagined.
+That sequence is written for the consumer's developer and names calls, fields
+and delivery mechanisms, so it goes through the same split: each row's
+observable result becomes a step, and the call, field and delivery mechanism
+go to §9, or to §7 stated as an outcome. The consumer's ticket adds only what
+the consumer's own actor sees at each step.
+
+For a **defect**, the flow is the intended one, and the step where the observed
+behaviour departs from it is marked — an observation, never a cause (§4b).
+
 ## 5. Every turn after the first
 
 Each turn in the mode does all of the following, in this order.
@@ -382,7 +450,8 @@ Each turn in the mode does all of the following, in this order.
    criteria section". Every turn carries the full current state — the story,
    the current behaviour where evidence exists, the problem, the scope with
    its exclusions, every acceptance criterion, and every open question still
-   unresolved — so the last message stands alone and survives compaction. A
+   unresolved, with the process flow first when the ticket has one — so the
+   last message stands alone and survives compaction. A
    criterion or an exclusion established in an earlier turn is in this turn's
    draft unless the human removed it, and an answer the human gave is in the
    draft as the content it became. What is **not** re-emitted is a section
@@ -451,6 +520,8 @@ the first one it does not:
 | **Beneficiary named** | The "so that" is missing, circular, or a mechanism |
 | **No mechanism in the story or criteria** | Any criterion names a table, column, flag, class, module, file or library, other than one the human made contractual in so many words |
 | **Every criterion observable** | A criterion cannot be checked from outside the system |
+| **Flow present and observable** | The template's §0 presence condition holds and the ticket has no process flow; or a step names a mechanism, a screen layout, or an order nothing grounds — §4e |
+| **Every step proved** | A step or branch of the flow is named by no criterion and no edge-case row |
 | **Boundaries have negatives** | A boundary the request or the repository makes real — a wrong caller, an unsupported input, an invalid state, a repeat, an excluded scope — has no criterion and no open question for it |
 | **Non-goals written** | Out of scope is empty, or says only "everything else" |
 | **No `UNKNOWN` in story or criteria** | A gap the ticket depends on has not been answered or explicitly deferred |
@@ -496,9 +567,17 @@ When the human says the ticket is final:
 
 Each of these has been observed in a real transcript, and each is a defect.
 
-- **The specification wearing a ticket's clothes.** Steps, files, a schema, an
-  ordered list of edits. Everything in it is an unapproved design, and it goes
-  stale the day the code moves.
+- **The specification wearing a ticket's clothes.** Implementation steps,
+  files, a schema, an ordered list of edits. Everything in it is an unapproved
+  design, and it goes stale the day the code moves. Numbering it and calling
+  it a process flow changes nothing: "the controller validates, the service
+  writes the row, a job sends the email" is this anti-pattern with arrows,
+  because not one step is something anyone outside the system can see.
+- **The missing flow.** A multi-step outcome delivered as a story and a list
+  of criteria, correct line by line, with the order nowhere. The criteria all
+  pass one at a time and the integration is still wrong — the call made before
+  the answer it needed, the first response shown as the result. The developer
+  steering the implementation has no sequence to hold it to.
 - **The interview before the draft.** Eight questions and no ticket. The human
   came with a goal; give them something to correct.
 - **The interview disguised as clarification.** Three questions a turn, every

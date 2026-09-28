@@ -20,6 +20,13 @@
 The outcome, the approach you judge best, and the primary trade-off accepted by
 choosing it. Lead with what you recommend, not with what was asked.
 
+Where the flow's presence condition (`templates/ticket.md` §0) holds, the
+**process flow the design delivers** comes next: the requirement's flow, or the
+one it implies when the item gave none — inferred steps labelled `INFERENCE` —
+as numbered observable steps with their branches. Mark any step
+the design changes from the requested flow, and why. This is what the approver
+checks the order against, and what the §9 rows are traced to.
+
 ## 2. Instruction versus repository reality
 
 What was requested (**WHAT**) versus any method it prescribed (**HOW**). The
@@ -117,9 +124,13 @@ Use `templates/threat-model.md`.
 
 ## 9. Test plan
 
-| Requirement or risk | Test file / layer | Scenario | Expected evidence |
+| Requirement, flow step or risk | Test file / layer | Scenario | Expected evidence |
 |---|---|---|---|
 | | | | |
+
+Where the requirement has a process flow, every step and branch is a row or is
+named in one ("Step 4", "Branch 3a"). A step with no row is untested behaviour
+the requirement asked for.
 
 Cover the reachable scenarios from `standards/testing.md` §3. A guardrail ships
 with a test proving it catches the omission, not only the happy path.

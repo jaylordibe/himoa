@@ -66,6 +66,22 @@ typed it — not a requirement, and not a contract. Carry its outcome forward;
 weigh its mechanism against the alternatives in §5 below. A design that
 inherited its shape from a checklist has not been designed.
 
+**A process flow is the outline of the requirement.** When the item opens with
+numbered steps (`${CLAUDE_PLUGIN_ROOT}/templates/ticket.md` §0), that sequence
+is the goal told in order, and the developer steering the work will hold it to
+that order. It goes through the same split: observable steps and the order a
+boundary imposes are carried forward, a step naming a mechanism is weighed like
+any other method, and a claim inside a step is graded against the code. A step
+the code contradicts is surfaced as a graded claim, never quietly re-ordered;
+the step's observable result is still the goal. **A step and a criterion that
+disagree** about what is observed, or in what order, are unresolved product
+behaviour: neither section outranks the other, and the disagreement goes to
+the human. When the item has no flow — most items will not — and the flow's
+presence condition in that template's §0 holds, state the flow the requirement
+implies in the plan's §1, each step the item does not itself state marked as
+the design's `INFERENCE`: the approver should see the order the design commits
+to before approving it, and an inferred step is never a new requirement.
+
 Do not silently decide unresolved product behaviour.
 
 ## 2. Map repository reality
@@ -304,7 +320,9 @@ decision, fold the conclusion into the plan, and commit neither.
 
 ## 8. Plan tests and verification
 
-Map each requirement and each identified risk to a specific test. The catalogue
+Map each requirement and each identified risk to a specific test — and, where
+the requirement has a process flow, each step and each branch of it, so a step
+nothing proves is visible before implementation rather than after. The catalogue
 is `${CLAUDE_PLUGIN_ROOT}/standards/testing.md` §3; the design work is deciding
 **which of those this change makes reachable**, and naming the file that will
 cover each.

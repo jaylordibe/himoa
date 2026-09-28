@@ -4,7 +4,7 @@ description: Drives a requirement, ticket or issue end to end in one session —
 disable-model-invocation: true
 ---
 
-<!-- GENERATED from plugins/himoa/skills/work-item/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.9.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/work-item/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.10.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Work-item conductor
 
@@ -229,7 +229,8 @@ set of acceptance criteria as though they were a specification; they are one
 person's account of a goal and one person's guess at a method, and the guess is
 usually the part written most concretely. Take the outcome from it and weigh
 the mechanism — `@HIMOA_HOME@/standards/repository-evidence.md` §5,
-which owns that split.
+which owns that split. A process flow at the top of the item is the outline of
+the requirement, read the way `gate-design` §1 says.
 
 If a key was resolved but no tracker is connected, say so and ask the user to
 paste the item's content. **A key is an identifier, not a requirement.**
@@ -379,7 +380,8 @@ real and none was asked for. `@HIMOA_HOME@/standards/repository-evidence.md`
 out-of-scope remainder as stated non-goals rather than as work.
 
 The understanding must include: the requested WHAT and the prescribed HOW ·
-**what this repository actually is**, established from evidence · the
+the process flow, where the item gives one or its presence condition
+(`@HIMOA_HOME@/templates/ticket.md` §0) holds · **what this repository actually is**, established from evidence · the
 authoritative current behaviour · entry points and execution flow · affected
 files · observable contracts · persisted shapes, lifecycle and migration impact
 · authentication, permission, record-level access and tenancy · audit,
@@ -696,7 +698,10 @@ non-technical note tells them something moved; it does not tell them what to
 call. It carries the consumer-facing rows of
 `@HIMOA_HOME@/templates/contract-change.md` §§1–7 that this change
 touched, and the obligations of `standards/architecture.md` §4, both as those
-files state them and this section does not restate.
+files state them and this section does not restate. **Where the change has an
+interaction sequence (§1b of that worksheet), the comment opens with it**: it
+is the part a consumer cannot recover from the field tables, and the part
+their own ticket's process flow is taken from.
 
 **Take every one of those from the implemented code as it stands after Stage 5,
 never from the plan.** The plan is what was intended; the diff is what they

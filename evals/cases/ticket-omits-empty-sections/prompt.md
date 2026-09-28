@@ -22,7 +22,9 @@ has no roles at all) and the human has described rather than named; whether
 that is a human-supplied actor or `UNKNOWN` is a judgement the run should
 make out loud, and asking who reviews orders is a fair first question.
 
-What the draft does **not** earn: **Contract and data touchpoints**, because
+What the draft does **not** earn: a **Process flow**, because typing an amount
+and seeing a shorter list is one observable step by one actor — numbering it
+would only restate the story; **Contract and data touchpoints**, because
 nothing observable changes for any consumer and nothing is persisted;
 **Dependencies and sequencing**, because there are none; **Ideas from
 discussion**, because none was offered. A strong run leaves those sections

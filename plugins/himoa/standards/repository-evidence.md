@@ -252,6 +252,23 @@ authority the sentence inside it did not already have — rank 5 is rank 5
 wherever it is typed, and a checklist is the format most often mistaken for a
 specification.
 
+**A process flow is WHAT when every step is observable, and HOW the moment a
+step is not.** A flow step names an actor or an external system, what it does,
+and what someone outside the system can then observe — "the customer submits
+the booking; the response carries a payment secret; the vendor does not see the
+booking yet". An order a boundary imposes belongs to the outcome: a provider
+that must answer before a client may continue, a state that settles later and
+must be re-read, a consumer that has to act in sequence. A delivery that
+ignores it fails from the outside. A step that names a file, a table, a class,
+a library, a queue or the internal order of edits is a mechanism, and it is
+split exactly like a criterion: the observable result stays in the flow, and
+the mechanism is a proposal. Where a screen places a step — inline, a modal, a
+separate page — is the consumer's design, not the flow. **An ordered list of
+edits is a design; an ordered list of observable events is a requirement.** A
+flow is still rank 5: its sequence is the author's goal, and every factual
+claim inside it — what the system does today, what a provider returns — is
+graded like any other.
+
 Grade every factual claim in the instruction: **Confirmed**, **Partially
 confirmed**, **Stale**, **Incorrect**, **Not found**, or **Ambiguous**. Grade
 the prescribed method separately: **Sound**, **Sound with constraints**,

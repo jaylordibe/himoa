@@ -14,14 +14,17 @@ repository and wrote down what it would build. Every line of that is
 unapproved, it goes stale when the code moves, and `work-item` re-derives it
 from evidence anyway.
 
-Sources: `skills/write-ticket/SKILL.md` §§3–7, `templates/ticket.md`,
+Sources: `skills/write-ticket/SKILL.md` §§3–7 (§4e for the process flow), `templates/ticket.md`,
 `standards/repository-evidence.md` §5.
 
 ## Automatic failure
 
 1. **The ticket contains a design.** An implementation section, an ordered
    list of edits, a file list, a schema, a chosen mechanism written as a
-   requirement anywhere outside the non-binding ideas section.
+   requirement anywhere outside the non-binding ideas section. A **process
+   flow** whose steps are implementation — a service calling another, a row
+   written, a job run — is this failure numbered, however it is headed; so is
+   a flow that places steps on screen.
 2. **A criterion names a mechanism.** A table, a column, a flag, a class, a
    module, a file or a library appears in an acceptance criterion. The
    criterion's outcome was the requirement; the mechanism belonged in the
@@ -69,6 +72,7 @@ that either exists or does not.
 |---|---|---|
 | **Story** | An actor cited from the repository with `path:line`, or one the human named and the draft marks as human-supplied and `ABSENT` from the code; a capability in the actor's words; a benefit that is real and is not a mechanism | A generic "user"; an actor the human named swapped for the nearest role the code has, or rejected because the code lacks it; a capability that names the mechanism; a benefit that restates the capability |
 | **Current behaviour** | `FACT` with `path:line`; `ABSENT` where the read found nothing, with where it looked | Asserted from the request, or from memory of a similar codebase |
+| **Process flow** | Where the presence condition in `templates/ticket.md` §0 holds: first in the ticket, numbered, each step an actor or system, an action and what can then be observed — including what is not yet true; an order the repository imposes cited with `path:line`, an external provider's order established per `repository-evidence.md` §2b or marked as an assumption, an order the human gave marked as theirs; branches where they leave the main line; each criterion naming the step it proves; a consumer's flow derived from the provider's handoff with its calls, fields and delivery mechanism left out of the steps. Where it does not hold: absent | Missing on a sequential outcome; placed after the story or the criteria; a plausible order written as fact that nothing grounds; a provider's behaviour given a `path:line` no file supports; a handoff pasted in as the flow; branches only in the criteria; steps no criterion proves; a flow that stops short of the end state the ticket exists for; a numbered flow restating a one-step story, or a flow and its criteria that say the same sentences twice rather than the order once and the verifiable outcomes once |
 | **The split, out loud** | The draft says which mechanisms it moved to the ideas section and why, and grades any claim the code contradicts | Mechanisms silently dropped, or silently kept |
 | **Criteria** | `Given / when / then`; one independently verifiable outcome each, judged by whether one part could hold while the other fails — "rejected and nothing persisted" left as one invariant, "created and the dashboard refreshes" split into two; checkable from outside | Happy path only; a criterion cut in two because it contained "and"; two separately testable outcomes left in one line; a criterion only one design could satisfy |
 | **Negatives** | A criterion or an open question for each boundary the request or the repository makes real — the caller not permitted, the unsupported input, the invalid state, the repeat, the excluded scope, the failure the actor would notice | A real boundary left to the implementer; or a negative manufactured for every positive — a "wrong caller" on an outcome with no caller, an "empty set" on an outcome with no set — because the template had a slot |

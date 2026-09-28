@@ -1201,6 +1201,49 @@ const NORMATIVE_ANCHORS = [
     guarantee: 'the template is structure and not a form: unearned sections are left out, and the story names how its actor is grounded',
     patterns: [/leave the[\s>]+rest out/i, /human-supplied/i, /independently verifiable outcome/i, /not a quota/i],
   },
+  // The process flow, added 3.10.0. A multi-step outcome written as a story and
+  // a list of criteria can be correct on every line and still deliver the wrong
+  // integration, because the order was nowhere — the call made before the answer
+  // it needed, the first response shown as the result. The developer steering
+  // the implementation also had no sequence to hold it to. The flow fixes that
+  // by leading the ticket, and it fails in the opposite direction just as
+  // easily: numbered steps are the most natural place for a design to come back
+  // in. So both edges are pinned — the one source that says an ordered list of
+  // observable events is a requirement and an ordered list of edits is a design,
+  // the template section with its no-mechanism rule and step-to-criterion
+  // traceability, the skill's grounding rule against a plausible sequence, and
+  // the stages that carry the flow into the plan, the tests and the consumer
+  // handoff.
+  {
+    file: 'standards/repository-evidence.md',
+    guarantee: 'a process flow of observable events is a requirement, an ordered list of edits is a design, and an order a boundary imposes belongs to the outcome',
+    patterns: [/A process flow is WHAT when every step is observable/i, /An ordered list of\s+edits is a design; an ordered list of observable events is a requirement/i, /An order a boundary imposes belongs to the outcome/i, /consumer's design, not the flow/i],
+  },
+  {
+    file: 'templates/ticket.md',
+    guarantee: 'the process flow leads the ticket, its presence condition is stated once, it names no mechanism or screen layout, and every step is proved by a criterion or an edge case',
+    patterns: [/## 0\. Process flow/, /no[\s>]+implementation steps/i, /what\s+can then be observed/i, /a step no\s+criterion or edge case covers is a gap/i, /no screen layout/i, /the one statement of the condition/i, /the order is\s+part of the outcome/i],
+  },
+  {
+    file: 'skills/write-ticket/SKILL.md',
+    guarantee: 'the ticket writer opens a multi-step ticket with a process flow of grounded, observable steps, never a design and never a plausible sequence; an external provider\'s order is established per §2b or an ASSUMPTION, never a FACT; a consumer\'s flow is derived from the handoff by the split, never pasted; and readiness fails on a missing flow or an unproved step',
+    patterns: [/### 4e\. The process flow/, /never the plausible\s+sequence/i, /ordered list of edits is a design, an ordered list of observable\s+events is a requirement/i, /\*\*Flow present and observable\*\*/, /\*\*Every step proved\*\*/, /§2b or recorded as an `ASSUMPTION`/, /so it goes through the same split/i],
+  },
+  {
+    file: 'skills/gate-design/SKILL.md',
+    guarantee: 'a process flow in the item is the outline of the requirement, split like any other sentence, and every step is mapped to a test; a step and a criterion that disagree go to the human, and a flow the design infers for an item without one adds no requirement',
+    patterns: [/A process flow is the outline of the requirement/i, /never quietly re-ordered/i, /each step and each branch of it/i, /neither section outranks the other/i, /an inferred step is never a new requirement/i],
+  },
+  {
+    file: 'templates/contract-change.md',
+    guarantee: 'a multi-call or not-final contract states its interaction sequence, what the consumer must not conclude early, and what happens when it stops part-way; a consumer ticket derives its flow from it by the WHAT/HOW split rather than copying it',
+    patterns: [/## 1b\. Interaction sequence/, /must not conclude early/i, /stops part-way/i, /\*\*derived\*\* from it by the split/],
+  },
+  {
+    file: 'skills/work-item/SKILL.md',
+    guarantee: "the consumer handoff opens with the change's interaction sequence where it has one",
+    patterns: [/the comment opens with it/i, /interaction sequence/i],
+  },
   {
     file: 'standards/repository-evidence.md',
     guarantee: 'the five evidence labels',

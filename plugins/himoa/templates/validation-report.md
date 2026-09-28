@@ -76,6 +76,8 @@ next stage has to be able to act on this row without re-running the command.
 
 ## Coverage
 
+- **Process flow steps covered by evidence:** where the requirement has a flow,
+  each step and branch, and the check that proves it — or that nothing does.
 - **Acceptance criteria covered by evidence:** which, and by which check.
 - **Plan risks with no evidence:** each one, explicitly.
 - **Review fixes covered by a regression test:** which.

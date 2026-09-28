@@ -12,6 +12,77 @@ act, and MINOR and PATCH never do. Entries below `1.0.0` were released under the
 
 ---
 
+## 3.10.0 — 2026-09-28
+
+**A multi-step ticket opens with its process flow, and the pipeline traces
+design, tests and the consumer handoff to it — improved guidance, no consumer
+action (MINOR).** A ticket has two readers: the agent that implements it and
+the developer who steers that agent until the work is done. A multi-step
+outcome written only as a story and a list of criteria could be correct on
+every line and still deliver the wrong integration, because the order was
+nowhere. The call was made before the answer it depended on, or the first
+response was shown as the result. The template also said a ticket contains "no
+steps", which ruled out the one kind of step that is the goal.
+
+### Added
+- **`templates/ticket.md` §0 — Process flow.** It is placed first, and appears
+  only when the order is part of the outcome — a second actor or an external
+  system has to act, a state is pending before it is final, or one step must
+  come before another. A rename, a constant, a filter or a form that saves gets
+  none. Each step is numbered: actor or system → action → what can then be
+  observed, including what is not yet true, and the last step is the end state
+  the ticket exists for. It includes the order a boundary imposes, and branches
+  where they leave the main line. It names no mechanism and no screen layout. Criteria and edge cases name the step they
+  prove. The condition for including it is stated once, in §0, and everything
+  else cites it. The existing section numbers are unchanged.
+- **`standards/repository-evidence.md` §5 — when a process flow is WHAT.** This
+  is the single statement of the line. An ordered list of observable events is a
+  requirement; an ordered list of edits is a design. An order a boundary imposes
+  belongs to the outcome. A step naming a mechanism is split like a criterion.
+- **`write-ticket` §4e — the process flow.** It is written first and grounded
+  like every other line. An order the repository imposes is `FACT` with
+  `path:line`. An external provider's order is established per
+  `repository-evidence.md` §2b, or recorded as an `ASSUMPTION`. An order nothing
+  establishes is `UNKNOWN` or an open question, never the plausible sequence. A
+  consumer ticket's flow is derived from the provider's handoff through the
+  WHAT/HOW split, so its calls, fields and delivery mechanism stay out of the
+  steps. A defect's flow is the intended one, with the departing step marked.
+  Readiness gains **Flow present and observable** and **Every step proved**.
+- **`templates/contract-change.md` §1b — interaction sequence.** It applies when
+  a consumer must make more than one call, or a response is not final. It says
+  what makes the state final, what the consumer must not conclude early, and
+  what happens if it stops part-way. It is written for the consumer's developer,
+  and a consumer ticket derives its flow from it rather than copying it.
+- Two behavioural cases. `ticket-process-flow-leads` fails a sequential outcome
+  with no flow, a flow whose numbered steps are implementation, and a
+  provider's behaviour given a `path:line`. `ticket-consumer-flow-from-handoff`
+  fails a consumer ticket whose flow is the provider's handoff pasted in.
+  `ticket-omits-empty-sections` now also fails a flow written for a one-step
+  outcome. Two design-stage cases: `design-carries-ticket-flow` fails a run that
+  implements a flow step's mechanism the repository contradicts, drops that
+  step's outcome, or silently picks between a step and a criterion that
+  disagree; `design-flowless-ticket-proceeds` fails a run that asks for an
+  ordinary tracker ticket to be rewritten, or turns its inferred steps into
+  requirements.
+
+### Changed
+- **`gate-design` §1** reads a process flow as the outline of the requirement.
+  The flow is split like any other sentence, and a step the code contradicts is
+  surfaced rather than quietly re-ordered, its observable result kept. A step
+  and a criterion that disagree go to the human; neither outranks the other.
+  An item with no flow is designed as before; where the order matters, the plan
+  states the flow it delivers, each step the item did not state marked as an
+  inference. **§8** maps each step and branch to a test.
+- **`templates/plan.md`**: §1 carries the flow the design delivers, and the §9
+  test plan is keyed by flow step. **`templates/validation-report.md`** Coverage
+  says which steps have evidence.
+- **`work-item`**: Stage 1's understanding includes the flow, and the consumer
+  handoff comment opens with the change's interaction sequence.
+- The `ticket-discipline` grader scores the flow, and fails one whose steps are
+  implementation or screen layout. Anchored in `validate-plugin.mjs`.
+
+---
+
 ## 3.9.0 — 2026-09-28
 
 **Security review covers what the deployed system actually exposes to the

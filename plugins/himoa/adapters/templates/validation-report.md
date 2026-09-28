@@ -1,4 +1,4 @@
-<!-- GENERATED from plugins/himoa/templates/validation-report.md by tests/validate-adapter-projection.mjs (himoa 3.9.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/templates/validation-report.md by tests/validate-adapter-projection.mjs (himoa 3.10.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Validation report: [change title]
 
@@ -78,6 +78,8 @@ next stage has to be able to act on this row without re-running the command.
 
 ## Coverage
 
+- **Process flow steps covered by evidence:** where the requirement has a flow,
+  each step and branch, and the check that proves it — or that nothing does.
 - **Acceptance criteria covered by evidence:** which, and by which check.
 - **Plan risks with no evidence:** each one, explicitly.
 - **Review fixes covered by a regression test:** which.

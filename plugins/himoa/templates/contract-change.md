@@ -22,6 +22,32 @@ If this system requires every entry point to declare exactly one access rule,
 say which one this declares. An entry point whose access declaration is
 implicit is a finding, not a detail.
 
+## 1b. Interaction sequence
+
+Only when a consumer must make more than one call to reach the outcome, or a
+response is not the final state. A single call whose response is final needs
+none of this.
+
+| # | Consumer does | System answers | Final? | How the consumer learns what comes next |
+|---|---|---|---|---|
+| 1 | | | yes / no — what is still pending | the response itself · a re-read · a push · an event |
+
+- **What makes a non-final state final** — a later call, a third party's
+  callback, a scheduled job — and roughly how long it takes.
+- **What the consumer must not conclude early.** A success status on step 1 is
+  not the outcome when step 3 decides it; say which step does.
+- **What happens if the consumer stops part-way** — the state left behind,
+  whether it resolves on its own, and whether it can be resumed or must be
+  started again.
+
+This sequence is what a consumer cannot recover from the field tables below:
+each call can be shaped correctly and the integration still wrong. It is the
+opening of the consumer handoff. It is written for the consumer's developer
+and may name calls, fields and delivery mechanisms; a consumer ticket's
+process flow is **derived** from it by the split in
+`standards/repository-evidence.md` §5 — each row's observable result becomes a
+step, and the call, field and delivery mechanism stay out of the flow.
+
 ## 2. Request fields
 
 | Field | Type | Required | Nullable | Default | **Authoritative source** | Validation | Notes |

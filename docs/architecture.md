@@ -409,9 +409,25 @@ what each section becomes downstream, so a ticket written there arrives at
 `work-item` already in the shape Stage 1 extracts. That shape is one input
 among many and is never required: a tracker issue, a pasted paragraph or a
 single sentence is the ordinary case, and the stages downstream were written
-for it. Nothing in them was changed to receive this ticket — the rules they
-already apply to any input, the split, the grades, the refusal to decide a
-product question silently, are what make the shape land.
+for it. The rules they already apply to any input — the split, the grades, the
+refusal to decide a product question silently — are what make the shape land.
+
+One section is the exception, and it is the one the ticket opens with. An
+outcome whose order is part of it gets a **process flow**: numbered steps, each an event
+someone outside the system can observe. It exists because the ticket has two
+readers — the agent that implements it and the developer who steers that
+agent until the work is done — and a multi-step outcome stated only as a story
+and criteria can be correct on every line and still deliver the wrong
+integration, because the order was nowhere. `standards/repository-evidence.md`
+§5 states once why that is a requirement and not a design: an ordered list of
+observable events is the goal; an ordered list of edits is a plan for it.
+Because the order is the requirement, the stages downstream do read it —
+`gate-design` §1 treats it as the outline of the requirement, the plan traces
+its tests to its steps, the validation report says which steps have evidence,
+and the consumer handoff opens with the contract's interaction sequence
+(`templates/contract-change.md` §1b), from which a consumer ticket's flow is
+derived. A flow is never required of the input: when it is absent, the design
+stage states the flow the requirement implies in the plan's §1 and carries on.
 
 The mode is deliberately not a pipeline. There is no ledger and no state file:
 the whole substantive ticket is re-emitted every turn — every criterion, every

@@ -58,11 +58,16 @@ are — a ticket written unasked is a design written unasked — so each case
 opens with the command, and where a case has a follow-up turn it is a plain
 message, which is where the mode's per-turn rules are graded.
 `ticket-proposes-more-than-the-goal-needs` is not one of them: it hands a
-finished ticket to the design stage as a plain request.
+finished ticket to the design stage as a plain request. So do
+`design-carries-ticket-flow`, where the design stage reads a ticket's process
+flow as the outline of the requirement — keeping each step's observable result
+when the repository contradicts its mechanism, and asking when a step and a
+criterion disagree — and `design-flowless-ticket-proceeds`, where an ordinary
+tracker ticket with no flow is designed without being asked to change shape.
 
 ## The ticket cases grade restraint as much as content
 
-Sixteen cases open with `write-ticket`, and most of them exist because a
+Eighteen cases open with `write-ticket`, and most of them exist because a
 particular kind of thoroughness is a defect. `ticket-actor-evidenced`,
 `ticket-actor-human-supplied` and `ticket-actor-not-invented` are one
 instrument: the actor is grounded by the code, or by the human, or it is
@@ -77,7 +82,12 @@ request-splits` fails a run that designs three features in order to say the
 request is too big. `ticket-suggestion-stays-non-binding` and
 `ticket-defect-hypothesis-stays-hypothesis` are the WHAT/HOW line drawn twice:
 a mechanism the human offered stays an idea, and a cause the read found stays
-an inference.
+an inference. `ticket-process-flow-leads` draws it a third time, through the
+process flow: a sequential outcome with no flow fails, and so does a flow whose
+numbered steps are implementation. Score it with `ticket-omits-empty-sections`,
+which fails the opposite habit — a flow written for a one-step outcome — and
+with `ticket-consumer-flow-from-handoff`, which fails a consumer ticket whose
+flow is the provider's handoff pasted in, endpoints and webhook included.
 
 Six of them grade the skill's application of
 `standards/execution-efficiency.md` — a read that starts narrow, widens only
@@ -116,7 +126,7 @@ disabled and compare. It is the only honest way to tell guidance from decoration
 | `design-minimality` | Was the smallest sufficient design built — with the ticket's mechanism graded rather than satisfied, and the lenses read as constraints rather than as scope? |
 | `implementation-minimality` | Was the change the smallest coherent complete one for the scope — the reuse ladder walked, no complexity the evidence did not require — **without** shrinking past correctness or safety? |
 | `diagnosis-discipline` | For a defect, was the cause demonstrated and labelled before the fix was designed — with the proof scaled to the defect's shape, and the fix still reviewed and validated? |
-| `ticket-discipline` | Asked for a ticket, did the run write a goal — a story whose actor the code or the human grounds, cited current behaviour, criteria split by what can be verified apart, negatives where a boundary is real, non-goals, open questions — re-emit its substance every turn without the empty sections, judge readiness on scope rather than effort, and keep every proposed mechanism and every guessed cause as a non-binding idea or a labelled hypothesis rather than a requirement? |
+| `ticket-discipline` | Asked for a ticket, did the run write a goal — a process flow of observable steps first when the order is part of the outcome and none when it is not, a story whose actor the code or the human grounds, cited current behaviour, criteria split by what can be verified apart, negatives where a boundary is real, non-goals, open questions — re-emit its substance every turn without the empty sections, judge readiness on scope rather than effort, and keep every proposed mechanism and every guessed cause as a non-binding idea or a labelled hypothesis rather than a requirement? |
 
 ## The efficiency cases are graded in both directions
 
