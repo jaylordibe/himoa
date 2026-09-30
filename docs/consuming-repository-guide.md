@@ -58,13 +58,33 @@ This guide describes the Claude Code path (the reference implementation). The
 same methodology runs on OpenAI Codex, Cursor, GitHub Copilot and Gemini CLI
 through their native mechanisms — no second copy of Himoa:
 
+Run the installers from a clone:
+`git clone https://github.com/jaylordibe/himoa && himoa/plugins/himoa/bin/himoa-<host>-install`.
+Inside a Claude Code session with the plugin enabled, they are also on that
+session's `PATH` by name, as below. Nothing here writes outside the paths
+shown, and nothing commits on your behalf.
+
 ```bash
 himoa-codex-install          # Codex: once per machine (skills, read-only reviewers, standards)
 himoa-cursor-install         # Cursor: same, sharing the skills/standards install with Codex
-himoa-codex-install --repo   # Codex/Cursor: once per repository, create or extend AGENTS.md
+himoa-codex-install --repo   # Codex/Cursor: once per repository, create or extend AGENTS.md (never destroys it)
 himoa-copilot-install        # Copilot: repo only (AGENTS.md + advisory .github/agents); never $HOME
 himoa-gemini-install         # Gemini: ~/.gemini subagents + /himoa:* commands; --repo wires AGENTS.md
 himoa-codex-doctor           # verify (himoa-{cursor,copilot,gemini}-doctor per host)
+```
+
+`--check` is a dry run; `--uninstall` removes only Himoa-owned files. For
+Gemini, `himoa-gemini-install --repo` also points `.gemini/settings.json` at
+`AGENTS.md`. Invoke the pipeline as Codex `$himoa-work-item`, Cursor
+`/himoa-work-item`, Gemini `/himoa:work-item`.
+
+Copilot is a cloud agent, so its adapter never touches `$HOME`. Commit what it
+writes and let Copilot open a pull request:
+
+```bash
+himoa-copilot-install
+himoa-copilot-doctor
+git add AGENTS.md .github/agents && git commit
 ```
 
 Copilot is **Supported with limitations** — its reviewer lenses are advisory (no
@@ -317,6 +337,26 @@ section points at your own repository playbooks).
 Expect to be stopped for plan approval, and expect the run to end with a diff
 in your working tree and nothing committed. Both are the design.
 
+### Writing the ticket first, or one stage at a time
+
+**`/himoa:write-ticket`** drafts a ticket the way a business analyst would — a
+user story, the process flow when the order of steps is part of the outcome,
+current behaviour cited from your code, observable acceptance criteria,
+non-goals and open questions. It contains no design and leaves the risk tier to
+the design stage. It writes nothing to any system unless you ask it, in that
+turn, to create the issue in a connected tracker.
+
+**One stage at a time:**
+
+```text
+/himoa:gate-design <requirement>  →  /himoa:gate-approve  →  /himoa:gate-implement
+/himoa:gate-review                →  /himoa:gate-validate
+```
+
+Implemented something by hand? Run `gate-review`, then `gate-validate`. Gates
+are human-typed: on Claude Code the model cannot invoke one, and the
+methodology forbids it from simulating one.
+
 ### Following a run
 
 `work-item` prints a **pipeline ledger** — seven stages, exactly one marked in
@@ -404,6 +444,11 @@ sync, and nothing that can go stale. Claude Code owns the installed version, the
 cache and the update lifecycle; on a major bump, the CHANGELOG entry says
 exactly what to do.
 
+**On Codex, Cursor, Gemini CLI or Copilot**, the plugin commands above do not
+apply: re-run `himoa-<host>-install`, and `himoa-<host>-doctor` reports a stale
+machine install. A re-run leaves an existing `AGENTS.md` bootstrap untouched —
+see [platform capabilities](platform-capabilities.md).
+
 ## When to run `framework-doctor`
 
 - after `framework-install`;
@@ -422,3 +467,16 @@ The gates are human-invoked, so a stage you do not want simply is not run.
 If something is blocking a command, it is your own `.claude/settings.json` or
 your permission mode — not this plugin. See **The repository contract** above,
 and the 1.0.0 entry in `CHANGELOG.md`.
+
+## Troubleshooting
+
+| Symptom | Cause and fix |
+|---|---|
+| Skills or commands don't appear | Not installed, or the session predates the install. Re-check [the short version](#the-short-version) or [other agents](#using-this-repository-from-codex-cursor-copilot-or-gemini), then reload or restart. |
+| Works for me, not for a teammate (Claude) | They need the per-machine `/plugin install`, not `framework-install`. The plugin doesn't travel with `git pull`. |
+| `framework-doctor`: repository does not declare Himoa | Run `framework-install` (Claude) or `himoa-<host>-install --repo`, and commit the result. |
+| Everything prompts for permission / a command is blocked | Not Himoa — it ships no permission rules. Check your own settings and permission mode. |
+| An agent describes architecture you don't have | Your `AGENTS.md` is missing or stale. Fill it from evidence, run the doctor, then [open an issue](https://github.com/jaylordibe/himoa/issues) with the transcript. |
+| The agent claims a gate ran that you didn't type (Claude) | It didn't run — gates cannot be model-invoked. The claim is the bug. |
+| A non-Claude host doesn't reflect the methodology | Confirm `himoa-<host>-doctor` is green, and see the [adapter smoke test](adapter-smoke-test.md). |
+| The task panel stays empty | See [Following a run](#following-a-run) — the ledger in the conversation is the record either way. |

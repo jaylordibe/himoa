@@ -6,7 +6,7 @@ A stack-agnostic engineering workflow for Claude Code.
 Understand → Design → Human approval → Implement → Review → Validate → Present
 ```
 
-The plugin supplies the methodology. Your `CLAUDE.md` supplies the facts about
+The plugin supplies the methodology. Your `AGENTS.md` supplies the facts about
 your system. Agents cite your code or say `UNKNOWN` — they never guess your
 stack.
 
@@ -19,7 +19,7 @@ Two independent things must be in place. Confusing them is the usual problem:
 | | Lives in | Arrives via |
 |---|---|---|
 | **The plugin** | `~/.claude/` on your machine | You install it. `git pull` never brings it. |
-| **The repository declaration** (`.claude/settings.json`, `CLAUDE.md`) | The repository | `git pull`. One person ran `framework-install`. |
+| **The repository declaration** (`.claude/settings.json`, `AGENTS.md`, `CLAUDE.md`) | The repository | `git pull`. One person ran `framework-install`. |
 
 **Install the plugin — once per machine:**
 
@@ -28,7 +28,8 @@ Two independent things must be in place. Confusing them is the usual problem:
 /plugin install himoa@jaylordibe
 ```
 
-Restart, then confirm with `claude plugin list`.
+If its commands don't appear, run `/reload-plugins` or restart. Confirm with
+`claude plugin list`.
 
 **Set up a repository — once, by one person.** Skip this if someone already did
 it here; the declaration arrived with your `git pull`.
@@ -41,10 +42,11 @@ It shows every change before writing and never overwrites existing content:
 
 | File | Required? | Purpose |
 |---|---|---|
-| `CLAUDE.md` | **Yes** | Your canonical commands, high-risk paths, architecture, consumers. Without it every agent infers your stack. |
+| `AGENTS.md` | **Yes** | Your canonical commands, high-risk paths, architecture, consumers — read by every agent. Without it every agent infers your stack. |
+| `CLAUDE.md` | **Yes** | A thin `@AGENTS.md` importer, so Claude Code loads the same single source. An existing `CLAUDE.md` with real content is left alone. |
 | `.claude/settings.json` | Recommended | The dependency declaration. Without it, every teammate registers the marketplace by hand. |
 
-Commit both. Verify with `/himoa:framework-doctor`.
+Commit them. Verify with `/himoa:framework-doctor`.
 
 **Teammates still run `/plugin install` themselves.** From Claude Code v2.1.195
 a plugin enabled only by project settings, sourced from a git repository, does
@@ -107,8 +109,8 @@ gates, an installer, a doctor, and seven model-invoked domain playbooks
 `domain-supply-chain`).
 
 **8 read-only agents** — `context-mapper`, `architect`, `reviewer`, `security`,
-`tester`, `contract`, `data`, `performance`. Read-only is enforced by their tool
-pool and asserted in CI.
+`tester`, `contract`, `data`, `performance`. None is given a file-editing tool,
+and CI asserts it.
 
 **Standards and templates** — loaded on demand by the gate that needs them.
 

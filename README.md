@@ -100,30 +100,10 @@ $ /himoa:work-item "Add rate limiting to the password-reset endpoint"
 
 </details>
 
-<details>
-<summary><b>Write the ticket first, drive one stage at a time, or review ad-hoc work</b></summary>
-
-<br>
-
-**`/himoa:write-ticket`** drafts a ticket the way a business analyst would — a
-user story, the process flow when the order of steps is part of the outcome,
-current behaviour cited from your code, observable acceptance criteria,
-non-goals and open questions. It contains no design and leaves the risk tier to
-the design stage. It writes nothing to any system unless you ask it, in that
-turn, to create the issue in a connected tracker.
-
-**One stage at a time:**
-
-```text
-/himoa:gate-design <requirement>  →  /himoa:gate-approve  →  /himoa:gate-implement
-/himoa:gate-review                →  /himoa:gate-validate
-```
-
-Implemented something by hand? Run `gate-review`, then `gate-validate`. Gates
-are human-typed: on Claude Code the model cannot invoke one, and the
-methodology forbids it from simulating one.
-
-</details>
+Beyond `work-item`: [`write-ticket`](docs/consuming-repository-guide.md#writing-the-ticket-first-or-one-stage-at-a-time)
+drafts the requirement first, and the per-stage gates run one stage at a time
+or review work you implemented by hand. The full pipeline contract is in the
+[`work-item` skill](plugins/himoa/skills/work-item/SKILL.md).
 
 ## Where the human stays in control
 
@@ -252,48 +232,10 @@ not run in CI, and their results are never assumed. Detail:
 
 ### Install on other agents
 
-Nothing below writes outside the paths shown, and nothing commits on your
-behalf.
-
-<details>
-<summary><b>Codex, Cursor and Gemini CLI</b> — one installer family</summary>
-
-<br>
-
-Run the installers from a clone:
-`git clone https://github.com/jaylordibe/himoa && himoa/plugins/himoa/bin/himoa-<host>-install`.
-Inside a Claude Code session with the plugin enabled, they are also on that
-session's `PATH` by name, as below.
-
-```bash
-himoa-codex-install          # Codex  — skills + read-only reviewers + standards (machine)
-himoa-cursor-install         # Cursor — shares the skills/standards install with Codex
-himoa-gemini-install         # Gemini — ~/.gemini subagents + /himoa:* commands
-himoa-codex-install --repo   # once per repository: create or extend AGENTS.md (never destroys it)
-himoa-codex-doctor           # verify (himoa-cursor-doctor, himoa-gemini-doctor per host)
-```
-
-`--check` is a dry run; `--uninstall` removes only Himoa-owned files. For
-Gemini, `himoa-gemini-install --repo` also points `.gemini/settings.json` at
-`AGENTS.md`. Invoke the pipeline as Codex `$himoa-work-item`, Cursor
-`/himoa-work-item`, Gemini `/himoa:work-item`.
-
-</details>
-
-<details>
-<summary><b>GitHub Copilot</b> — repository-committed only</summary>
-
-<br>
-
-Copilot is a cloud agent, so its adapter never touches `$HOME`:
-
-```bash
-himoa-copilot-install        # writes ./AGENTS.md + advisory .github/agents/*.agent.md
-himoa-copilot-doctor         # verify
-git add AGENTS.md .github/agents && git commit   # then let Copilot open a PR
-```
-
-</details>
+Codex, Cursor and Gemini CLI install per machine with `himoa-<host>-install`,
+run from a clone; GitHub Copilot installs into the repository only. Commands,
+flags and invocation names:
+[using Himoa from Codex, Cursor, Copilot or Gemini](docs/consuming-repository-guide.md#using-this-repository-from-codex-cursor-copilot-or-gemini).
 
 ## Risk decides the rigor
 
@@ -358,27 +300,14 @@ Critical work, uncertain applicability means launch it — and never to look
 thorough. On High and Critical work, every Critical or High finding must also
 survive an adversarial refutation pass before it stands.
 
-**Security review** threat-models the change and examines authentication
-(enumeration, token and session handling, credential storage); function-level
-and record-level authorization, including another actor's or tenant's record;
-untrusted input reaching sensitive sinks (injection, mass assignment, path
-traversal, request forgery); rate limiting, replay and races; secrets and data
-exposure; and, when the change reaches them, the browser trust boundary
-(cross-site scripting, CSRF, cookies, CORS, headers), dependency and
-build-chain trust, cryptographic primitives, and what the deployment exposes to
-the internet. High-risk work requires negative tests — unauthenticated, wrong
-permission, another tenant, another actor.
+What each lens examines in full is its definition in
+[`agents/`](plugins/himoa/agents/); how lenses are chosen and findings verified
+is in [`gate-review`](plugins/himoa/skills/gate-review/SKILL.md).
 
-**Performance review** looks for work that grows without a bound (unbounded
-reads, a query inside a loop, unbounded fan-out or recursion), access paths no
-index serves and data loaded but never used, remote calls without timeouts or
-with unbounded retries, duplicate and poison handling in async work,
-backpressure and concurrency limits, and cache invalidation.
-
-Seven domain playbooks carry the questions particular kinds of change must
-answer — authentication, authorization, browser security, cryptography,
-supply chain, background work, and debugging a defect to its cause before a fix
-is designed.
+Seven [domain playbooks](plugins/himoa/skills/) carry the questions particular
+kinds of change must answer — authentication, authorization, browser security,
+cryptography, supply chain, background work, and debugging a defect to its
+cause before a fix is designed.
 
 > [!NOTE]
 > This is source-level engineering review. It is **not** a penetration test, a
@@ -466,45 +395,25 @@ Rationale: [architecture](docs/architecture.md) · [SECURITY.md](SECURITY.md).
 
 ### Update
 
-On Claude Code, auto-update is on by default — the new version loads on your
-next launch or after `/reload-plugins`. If you opted out
-(`himoa-install-settings --no-auto-update`): `/plugin marketplace update
-jaylordibe` then `/plugin update himoa@jaylordibe`, and restart. On a **major**
-version bump, read the [CHANGELOG](CHANGELOG.md) first. For other hosts,
-re-run `himoa-<host>-install`; `himoa-<host>-doctor` reports a stale install.
+On Claude Code, updates install automatically by default and load on your next
+launch or after `/reload-plugins`; read the [CHANGELOG](CHANGELOG.md) before a **major**
+version. Opting out, updating by hand and other hosts:
+[updating the framework](docs/consuming-repository-guide.md#updating-the-framework).
 
 ### Troubleshooting
 
-<details>
-<summary>Common symptoms and fixes</summary>
-
-<br>
-
-| Symptom | Cause and fix |
-|---|---|
-| Skills or commands don't appear | Not installed, or the session predates the install. Re-check [Quick start](#quick-start) or [other agents](#install-on-other-agents), then reload or restart. |
-| Works for me, not for a teammate (Claude) | They need the per-machine `/plugin install`, not `framework-install`. The plugin doesn't travel with `git pull`. |
-| `framework-doctor`: repository does not declare Himoa | Run `framework-install` (Claude) or `himoa-<host>-install --repo`, and commit the result. |
-| Everything prompts for permission / a command is blocked | Not Himoa — it ships no permission rules. Check your own settings and permission mode. |
-| An agent describes architecture you don't have | Your `AGENTS.md` is missing or stale. Fill it from evidence, run the doctor, then [open an issue](https://github.com/jaylordibe/himoa/issues) with the transcript. |
-| The agent claims a gate ran that you didn't type (Claude) | It didn't run — gates cannot be model-invoked. The claim is the bug. |
-| A non-Claude host doesn't reflect the methodology | Confirm `himoa-<host>-doctor` is green, and see the [adapter smoke test](docs/adapter-smoke-test.md). |
-
-</details>
+Symptoms and fixes — commands missing, a teammate without the plugin, an agent
+describing architecture you don't have — are in the
+[consuming repository guide](docs/consuming-repository-guide.md#troubleshooting).
 
 ## Documentation
 
-| Document | For |
+| Start here | For |
 |---|---|
-| [Consuming repository guide](docs/consuming-repository-guide.md) | Setting up a repository and filling `AGENTS.md` |
+| [Consuming repository guide](docs/consuming-repository-guide.md) | Setup, `AGENTS.md`, other agents, day-to-day use, updating, troubleshooting |
 | [Platform capabilities](docs/platform-capabilities.md) | What each agent can and cannot enforce |
-| [Cross-agent architecture](docs/cross-agent-architecture.md) | One methodology, native adapters — the core/adapter boundary |
-| [Adapter smoke test](docs/adapter-smoke-test.md) | Producing live end-to-end evidence per host |
 | [Architecture](docs/architecture.md) | Why methodology and repository own different things |
-| [Migration from `.claude`](docs/migration-from-dot-claude.md) | Moving an existing setup onto Himoa |
-| [Versioning](docs/versioning.md) · [Changelog](CHANGELOG.md) | What each release means and asks of you |
-| [Development guide](docs/development-guide.md) · [Constraints](docs/constraints.md) | Changing or releasing Himoa; the host limits that shaped it |
-| [README visual assets](docs/assets/README.md) | How the diagrams above are built and kept legible |
+| [Documentation index](docs/README.md) | Everything else, by question — including the normative standards, skills and agents |
 
 ---
 
