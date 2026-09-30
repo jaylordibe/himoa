@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 360" width="840" height="360" role="img" aria-labelledby="title desc">
+  <title id="title">How a change flows through Himoa</title>
+  <desc id="desc">A requirement is understood from repository evidence and designed into a plan. You approve the plan before any code is written. Himoa then implements only what was approved, reviews it with independent lenses and validates it with the repository's own commands. You ship: commit, merge and deploy stay yours.</desc>
+  <!--
+    The Himoa visual system — docs/assets/README.md owns the rules.
+    One accent colour, and it means one thing: a human decides here.
+    Every label sits on an opaque card, so a viewer whose renderer ignores the
+    dark palette below (Safari, the GitHub mobile apps) still sees legible text.
+    Stage names mirror README.md "How a change flows"; change both together.
+  -->
+  <style>
+    .page  { fill: none; }
+    .card  { fill: #f6f8fa; stroke: #d1d9e0; stroke-width: 1.25; }
+    .input { fill: #ffffff; stroke: #8c959f; stroke-width: 1.25; stroke-dasharray: 5 4; }
+    .human { fill: #fff5e6; stroke: #b35900; stroke-width: 2; }
+    .band  { fill: #b35900; fill-opacity: 0.07; }
+    .rule  { stroke: #b35900; stroke-opacity: 0.45; stroke-width: 1.25; stroke-dasharray: 3 5; }
+    .flow  { fill: none; stroke: #8c959f; stroke-width: 1.75; }
+    .head  { fill: #8c959f; }
+    .t     { font: 600 21px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; fill: #1f2328; }
+    .s     { font: 400 15px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; fill: #59636e; }
+    .th    { fill: #8a4500; }
+    .sh    { fill: #8a4500; }
+    .cap   { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; letter-spacing: 0.12em; fill: #59636e; }
+    .caph  { fill: #8a4500; }
+    .pill  { fill: #ffffff; stroke: #b35900; stroke-width: 1.25; }
+    .pt    { font: 600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; fill: #8a4500; }
+    @media (prefers-color-scheme: dark) {
+      .card  { fill: #151b23; stroke: #3d444d; }
+      .input { fill: #0d1117; stroke: #6e7681; }
+      .human { fill: #2b1d0e; stroke: #f0a04b; }
+      .band  { fill: #f0a04b; fill-opacity: 0.08; }
+      .rule  { stroke: #f0a04b; stroke-opacity: 0.5; }
+      .t     { fill: #f0f6fc; }
+      .s     { fill: #9198a1; }
+      .th, .sh, .caph, .pt { fill: #f5b56b; }
+      .cap   { fill: #9198a1; }
+      .pill  { fill: #0d1117; stroke: #f0a04b; }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="head" d="M0 0 L10 5 L0 10 z"/>
+    </marker>
+  </defs>
+
+  <!-- Human authority column -->
+  <rect class="band" x="632" y="8" width="200" height="344" rx="16"/>
+  <line class="rule" x1="630" y1="14" x2="630" y2="346"/>
+
+  <!-- Column captions -->
+  <text class="cap" x="20" y="30">HIMOA, IN YOUR CODING AGENT</text>
+  <text class="cap caph" x="733.5" y="30" text-anchor="middle">YOU</text>
+
+  <!-- Row 1: before any code -->
+  <rect class="input" x="20" y="48" width="173" height="92" rx="10"/>
+  <text class="t" x="106.5" y="88" text-anchor="middle">Requirement</text>
+  <text class="s" x="106.5" y="112" text-anchor="middle">ticket, key or text</text>
+
+  <rect class="card" x="229" y="48" width="173" height="92" rx="10"/>
+  <text class="t" x="315.5" y="88" text-anchor="middle">Understand</text>
+  <text class="s" x="315.5" y="112" text-anchor="middle">map the repository</text>
+
+  <rect class="card" x="438" y="48" width="173" height="92" rx="10"/>
+  <text class="t" x="524.5" y="88" text-anchor="middle">Design</text>
+  <text class="s" x="524.5" y="112" text-anchor="middle">plan sized to risk</text>
+
+  <rect class="human" x="647" y="48" width="173" height="92" rx="10"/>
+  <text class="t th" x="733.5" y="88" text-anchor="middle">Approve</text>
+  <text class="s sh" x="733.5" y="112" text-anchor="middle">before any code</text>
+
+  <path class="flow" d="M195 94 H225" marker-end="url(#arrow)"/>
+  <path class="flow" d="M404 94 H434" marker-end="url(#arrow)"/>
+  <path class="flow" d="M613 94 H643" marker-end="url(#arrow)"/>
+
+  <!-- The only way from row 1 to row 2 runs through your approval -->
+  <path class="flow" d="M733.5 142 V168 Q733.5 180 721.5 180 H118.5 Q106.5 180 106.5 192 V218" marker-end="url(#arrow)"/>
+  <rect class="pill" x="340" y="167" width="160" height="26" rx="13"/>
+  <text class="pt" x="420" y="185" text-anchor="middle">only after approval</text>
+
+  <!-- Row 2: build, then prove -->
+  <rect class="card" x="20" y="222" width="173" height="92" rx="10"/>
+  <text class="t" x="106.5" y="262" text-anchor="middle">Implement</text>
+  <text class="s" x="106.5" y="286" text-anchor="middle">only what&#8217;s approved</text>
+
+  <rect class="card" x="229" y="222" width="173" height="92" rx="10"/>
+  <text class="t" x="315.5" y="262" text-anchor="middle">Review</text>
+  <text class="s" x="315.5" y="286" text-anchor="middle">independent lenses</text>
+
+  <rect class="card" x="438" y="222" width="173" height="92" rx="10"/>
+  <text class="t" x="524.5" y="262" text-anchor="middle">Validate</text>
+  <text class="s" x="524.5" y="286" text-anchor="middle">your own commands</text>
+
+  <rect class="human" x="647" y="222" width="173" height="92" rx="10"/>
+  <text class="t th" x="733.5" y="262" text-anchor="middle">Ship</text>
+  <text class="s sh" x="733.5" y="286" text-anchor="middle">commit, merge, deploy</text>
+
+  <path class="flow" d="M195 268 H225" marker-end="url(#arrow)"/>
+  <path class="flow" d="M404 268 H434" marker-end="url(#arrow)"/>
+  <path class="flow" d="M613 268 H643" marker-end="url(#arrow)"/>
+
+  <rect class="pill" x="653.5" y="324" width="160" height="26" rx="13"/>
+  <text class="pt" x="733.5" y="342" text-anchor="middle">diff + evidence</text>
+</svg>

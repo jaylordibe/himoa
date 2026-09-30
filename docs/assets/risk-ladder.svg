@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 340" width="840" height="340" role="img" aria-labelledby="title desc">
+  <title id="title">Risk decides the rigor</title>
+  <desc id="desc">Five tiers rise like steps, and each includes everything below it. Below Low: the edit and a one-line note. Low: review and validation, no plan document. Medium adds a written plan, the reviewer lens and the domain lens the change touches. High adds a threat model, negative tests and a multi-lens review. Critical adds the architect lens and a human security review.</desc>
+  <!--
+    The Himoa visual system — docs/assets/README.md owns the rules.
+    Height is rigor. The accent marks the one tier where a human reviewer is
+    required, the same meaning the accent has in workflow.svg.
+    Tier contents mirror README.md "Risk decides the rigor", which cites the
+    gate-design and gate-review tier tables; change them together.
+  -->
+  <style>
+    .card  { fill: #f6f8fa; stroke: #d1d9e0; stroke-width: 1.25; }
+    .input { fill: #ffffff; stroke: #8c959f; stroke-width: 1.25; stroke-dasharray: 5 4; }
+    .human { fill: #fff5e6; stroke: #b35900; stroke-width: 2; }
+    .flow  { fill: none; stroke: #8c959f; stroke-width: 1.75; }
+    .head  { fill: #8c959f; }
+    .t     { font: 600 20px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; fill: #1f2328; }
+    .s     { font: 400 15px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; fill: #59636e; }
+    .th, .sh { fill: #8a4500; }
+    .cap   { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; letter-spacing: 0.12em; fill: #59636e; }
+    .pill  { fill: #ffffff; stroke: #8c959f; stroke-width: 1.25; }
+    .pt    { font: 600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; fill: #59636e; }
+    @media (prefers-color-scheme: dark) {
+      .card  { fill: #151b23; stroke: #3d444d; }
+      .input { fill: #0d1117; stroke: #6e7681; }
+      .human { fill: #2b1d0e; stroke: #f0a04b; }
+      .t     { fill: #f0f6fc; }
+      .s     { fill: #9198a1; }
+      .th, .sh { fill: #f5b56b; }
+      .cap   { fill: #9198a1; }
+      .pill  { fill: #0d1117; stroke: #6e7681; }
+      .pt    { fill: #9198a1; }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path class="head" d="M0 0 L10 5 L0 10 z"/>
+    </marker>
+  </defs>
+
+  <text class="cap" x="20" y="30">EACH TIER INCLUDES EVERYTHING BELOW IT</text>
+
+  <!-- Below Low -->
+  <rect class="input" x="20" y="214" width="152" height="70" rx="10"/>
+  <text class="t" x="36" y="244">Below Low</text>
+  <text class="s" x="36" y="268">the edit, one line</text>
+
+  <!-- Low -->
+  <rect class="card" x="184" y="174" width="152" height="110" rx="10"/>
+  <text class="t" x="200" y="204">Low</text>
+  <text class="s" x="200" y="230">review</text>
+  <text class="s" x="200" y="252">validation</text>
+
+  <!-- Medium -->
+  <rect class="card" x="348" y="130" width="152" height="154" rx="10"/>
+  <text class="t" x="364" y="160">Medium</text>
+  <text class="s" x="364" y="186">+ written plan</text>
+  <text class="s" x="364" y="208">+ reviewer lens</text>
+  <text class="s" x="364" y="230">+ domain lens</text>
+
+  <!-- High -->
+  <rect class="card" x="512" y="86" width="152" height="198" rx="10"/>
+  <text class="t" x="528" y="116">High</text>
+  <text class="s" x="528" y="142">+ threat model</text>
+  <text class="s" x="528" y="164">+ negative tests</text>
+  <text class="s" x="528" y="186">+ multi-lens review</text>
+
+  <!-- Critical: the only tier that requires a human reviewer -->
+  <rect class="human" x="676" y="42" width="152" height="242" rx="10"/>
+  <text class="t th" x="692" y="72">Critical</text>
+  <text class="s sh" x="692" y="98">+ architect lens</text>
+  <text class="s sh" x="692" y="120">+ human security</text>
+  <text class="s sh" x="706" y="140">review</text>
+
+  <!-- Axis -->
+  <path class="flow" d="M20 306 H822" marker-end="url(#arrow)"/>
+  <rect class="pill" x="370" y="293" width="100" height="26" rx="13"/>
+  <text class="pt" x="420" y="311" text-anchor="middle">more rigor</text>
+</svg>
