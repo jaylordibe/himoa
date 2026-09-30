@@ -1,4 +1,4 @@
-<!-- himoa:bootstrap 3.10.0 — GENERATED from plugins/himoa/scripts/session-charter.sh by tests/validate-adapter-projection.mjs. DO NOT EDIT this block; edit the charter and run --write. -->
+<!-- himoa:bootstrap 3.11.0 — GENERATED from plugins/himoa/scripts/session-charter.sh by tests/validate-adapter-projection.mjs. DO NOT EDIT this block; edit the charter and run --write. -->
 
 > **Himoa.** This repository uses the Himoa engineering methodology.
 > Its skills are installed as agent skills — invoke a workflow by name
@@ -15,8 +15,8 @@ When sources disagree the precedence is **source code > tests > CI and build
 configuration > repository documentation > ticket wording > your own prior
 expectations**. Never assume a framework, ORM, database, queue, authentication
 model or architecture the repository has not demonstrated. A ticket states a
-goal, not a design: its wording and acceptance criteria propose a method,
-not a spec — build the smallest thing that fully delivers the goal.
+goal, not a design: its wording and acceptance criteria propose a method, not
+a spec — build the smallest scope that delivers it, in the established shape.
 
 In a map, plan, finding or report — not in ordinary conversation — label every
 claim **FACT** (with `path:line`), **INFERENCE**, **ASSUMPTION**, **ABSENT** or
@@ -88,4 +88,4 @@ change infrastructure or rotate secrets; or accept product, security, privacy
 or operational risk on the human's behalf. Prepare the diff, the tests, the
 evidence and the handoff — the human owns the act of record.
 
-_Himoa 3.10.0 — methodology only. The sections below are authoritative for what this system is._
+_Himoa 3.11.0 — methodology only. The sections below are authoritative for what this system is._

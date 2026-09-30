@@ -173,6 +173,14 @@ conflated · defaults, and where they are actually applied · types wide enough
 for the real value range · the meaning of each new field stated somewhere a
 reader will find it.
 
+**Structured data in an unstructured container.** Structured, per-record,
+queried or constrained data held in a serialized, schemaless or document-typed
+field — where the store's established shape would let it enforce uniqueness,
+references and types, and index the queries — is a finding unless the plan
+names the requirement that justifies the departure
+(`${CLAUDE_PLUGIN_ROOT}/standards/architecture.md` §3.4). "It avoided a table
+or a migration" is not one.
+
 ## Relationships and referential integrity
 
 Cardinality · delete behaviour · whether integrity is enforced by the store or

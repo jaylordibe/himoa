@@ -12,6 +12,91 @@ act, and MINOR and PATCH never do. Entries below `1.0.0` were released under the
 
 ---
 
+## 3.11.0 — 2026-09-30
+
+**A design builds the smallest scope in the established shape, never a
+shortcut that looks small; and a ticket reads goal-first, carries no risk
+tier, and its cross-references survive a paste into a tracker — improved
+guidance, no consumer action (MINOR).**
+
+### Changed — minimal means scope, never shape
+A real run, designing multi-language content, proposed folding every
+translation into a serialized column instead of the translations table that
+mainstream implementations use. It was following the framework: `gate-design`
+§5 defined the small option as the one with "no new table, no new column…
+no migration", and dismissed "it is less clean" as a prediction. Measured by
+structure, the shortcut was the small option.
+
+- **`standards/architecture.md` §3.4 — Smallest scope, established shape.**
+  The ladder decides how much is built, never what shape a needed thing
+  takes. The shape follows established practice, determined in order: how the
+  repository already solves the same problem; the official docs of the
+  platform it runs on; the widely adopted libraries for the problem; how
+  established products solve it, from published sources. External practice is
+  cited per `repository-evidence.md` §2b, and anything recalled from memory is
+  an `ASSUMPTION`. Web research is used when available and never required. It
+  is owed at Medium and above when a design introduces a persisted shape, an
+  integration, a background process or a component. A departure from practice
+  names the requirement behind it. The two rules do not trade: practice never
+  licenses scope the outcome does not need.
+- **`gate-design` §5 and `templates/plan.md` §4–5.** Every plan compares two
+  fixed reference points, often the same design: the smallest scope, and the
+  established practice with its sources. The Decision list records the
+  practice each new shape follows, or the requirement for departing from it.
+- **The charter** now reads "build the smallest scope that delivers it, in the
+  established shape" (same line count).
+- **The `data` lens** reports structured data held in a serialized or
+  schemaless field without a requirement behind it. **`gate-approve`** and the
+  `work-item` read-back show the practice and any departure, so the human can
+  refuse a shortcut before it is built.
+- **Evals.** `design-minimality` gains automatic failure 7 (a shortcut shape
+  chosen to look small). The new case `design-established-shape-not-shortcut`
+  fails both the serialized-field shortcut and over-building in the other
+  direction.
+
+### Changed — the ticket
+
+A real ticket written under 3.10.0 showed three problems. The
+process flow came before the story, so a reader went through twelve steps
+before learning what the work was for. A suggested risk tier sat at the top
+that no stage reads. And steps and criteria written as markdown numbered lists
+lost their numbers when pasted into a tracker, so every "(Step 6)" and
+"criterion 38" pointed at nothing.
+
+- **`templates/ticket.md` — the flow follows the story, as §1b.** The story
+  says who wants what and why; the flow then tells that goal in order. Every
+  other section number is unchanged; references to the flow's section move
+  from §0 to §1b in `gate-design`, `work-item` and `templates/plan.md`.
+- **A flow step is one line.** It states the event and what can then be
+  observed. Its conditions, exceptions and guarantees are criteria, written
+  once in §5. A flow that restated them buried the order it exists to show and
+  kept two copies of the same requirement.
+- **Literal identifiers.** Steps are `S1`, `S2`, branches `S3a`; criteria
+  `AC1`; edge-case rows `E1`; open questions `Q1`. They are written as text,
+  not as a markdown list, and stay stable across turns. The prefix also keeps a
+  step, a criterion and a section (`§6`) from sharing one bare number.
+  `templates/plan.md` and `templates/validation-report.md` trace tests and
+  evidence to the same identifiers.
+
+### Removed — from the ticket
+- **The suggested risk tier.** `gate-design` §4 classifies from its own map
+  and the repository's declared high-risk paths, and never read the ticket's
+  tier. The field was a second copy that could only disagree with the real
+  tier or anchor it. The facts that make a change risky stay in the ticket, in
+  §2 and §7; a declared high-risk path the outcome reaches is now a `FACT` in
+  §2.
+- **§11 Evidence.** It repeated the `path:line` pointers already cited beside
+  each claim in §2. A pointer now lives once, beside the claim it supports.
+
+### Readiness and anti-patterns
+- `write-ticket` §6 adds **Identifiers resolve** and **No risk tier**, and
+  drops "Risk tier stated with its reason". §8 replaces "The tier as a gate"
+  with **The tier in the ticket**, and adds **The flow that restates the
+  criteria** and **The numbering the tracker ate**.
+- The `ticket-discipline` grader, `ticket-process-flow-leads` and
+  `ticket-is-a-goal-not-a-spec` are updated to match; each new rule is
+  anchored in `validate-plugin.mjs`.
+
 ## 3.10.0 — 2026-09-28
 
 **A multi-step ticket opens with its process flow, and the pipeline traces

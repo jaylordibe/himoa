@@ -99,7 +99,7 @@ const REQUIRED_GUARANTEES = [
   // have asked for the smaller option, an ad-hoc session has already built the
   // larger one. Both halves are load-bearing — "not a spec" alone leaves the
   // model free to substitute a design of its own that is just as oversized.
-  { concept: 'a ticket proposes a method, and the smallest sufficient one is built', patterns: [/ticket states a goal|not a design/i, /acceptance criteria/i, /smallest/i] },
+  { concept: 'a ticket proposes a method, and the smallest sufficient scope is built in the established shape', patterns: [/ticket states a goal|not a design/i, /acceptance criteria/i, /smallest scope/i, /established shape/i] },
 ];
 
 if (!existsSync(charterScript)) {

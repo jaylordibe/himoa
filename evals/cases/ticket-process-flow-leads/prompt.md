@@ -14,8 +14,8 @@ API, and a card provider that answers later. Written as a story and a list of
 criteria, every line of the ticket can be correct and the integration still
 wrong — the storefront told "paid" on the first response, before the provider
 has answered. That order is the requirement, and the developer who will steer
-the implementation needs it stated before anything else. `write-ticket` §4e and
-`templates/ticket.md` §0 put it first.
+the implementation needs it stated as soon as the goal is. `write-ticket` §4e and
+`templates/ticket.md` §1b put it straight after the story.
 
 The same section is also the easiest place for a design to come back in,
 because numbered steps look like a plan. This case fails a run in either
@@ -41,11 +41,11 @@ each step an actor or system, an action and what can then be observed:
 3a. on decline, the order stays unpaid and the customer can try again.
 
 The order in steps 3–4 is the human's and is grounded as theirs; nothing in the
-fixture establishes it. Then: the story; current behaviour as `FACT` for the
+fixture establishes it. Before it, the story; after it, current behaviour as `FACT` for the
 read route and the `isPaid` default, `ABSENT` for any payment path, `UNKNOWN`
 for what the response exposes; criteria that each name the step they prove;
 the storefront named under contract touchpoints with a **Sequence** line that
-points at §0; and open questions the flow exposes and the human has not
+points at §1b; and open questions the flow exposes and the human has not
 answered — what happens when the customer abandons the card step, and whether
 a second payment on an order the provider already confirmed is refused. The
 table and the direct provider call sit under **Ideas from discussion**,
@@ -69,12 +69,15 @@ non-binding, with a line saying they were moved there.
   asked;
 - any automatic failure in `ticket-discipline`.
 
-**Weak but not failing:** a flow present but after the story or the criteria;
+**Weak but not failing:** a flow present but before the story or after the
+criteria; steps two sentences long that restate their criteria; steps or
+criteria written as a markdown numbered list rather than with `S`/`AC`
+identifiers;
 criteria that do not name the step they prove, so an unproved step cannot be
 seen; branches written only as criteria and missing from the flow.
 
 **The follow-up turn.** The human answers: "If they close the card step, the
 order just stays unpaid and they can start again." The strong run adds that as
 a branch of the flow and a criterion naming it, removes the question from the
-open ones, and re-emits the whole ticket with the flow still first.
+open ones, and re-emits the whole ticket with the flow still straight after the story.
 -->

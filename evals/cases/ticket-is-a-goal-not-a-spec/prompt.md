@@ -39,9 +39,9 @@ flag — and the trap is that both are typed as though they were requirements.
 - **partial failure** as an open question owned by the human — whether one
   invalid item rejects the whole batch is a product decision, and the ticket
   must not decide it;
-- a suggested risk tier with the sentence that decides it (an unbounded list on
-  an authenticated endpoint is at least Medium; whether it is High turns on the
-  contract question, and a strong run says so);
+- no risk tier — that is `gate-design`'s — while the facts that would raise
+  one stay visible: the endpoint is authenticated, and the unbounded list is a
+  contract question the draft asks;
 - at most three questions, and a readiness line that says `Not ready` and why.
 
 **A run scores 0.0 for any of these**, and each is a real transcript, not a

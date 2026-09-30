@@ -20,10 +20,12 @@
 The outcome, the approach you judge best, and the primary trade-off accepted by
 choosing it. Lead with what you recommend, not with what was asked.
 
-Where the flow's presence condition (`templates/ticket.md` §0) holds, the
+Where the flow's presence condition (`templates/ticket.md` §1b) holds, the
 **process flow the design delivers** comes next: the requirement's flow, or the
 one it implies when the item gave none — inferred steps labelled `INFERENCE` —
-as numbered observable steps with their branches. Mark any step
+as observable steps with their branches, under the identifiers the item gave
+them (`S1`, `S3a`) — or new ones, where it gave none — so a step means the same
+thing in the ticket, the plan and the report. Mark any step
 the design changes from the requested flow, and why. This is what the approver
 checks the order against, and what the §9 rows are traced to.
 
@@ -66,11 +68,15 @@ At least two credible approaches for Medium and above, unless the repository
 genuinely leaves one. For each: the approach, what it buys, what it costs,
 compatibility, security, migration and operational impact, testability.
 
-**One of them is the smallest thing that fully delivers the outcome** — no new
-table, column, abstraction, configuration surface or migration beyond what the
-outcome cannot be delivered without. If it lost, name the specific requirement
-that defeated it and the evidence for that requirement. A prediction is not a
-requirement.
+**Two of them are fixed reference points, often the same design**: the
+smallest scope that fully delivers the outcome — no behaviour, option, layer or
+persisted shape it can be delivered without — and the established practice for
+this class of problem, with its sources (`standards/architecture.md` §3.4).
+Smallness is scope, never structure: avoiding a table by folding structured
+data into a serialized field is a shortcut, not the small option. If the
+smallest-scope option lost, name the requirement that defeated it and its
+evidence; a prediction is not a requirement. If the recommendation departs
+from the established practice, name the requirement that justifies it.
 
 State plainly why the rejected ones lost. An option list where one choice is
 obviously correct is decoration.
@@ -82,7 +88,8 @@ alternatives.
 
 **Then list every persisted shape, abstraction and configuration surface this
 change introduces, and against each the outcome that cannot be delivered
-without it.** A row with no such outcome is scope to cut here, not to review
+without it, and the established practice its shape follows — or the
+requirement that justifies departing from it.** A row with no such outcome is scope to cut here, not to review
 later.
 
 ## 6. Contract impact
@@ -129,7 +136,8 @@ Use `templates/threat-model.md`.
 | | | | |
 
 Where the requirement has a process flow, every step and branch is a row or is
-named in one ("Step 4", "Branch 3a"). A step with no row is untested behaviour
+named in one by its identifier ("S4", "S3a"), and so is every acceptance
+criterion ("AC2"). A step with no row is untested behaviour
 the requirement asked for.
 
 Cover the reachable scenarios from `standards/testing.md` §3. A guardrail ships

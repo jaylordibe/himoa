@@ -394,8 +394,9 @@ the code the fix touches.
 The framework ranks a ticket at the bottom of its evidence order and reads its
 acceptance criteria as a proposed method, because that is what a ticket is:
 one person's account of an outcome and their guess at how to reach it. That
-position is what lets `gate-design` build the smallest thing that delivers the
-goal rather than the thing the ticket happened to describe.
+position is what lets `gate-design` build the smallest scope that delivers the
+goal, in its established shape, rather than the thing the ticket happened to
+describe.
 
 It also means the framework's own ticket writing has to respect it. Asked to
 create a ticket, the default is to map the repository and write down the
@@ -412,8 +413,8 @@ single sentence is the ordinary case, and the stages downstream were written
 for it. The rules they already apply to any input — the split, the grades, the
 refusal to decide a product question silently — are what make the shape land.
 
-One section is the exception, and it is the one the ticket opens with. An
-outcome whose order is part of it gets a **process flow**: numbered steps, each an event
+One section is the exception, and it follows the story. An
+outcome whose order is part of it gets a **process flow**: identified steps, each an event
 someone outside the system can observe. It exists because the ticket has two
 readers — the agent that implements it and the developer who steers that
 agent until the work is done — and a multi-step outcome stated only as a story

@@ -46,7 +46,7 @@ methodology, drift-checked in CI, never forked.
 |---|---|
 | Starts coding from the ticket | Maps the repository first — a read-only `context-mapper` runs before any option is weighed |
 | Assumes a stack, an ORM, a middleware layer | Labels every claim in a plan or report `FACT` (with `path:line`), `INFERENCE`, `ASSUMPTION`, `ABSENT` or `UNKNOWN` |
-| Treats the ticket's suggested method as the spec | Takes the *goal* from the ticket and weighs its *method* against alternatives; builds the smallest thing that fully delivers it |
+| Treats the ticket's suggested method as the spec | Takes the *goal* from the ticket and weighs its *method* against alternatives; builds the smallest scope that fully delivers it, in the shape established practice uses |
 | Same ceremony for a typo and a migration | Four risk tiers — plus a "below Low" exit — decide plan depth, review panel and tests |
 | Reviews its own diff in the context that wrote it | Launches independent read-only lenses in fresh contexts; Critical and High findings must survive an adversarial refutation pass |
 | Loses the end goal three files deep | Carries the requirement's **process flow** into the plan, the test mapping and the validation coverage, and re-reads the approved scope after approval |
@@ -97,11 +97,11 @@ prerequisite.
 | **Design** | Assigns the risk tier; writes a plan sized to it (threat model and alternatives at High) with every requirement, risk and process-flow step mapped to a named test |
 | **Approve** 🧑 | You approve, reject or change the plan. Silence, task assignment or a permissive sandbox is not approval, and a prior approval never covers a materially changed design |
 | **Implement** | Only what was approved, reusing what the repository already owns |
-| **Review** | Independent read-only lenses selected by risk; findings verified against source, then remediated and re-reviewed |
+| **Review** | Independent read-only lenses selected by risk — correctness, security, tests, contracts, data, performance, architecture ([what each examines](#independent-review-lenses)); findings verified against source, then remediated and re-reviewed |
 | **Validate** | Read-only. Runs your canonical commands and reports `PASS`, `FAIL` or `BLOCKED` with an evidence table |
 | **Present** 🧑 | Diff, evidence and recommended next steps handed to you |
 
-**The requirement stays the anchor.** When a ticket opens with a numbered
+**The requirement stays the anchor.** When a ticket carries a numbered
 process flow, Himoa treats it as the outline of the requirement: each step and
 branch is carried into the plan, mapped to a test, and checked in the
 validation report's coverage. A step the code contradicts is surfaced, never
@@ -131,10 +131,10 @@ $ /himoa:work-item "Add rate limiting to the password-reset endpoint"
 <summary>Write the ticket first, drive stages by hand, or pick up ad-hoc work</summary>
 
 **`/himoa:write-ticket`** drafts a ticket the way a business analyst would —
-the process flow first when the order of steps is part of the outcome, a user
-story, current behaviour cited from your code, observable acceptance criteria,
-non-goals and open questions. It contains no design and writes nothing to any
-system.
+a user story, then the process flow when the order of steps is part of the
+outcome, current behaviour cited from your code, observable acceptance
+criteria, non-goals and open questions. It leaves the risk tier to the design
+stage, contains no design, and writes nothing to any system.
 
 **One stage at a time:**
 
@@ -173,7 +173,10 @@ requires.
 **Investigate deeply, build minimally.** A High-risk change may earn a deep
 map, a threat model and a full review panel and still ship as a five-line diff.
 Himoa reuses what the repository already owns and prefers the platform and
-standard library over new dependencies or abstractions.
+standard library over new dependencies or abstractions. Minimal means scope,
+never shape: what must be built is built the way established practice builds
+it — cited from the repository, the platform's docs and how others solve the
+same problem — not squeezed into a shortcut to avoid a table.
 Policy: [`execution-efficiency`](plugins/himoa/standards/execution-efficiency.md)
 · [`architecture`](plugins/himoa/standards/architecture.md) §3.
 
@@ -206,10 +209,9 @@ exposure; and, when the change reaches them, the browser trust boundary
 (cross-site scripting, CSRF, cookies, CORS, headers), dependency and build-chain
 trust, cryptographic primitives, and what the deployment exposes to the
 internet. High-risk work requires negative tests — unauthenticated, wrong
-permission, another tenant, another actor. Seven domain playbooks
-(`domain-auth`, `domain-authorization`, `domain-browser-security`,
-`domain-cryptography`, `domain-supply-chain`, `domain-background-work`,
-`domain-debugging`) carry the questions such changes must answer.
+permission, another tenant, another actor. The `domain-auth`,
+`domain-authorization`, `domain-browser-security`, `domain-cryptography` and
+`domain-supply-chain` playbooks carry the questions such changes must answer.
 
 **Performance review** looks for work that grows without a bound (unbounded
 reads, a query inside a loop, unbounded fan-out or recursion), access paths no

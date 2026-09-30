@@ -4,7 +4,7 @@ description: Designs a material change by mapping repository reality first, reco
 disable-model-invocation: true
 ---
 
-<!-- GENERATED from plugins/himoa/skills/gate-design/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.10.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/gate-design/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.11.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Design a change
 
@@ -64,8 +64,8 @@ typed it — not a requirement, and not a contract. Carry its outcome forward;
 weigh its mechanism against the alternatives in §5 below. A design that
 inherited its shape from a checklist has not been designed.
 
-**A process flow is the outline of the requirement.** When the item opens with
-numbered steps (`@HIMOA_HOME@/templates/ticket.md` §0), that sequence
+**A process flow is the outline of the requirement.** When the item carries
+numbered steps (`@HIMOA_HOME@/templates/ticket.md` §1b), that sequence
 is the goal told in order, and the developer steering the work will hold it to
 that order. It goes through the same split: observable steps and the order a
 boundary imposes are carried forward, a step naming a mechanism is weighed like
@@ -75,7 +75,7 @@ the step's observable result is still the goal. **A step and a criterion that
 disagree** about what is observed, or in what order, are unresolved product
 behaviour: neither section outranks the other, and the disagreement goes to
 the human. When the item has no flow — most items will not — and the flow's
-presence condition in that template's §0 holds, state the flow the requirement
+presence condition in that template's §1b holds, state the flow the requirement
 implies in the plan's §1, each step the item does not itself state marked as
 the design's `INFERENCE`: the approver should see the order the design commits
 to before approving it, and an inferred step is never a new requirement.
@@ -242,18 +242,32 @@ repository actually enforces · consumer compatibility · data correctness ·
 migration and rollback safety · failure and retry behaviour · testability ·
 operational complexity · maintainability.
 
-**One of the compared approaches is always the smallest thing that fully
-delivers the outcome** — the version carrying no new table, no new column, no
-new abstraction, no new configuration surface and no migration beyond what the
-outcome cannot be delivered without. Where the repository genuinely leaves one
-approach, that one is it.
+**Two reference points are always among the compared approaches**, and they
+are often the same design:
 
-If the smallest approach loses, name the specific requirement that defeats it
-and the evidence for that requirement. "It would not scale", "it is less
-clean", "it is not extensible" and "we will need this later" are not
-requirements — they are predictions, and a plan that rejects the small option
-on one of them has compared nothing. A workload claim that decides a design is
-a claim the plan states and sources, the same as any other.
+- **the smallest scope that fully delivers the outcome** — no behaviour,
+  option, layer, configuration surface or persisted shape the outcome can be
+  delivered without;
+- **the established practice** for this class of problem, determined and cited
+  per `@HIMOA_HOME@/standards/architecture.md` §3.4.
+
+**Smallness is scope, never structure** — §3.4 owns why. An approach is not
+smaller because it avoids a table, a column or a migration; one that folds the
+outcome's structured data into a serialized field to avoid them has taken a
+shortcut, not the small option. Where the repository genuinely leaves one
+approach, that one is both reference points.
+
+If the smallest-scope approach loses, name the specific requirement that
+defeats it and the evidence for that requirement. "It would not scale", "it is
+not extensible" and "we will need this later" are not requirements — they are
+predictions, and a plan that rejects the small option on one of them has
+compared nothing. A workload claim that decides a design is a claim the plan
+states and sources, the same as any other.
+
+If the recommendation departs from the established practice, name the
+requirement that justifies the departure, with its evidence. The practice and
+the property it buys, cited, is a reason; that the departure is fewer files or
+no migration is not.
 
 The smallest approach is **constructed by walking the complexity ladder**, not
 guessed at: `@HIMOA_HOME@/standards/architecture.md` §3 owns it —
@@ -266,8 +280,9 @@ requires a stated reason the rung below was insufficient. That reason is the
 introduced against the outcome it serves, and a row with no such outcome cut
 here.
 
-Prefer the smallest coherent complete end state within scope. Do not
-over-engineer, and do not smuggle an unrelated refactor in as an "alternative".
+Prefer the smallest coherent complete end state within scope, in the
+established shape. Do not over-engineer, do not under-build into a shortcut,
+and do not smuggle an unrelated refactor in as an "alternative".
 
 None of this is owed by a **Low**-risk change or one below the line in
 `@HIMOA_HOME@/standards/execution-efficiency.md` §3: those produce no

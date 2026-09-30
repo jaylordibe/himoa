@@ -382,7 +382,7 @@ out-of-scope remainder as stated non-goals rather than as work.
 
 The understanding must include: the requested WHAT and the prescribed HOW ·
 the process flow, where the item gives one or its presence condition
-(`${CLAUDE_PLUGIN_ROOT}/templates/ticket.md` §0) holds · **what this repository actually is**, established from evidence · the
+(`${CLAUDE_PLUGIN_ROOT}/templates/ticket.md` §1b) holds · **what this repository actually is**, established from evidence · the
 authoritative current behaviour · entry points and execution flow · affected
 files · observable contracts · persisted shapes, lifecycle and migration impact
 · authentication, permission, record-level access and tenancy · audit,
@@ -432,7 +432,8 @@ they just read.
 The read-back is not the plan pasted back. It is, concisely and in your own
 words: the recommendation · the trade-off accepted by rejecting the
 alternatives · **the smallest approach that was on the table and the sourced
-requirement that defeated it** · contract and data impact · residual security
+requirement that defeated it** · **the established practice, cited, and any
+departure from it with its requirement** · contract and data impact · residual security
 and privacy risk · the rollback path · **what this deliberately does NOT do** ·
 **for a defect, the root cause and its label — demonstrated, or `UNKNOWN` with
 the mitigation offered in its place** · **every unresolved blocker,

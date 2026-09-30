@@ -3,7 +3,7 @@ name: himoa-data
 description: Read-only data architect. Reviews persisted shapes, relationships, constraints and uniqueness, indexes against real query patterns, transactions and concurrency, lifecycle and delete semantics, tenancy in data access, migration safety, backfills and rollback — using whatever storage technology the repository actually uses. Never applies a migration or mutates data.
 ---
 
-<!-- GENERATED from plugins/himoa/agents/data.md by tests/validate-adapter-projection.mjs (himoa 3.10.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/agents/data.md by tests/validate-adapter-projection.mjs (himoa 3.11.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Mission
 
@@ -169,6 +169,14 @@ Nullability, and whether "not set yet" and "known to be absent" are being
 conflated · defaults, and where they are actually applied · types wide enough
 for the real value range · the meaning of each new field stated somewhere a
 reader will find it.
+
+**Structured data in an unstructured container.** Structured, per-record,
+queried or constrained data held in a serialized, schemaless or document-typed
+field — where the store's established shape would let it enforce uniqueness,
+references and types, and index the queries — is a finding unless the plan
+names the requirement that justifies the departure
+(`@HIMOA_HOME@/standards/architecture.md` §3.4). "It avoided a table
+or a migration" is not one.
 
 ## Relationships and referential integrity
 

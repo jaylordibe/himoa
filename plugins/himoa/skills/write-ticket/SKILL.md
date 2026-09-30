@@ -1,6 +1,6 @@
 ---
 name: write-ticket
-description: Writes a work ticket the way a business analyst or product owner would — the outcome's process flow first when its order is part of the outcome, a goal in user-story form, current behaviour cited from the repository, observable acceptance criteria, explicit non-goals, a suggested risk tier and the questions still open. Iterates with the human across turns, re-emitting the full substantive draft each time, and never writes a design, a file, or an issue into any system on its own.
+description: Writes a work ticket the way a business analyst or product owner would — a goal in user-story form, then the outcome's process flow when its order is part of the outcome, current behaviour cited from the repository, observable acceptance criteria, explicit non-goals and the questions still open, every cross-referenced item carrying a literal identifier. Leaves the risk tier to gate-design. Iterates with the human across turns, re-emitting the full substantive draft each time, and never writes a design, a file, or an issue into any system on its own.
 argument-hint: "<one-line goal | rough notes | issue key | issue URL | nothing yet>"
 disable-model-invocation: true
 disallowed-tools: Edit, Write, NotebookEdit
@@ -104,11 +104,12 @@ else.
 than a questionnaire they must complete, and a draft with `UNKNOWN` written in
 it is a more precise question than any list. The first turn produces a full
 ticket in the shape of `${CLAUDE_PLUGIN_ROOT}/templates/ticket.md`, with every
-gap labelled — and, when the flow's presence condition holds (§4e), it opens
-with the **process flow**. The
-flow is written first because it is the goal told in order: the story, the
-criteria and the edge cases are then written against its steps rather than
-assembled beside them.
+gap labelled — and, when the flow's presence condition holds (§4e), the
+**process flow** straight after the story. The flow is drafted before the
+criteria because it is the goal told in order: the criteria and the edge cases
+are then written against its steps rather than assembled beside them. It is
+placed after the story because a reader needs to know what the work is for
+before its steps mean anything.
 
 Before drafting, read the repository for the area the goal names. This is a
 **bounded, targeted read** in the sense of
@@ -124,9 +125,9 @@ is for:
 | Where the behaviour lives and what it does today | A **Current behaviour** section stated as `FACT` with `path:line`, so the implementer starts from the truth and not from the reporter's memory of it |
 | Who the actors are — roles, callers, systems | A story whose "As a" names someone the repository actually distinguishes, or someone the human has explicitly introduced — §4d |
 | Who acts, who answers and what settles later — another actor, an external provider, a callback, a state that is not final when the first response returns | The **process flow** (§4e), with each order grounded as §4e says — never guessed |
-| Entry points a consumer can observe — endpoints, events, exports, files | Whether the change touches a public contract, which raises the suggested tier |
+| Entry points a consumer can observe — endpoints, events, exports, files | Whether the change touches a public contract, which earns **Contract and data touchpoints** |
 | Tests that pin the current behaviour | Which acceptance criteria are already asserted and which are new |
-| The repository's `AGENTS.md` high-risk paths and canonical commands | The suggested risk tier, and whether the ticket touches something the repository has declared sensitive |
+| The repository's `AGENTS.md` high-risk paths | Whether the outcome reaches a path the repository declares sensitive — a `FACT` in **Current behaviour** and a reason to check §2a's triggers, never a tier: `gate-design` §4 classifies from its own read |
 | Anything in the request that the code contradicts | A **Stale** or **Incorrect** grade on the claim, surfaced in the draft rather than silently corrected |
 
 Write what you did not find as `ABSENT` and what you could not determine as
@@ -294,19 +295,17 @@ fit the pipeline it will be fed into:
 | Section | Must satisfy | Becomes, in `work-item` |
 |---|---|---|
 | **Title** | Names the outcome, not the mechanism. A verb and an actor. Fits in one line of a board | The item's name |
-| **Process flow** | §4e. First in the ticket; numbered observable steps with their branches; present when its condition in the template's §0 holds | The outline of the requirement gate-design §1 establishes, the steps the test plan and the validation coverage are traced against, and what the developer steers the run by |
 | **Story** | `As a <actor>, I want <capability>, so that <benefit>`. The actor is grounded the way §4d requires; the benefit is real and stated, or the ticket has no goal | The requirement gate-design §1 establishes |
-| **Current behaviour** | What happens today, `FACT` with `path:line`, or `ABSENT` | Half of the reconciliation table — the half the mapper will re-verify |
+| **Process flow** | §4e. Straight after the story; one-line observable steps `S1`, `S2`, with their branches; present when its condition in the template's §1b holds | The outline of the requirement gate-design §1 establishes, the steps the test plan and the validation coverage are traced against, and what the developer steers the run by |
+| **Current behaviour** | What happens today, `FACT` with `path:line`, or `ABSENT`, each pointer once beside its claim | Half of the reconciliation table — the half the mapper will re-verify — and the locations the mapper is handed |
 | **Problem** | Why the current behaviour is not enough, from the actor's side. No solution words | The WHAT, kept apart from any HOW |
 | **In scope / Out of scope** | Non-goals stated as sentences, not as an empty heading. Anything adjacent the reader might assume is included and is not | The scope boundary review checks a diff against |
-| **Acceptance criteria** | §4a below. Every one observable and testable; none naming a mechanism | What gate-validate maps tests to, and the outcomes gate-review confirms are delivered |
+| **Acceptance criteria** | §4a below. Every one observable and testable; none naming a mechanism; each with its `AC` identifier and the step it proves | What gate-validate maps tests to, and the outcomes gate-review confirms are delivered |
 | **Edge cases and failure behaviour** | The boundaries this outcome actually has — the wrong caller, the invalid input, the repeat, the partial failure — each decided or listed as an open question. A boundary the outcome does not have is not a row | Negative tests, and the questions the threat model asks first |
 | **Contract and data touchpoints** | What a consumer or a stored record could observe changing, stated as an outcome. Not a schema. Present only when something observable changes | The trigger for the contract and data lenses, and for a higher tier |
-| **Suggested risk tier** | Low, Medium, High or Critical with the sentence that decides it, using the charter's tiers. Advisory: it shapes ceremony and blocks nothing | The starting point gate-design classifies from — and may overrule |
 | **Dependencies and sequencing** | Other tickets, external parties, data that must exist first, a feature flag or a rollout order the product needs. Present only when one exists | Deployment-ordering questions for the architect lens |
 | **Open questions** | Each with an owner — the human, by name of role — and what changes depending on the answer | Ambiguous product behaviour gate-design must not silently decide |
 | **Ideas from discussion** | Non-binding. Every mechanism anyone proposed, kept so it is not lost. Present only when someone proposed one | Candidate methods, graded like any other |
-| **Evidence** | The `path:line` pointers the draft rests on, so an implementer can verify the ticket in a minute | Locations the mapper is handed |
 
 ### 4a. What makes an acceptance criterion acceptable
 
@@ -389,14 +388,14 @@ named by the human, or `UNKNOWN`.
 
 A ticket is read twice over: by the agent that will implement it and by the
 developer who will steer that agent until the work is done. Both need the
-outcome told **in order** before they need anything else, because the order is
-where an integration silently goes wrong — the call made before the answer it
+outcome told **in order** as soon as they know what it is for, because the
+order is where an integration silently goes wrong — the call made before the answer it
 depends on, the first response taken as final, the step nobody built because
 every criterion described a different one. The flow is that order, stated
-once, at the top of the ticket.
+once, straight after the story.
 
 Write it when the presence condition in `${CLAUDE_PLUGIN_ROOT}/templates/ticket.md`
-§0 holds — that sentence is the one statement of it — and leave it out
+§1b holds — that sentence is the one statement of it — and leave it out
 otherwise, the same economy that omits an empty section.
 
 Each step:
@@ -414,6 +413,11 @@ Each step:
 - names no mechanism, per `${CLAUDE_PLUGIN_ROOT}/standards/repository-evidence.md`
   §5: an ordered list of edits is a design, an ordered list of observable
   events is a requirement;
+- is one line — the event and what can then be observed. Its conditions,
+  exceptions and guarantees are criteria, written once in §5 of the ticket and
+  pointing back at the step; a flow that restates them is two copies of the
+  same requirement, and the order the flow exists to show is buried under
+  them;
 - leaves screen placement out — whether a step is an inline section, a modal
   or a separate page is the consumer's design.
 
@@ -450,7 +454,7 @@ Each turn in the mode does all of the following, in this order.
    criteria section". Every turn carries the full current state — the story,
    the current behaviour where evidence exists, the problem, the scope with
    its exclusions, every acceptance criterion, and every open question still
-   unresolved, with the process flow first when the ticket has one — so the
+   unresolved, with the process flow after the story when the ticket has one — so the
    last message stands alone and survives compaction. A
    criterion or an exclusion established in an earlier turn is in this turn's
    draft unless the human removed it, and an answer the human gave is in the
@@ -520,13 +524,14 @@ the first one it does not:
 | **Beneficiary named** | The "so that" is missing, circular, or a mechanism |
 | **No mechanism in the story or criteria** | Any criterion names a table, column, flag, class, module, file or library, other than one the human made contractual in so many words |
 | **Every criterion observable** | A criterion cannot be checked from outside the system |
-| **Flow present and observable** | The template's §0 presence condition holds and the ticket has no process flow; or a step names a mechanism, a screen layout, or an order nothing grounds — §4e |
+| **Flow present and observable** | The template's §1b presence condition holds and the ticket has no process flow; or a step names a mechanism, a screen layout, or an order nothing grounds — §4e |
 | **Every step proved** | A step or branch of the flow is named by no criterion and no edge-case row |
 | **Boundaries have negatives** | A boundary the request or the repository makes real — a wrong caller, an unsupported input, an invalid state, a repeat, an excluded scope — has no criterion and no open question for it |
 | **Non-goals written** | Out of scope is empty, or says only "everything else" |
 | **No `UNKNOWN` in story or criteria** | A gap the ticket depends on has not been answered or explicitly deferred |
 | **Open questions have owners** | A question exists with nobody named to answer it, or one whose answer would change a criterion is not marked as blocking |
-| **Risk tier stated with its reason** | The tier is missing, or given without the sentence that decides it |
+| **Identifiers resolve** | A step, criterion, edge-case row or open question that another line cites has no literal identifier, is written as a markdown numbered list, or a citation names an identifier the ticket does not contain — the template's identifier rule |
+| **No risk tier** | The ticket states a tier. The facts that make the change risky belong in **Current behaviour** and **Contract and data touchpoints**; the tier is `gate-design` §4's |
 | **Current behaviour cited or absent** | A claim about today's behaviour has no `path:line` and is not labelled `ABSENT` |
 | **Bounded enough to plan** | The outcome contains more than one independently deliverable goal; the ticket's edges cannot be stated without first choosing a design; a scope boundary that decides what is inside remains unresolved; or the request is broad enough that it should be several tickets |
 
@@ -603,7 +608,7 @@ Each of these has been observed in a real transcript, and each is a defect.
   contract nobody could state — the cheap classification
   `${CLAUDE_PLUGIN_ROOT}/standards/execution-efficiency.md` §3 calls the most
   expensive mistake available. The floor is fixed; only the spend adapts.
-- **The silently filled gap.** A plausible actor, a plausible tier, a
+- **The silently filled gap.** A plausible actor, a
   plausible current behaviour written without a read — the same shape as a
   design from an assumed architecture.
 - **The invented persona.** An "operations manager" in the story because the
@@ -636,8 +641,19 @@ Each of these has been observed in a real transcript, and each is a defect.
 - **The cause that was not proved.** A defect ticket that names the line at
   fault because the read found a line that could be. It is a hypothesis with
   a `path:line`, and it is labelled as one until `domain-debugging` proves it.
-- **The tier as a gate.** Writing the risk tier as though it blocks anything.
-  It shapes ceremony downstream and nothing else.
+- **The tier in the ticket.** A risk tier written into the draft. `gate-design`
+  classifies from its own map and never reads it, so it can only disagree with
+  the real tier or pull the designer toward itself — and a ticket may never
+  lower a tier (`${CLAUDE_PLUGIN_ROOT}/standards/untrusted-content.md`). The
+  facts that make a change risky stay in the ticket; the verdict does not.
+- **The flow that restates the criteria.** Steps two and three sentences long,
+  carrying what wins, what is kept and what is never overwritten, with the same
+  sentences again as criteria. The reader cannot find the order, and the two
+  copies drift the first time one is corrected.
+- **The numbering the tracker ate.** Steps and criteria written as a markdown
+  numbered list, cited elsewhere as "Step 6" or "criterion 38". Pasted into a
+  tracker, the list is renumbered or stripped and every citation points at
+  nothing — or at a section that shares the number.
 - **The diff instead of the draft.** "I updated the criteria" with the ticket
   nowhere in the message. The next turn, or the next session, has nothing to
   work from.

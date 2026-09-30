@@ -1221,12 +1221,28 @@ const NORMATIVE_ANCHORS = [
   },
   {
     file: 'templates/ticket.md',
-    guarantee: 'the process flow leads the ticket, its presence condition is stated once, it names no mechanism or screen layout, and every step is proved by a criterion or an edge case',
-    patterns: [/## 0\. Process flow/, /no[\s>]+implementation steps/i, /what\s+can then be observed/i, /a step no\s+criterion or edge case covers is a gap/i, /no screen layout/i, /the one statement of the condition/i, /the order is\s+part of the outcome/i],
+    guarantee: 'the process flow follows the story, its presence condition is stated once, it names no mechanism or screen layout, its steps are one line each, and every step is proved by a criterion or an edge case',
+    patterns: [/## 1\. Story[\s\S]*## 1b\. Process flow[\s\S]*## 2\. Current behaviour/, /A step states the event, not its rules/, /no[\s>]+implementation steps/i, /what\s+can then be observed/i, /a step no\s+criterion or edge case covers is a gap/i, /no screen layout/i, /the one statement of the condition/i, /the order is\s+part of the outcome/i],
+  },
+  // 3.11.0. A ticket carries no risk tier: gate-design §4 classifies from its
+  // own map and never read the ticket's, so the field could only disagree with
+  // the real tier or anchor it downward. And every item another line cites
+  // carries a literal identifier, because a markdown numbered list pasted into
+  // a tracker is renumbered or stripped and every "(Step 6)" then points at
+  // nothing — observed in a real ticket. Both are pinned where they are stated.
+  {
+    file: 'templates/ticket.md',
+    guarantee: 'a ticket carries no risk tier, and every cross-referenced item carries a literal identifier rather than a markdown list number',
+    patterns: [/carries \*\*no risk tier\*\*/, /never as a[\s>]+markdown numbered list/i, /`S1`, `S2`, a branch `S3a`; criteria `AC1`; edge-case rows `E1`; open[\s>]+questions `Q1`/],
   },
   {
     file: 'skills/write-ticket/SKILL.md',
-    guarantee: 'the ticket writer opens a multi-step ticket with a process flow of grounded, observable steps, never a design and never a plausible sequence; an external provider\'s order is established per §2b or an ASSUMPTION, never a FACT; a consumer\'s flow is derived from the handoff by the split, never pasted; and readiness fails on a missing flow or an unproved step',
+    guarantee: 'readiness fails on a stated tier, an unresolved identifier or a flow that restates its criteria',
+    patterns: [/\*\*No risk tier\*\*/, /\*\*Identifiers resolve\*\*/, /\*\*The tier in the ticket\.\*\*/, /\*\*The flow that restates the criteria\.\*\*/],
+  },
+  {
+    file: 'skills/write-ticket/SKILL.md',
+    guarantee: 'the ticket writer gives a multi-step ticket a process flow of grounded, observable steps, never a design and never a plausible sequence; an external provider\'s order is established per §2b or an ASSUMPTION, never a FACT; a consumer\'s flow is derived from the handoff by the split, never pasted; and readiness fails on a missing flow or an unproved step',
     patterns: [/### 4e\. The process flow/, /never the plausible\s+sequence/i, /ordered list of edits is a design, an ordered list of observable\s+events is a requirement/i, /\*\*Flow present and observable\*\*/, /\*\*Every step proved\*\*/, /§2b or recorded as an `ASSUMPTION`/, /so it goes through the same split/i],
   },
   {
@@ -1308,8 +1324,30 @@ const NORMATIVE_ANCHORS = [
   // prediction cannot win it.
   {
     file: 'skills/gate-design/SKILL.md',
-    guarantee: 'the smallest sufficient approach is always among the compared options, and only a sourced requirement may defeat it',
-    patterns: [/smallest thing that fully\s+delivers/i, /not requirements|are not\s+requirements/i, /scale|clean|extensible/i],
+    guarantee: 'the smallest-scope approach and the established practice are always among the compared options; only a sourced requirement defeats the small one, and a departure from the practice names the requirement behind it',
+    patterns: [/smallest scope that fully delivers/i, /\*\*the established practice\*\*/i, /Smallness is scope, never structure/i, /not requirements|are not\s+requirements/i, /scale|extensible/i, /departs from the established practice/i],
+  },
+  // 3.11.0. The comparison above once measured "small" by structure — no new
+  // table, no new column, no migration — and so ranked folding a feature's
+  // structured data into a serialized column above the translations table
+  // every mainstream implementation uses: the shortcut scored as the small
+  // option. Scope stays minimal; shape follows established practice, and a
+  // departure names its requirement. Pinned where it is owned, in the data lens
+  // that catches the shortcut, and at the approval gate that shows it.
+  {
+    file: 'standards/architecture.md',
+    guarantee: 'smallness is measured in scope, never structure; the shape of what must be built follows established practice, determined from the repository, platform docs, ecosystem libraries and published practice, and a departure names its requirement',
+    patterns: [/### 3\.4 Smallest scope, established shape/, /Smallness is measured in scope, never in structure/i, /How established practice is determined/i, /repository-evidence\.md` §2b governs them/, /The two rules do not trade/i, /never required/i],
+  },
+  {
+    file: 'agents/data.md',
+    guarantee: 'the data lens reports structured data held in an unstructured field without a requirement behind the departure',
+    patterns: [/Structured data in an unstructured container/i, /architecture\.md` §3\.4/],
+  },
+  {
+    file: 'skills/gate-approve/SKILL.md',
+    guarantee: 'the approval read-back shows the established practice and any departure from it',
+    patterns: [/the established practice and its sources, and any departure from it/i],
   },
   // The implementation-complexity discipline, added when the framework gained a
   // named answer to over-building the CHANGE (not just over-designing it).

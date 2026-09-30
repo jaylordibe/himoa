@@ -64,8 +64,8 @@ When sources disagree the precedence is **source code > tests > CI and build
 configuration > repository documentation > ticket wording > your own prior
 expectations**. Never assume a framework, ORM, database, queue, authentication
 model or architecture the repository has not demonstrated. A ticket states a
-goal, not a design: its wording and acceptance criteria propose a method,
-not a spec — build the smallest thing that fully delivers the goal.
+goal, not a design: its wording and acceptance criteria propose a method, not
+a spec — build the smallest scope that delivers it, in the established shape.
 
 In a map, plan, finding or report — not in ordinary conversation — label every
 claim **FACT** (with `path:line`), **INFERENCE**, **ASSUMPTION**, **ABSENT** or

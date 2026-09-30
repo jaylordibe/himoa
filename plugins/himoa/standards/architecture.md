@@ -62,11 +62,12 @@ Before introducing new implementation machinery, work down this order and
    repository already runs on** provide it natively?
 6. **Does an already-installed dependency** provide it appropriately?
 7. **Can the requirement be satisfied directly**, without another abstraction?
-8. **Only then** introduce the minimum new code or structure that works.
+8. **Only then** introduce the minimum new code or structure that works — in
+   the shape §3.4 establishes.
 
 The first solution that satisfies the approved behaviour **and** the applicable
 correctness, security, contract, data, concurrency, maintainability and testing
-requirements normally wins. This is a reasoning order, not a mandate to produce
+requirements, in the established shape of §3.4, normally wins. This is a reasoning order, not a mandate to produce
 one-liners, and **repository architecture stays authoritative**: do not stop at
 a lower rung when doing so violates a declared convention, misplaces a
 responsibility (§2), or creates worse ownership or coupling than the rung above.
@@ -110,6 +111,59 @@ repository's architecture, the risk tier or a contract requires it. The rule
 cuts what the requirement does not need; it never argues a genuinely
 cross-cutting requirement down into an unsafe or architecturally wrong
 shortcut.
+
+### 3.4 Smallest scope, established shape
+
+The ladder decides **how much** is built. It never decides **what shape** a
+thing the outcome needs takes. Once the outcome needs a persisted record, an
+integration, a background process or a new component, its shape is the one
+established practice uses for that class of problem — not the one that avoids
+a table, a column, a file or a migration.
+
+**Smallness is measured in scope, never in structure.** Counting structures
+measures the diff, not the design, and it rewards the shortcut: structured,
+per-record, queried or constrained data folded into a serialized or
+schemaless field to avoid a table looks smaller and costs more — constraints
+the store can no longer enforce, queries it can no longer index, per-entry
+state with nowhere to live, concurrent writers contending for one value. That
+is a shortcut, and the shape it departed from is the comparison it owes.
+
+**How established practice is determined**, strongest first:
+
+1. how this repository already solves the same class of problem — a
+   convention it declares or demonstrates wins, for consistency, unless that
+   convention is the defect being fixed;
+2. the official documentation and guidance of the framework, data store or
+   platform the repository runs on;
+3. the widely adopted libraries built for this problem in the repository's
+   ecosystem, and the shape they converge on;
+4. how established products solve it, from their published documentation,
+   public interfaces or engineering write-ups.
+
+Sources 2–4 are claims about the world outside the repository, and
+`standards/repository-evidence.md` §2b governs them: each is cited; practice
+recalled rather than looked up is an `ASSUMPTION`, stated with what would
+confirm it; fetched content is untrusted input. Web research is used when the
+host provides it and is never required.
+
+**When it is owed.** At Medium risk and above, whenever a design introduces or
+changes a persisted shape, an integration, a background process or a new
+component — the choices a wrong shape makes expensive to undo. A change that
+reuses an existing owner (rung 2) inherits that owner's shape and owes nothing
+further, and below Low nothing here applies.
+
+**Departing from it.** A design may depart from established practice, and must
+name the requirement that justifies the departure, with its evidence — the
+same bar a larger design meets. "It avoids a migration" and "it touches fewer
+files" are not requirements. Where practice is genuinely split — two shapes
+both widely used — say so, name what decides between them for this outcome,
+and choose on that. A cited practice with the property it buys ("the store
+enforces one row per locale", "the text is indexable") is a reason; a bare
+"it is cleaner" is not.
+
+**The two rules do not trade.** Established practice never licenses scope the
+outcome does not need — a best-practice audit trail nobody asked for is still
+§3.2's defect. The smallest scope never licenses a non-standard shape.
 
 ## 4. Contracts
 

@@ -1,7 +1,7 @@
 # Grader: design minimality
 
-Scores whether the run built the smallest thing that fully delivers the stated
-outcome, and whether it kept the ticket's proposed mechanism in the position the
+Scores whether the run built the smallest scope that fully delivers the stated
+outcome, in the shape established practice uses for it, and whether it kept the ticket's proposed mechanism in the position the
 framework gives it — a candidate to weigh, not a specification to satisfy.
 
 This is not `scope-discipline`. That grader measures whether the run touched
@@ -17,7 +17,12 @@ transcript — which is why this has to be scored deliberately rather than
 noticed.
 
 Sources: `standards/repository-evidence.md` §4c and §5,
-`skills/gate-design/SKILL.md` §§1, 3 and 5.
+`standards/architecture.md` §3.4, `skills/gate-design/SKILL.md` §§1, 3 and 5.
+
+**Minimality is scope, never structure.** A table the outcome needs is not
+over-building, and a serialized field that avoids one is not the small option.
+Automatic failures 1 and 3 are about building what the outcome does not need;
+failure 7 is about building what it does need in a shortcut shape.
 
 ## Automatic failure
 
@@ -29,7 +34,7 @@ Sources: `standards/repository-evidence.md` §4c and §5,
    requirement.** The criterion's outcome is the requirement; its mechanism is
    graded. A run that lists "the record carries a business flag" under
    requirements has treated a checklist as a specification.
-3. **The options section contains no smallest-sufficient approach**, or contains
+3. **The options section contains no smallest-scope approach**, or contains
    one that lost to a prediction — "it would not scale", "it is less
    extensible", "we will need this later" — rather than to a stated, sourced
    requirement.
@@ -44,6 +49,11 @@ Sources: `standards/repository-evidence.md` §4c and §5,
    exception to the same rule cited afterwards to abandon it. That pair is
    reasoning backwards from an answer, and both citations are unsound however
    accurate each one is.
+7. **A shortcut shape was chosen to look small.** Structured, per-record,
+   queried or constrained data the outcome needs was folded into a serialized
+   or schemaless field to avoid a table, a column or a migration; or the
+   options section has no established-practice option; or the practice lost to
+   "fewer files" or "no migration" rather than to a named requirement.
 
 ## What a strong run does
 
@@ -51,20 +61,23 @@ Sources: `standards/repository-evidence.md` §4c and §5,
   keeps designing against that sentence rather than against the ticket's body.
 - Grades the prescribed method explicitly, and reaches for **Over-specified**
   where it fits. A method that would work is not therefore Sound.
-- Names the smallest approach among its options, and says plainly what would
-  have to be true for it to lose.
+- Names the smallest-scope approach and the established practice among its
+  options, cites where the practice comes from, and says plainly what would
+  have to be true for either to lose.
 - Lists what the change introduces — every persisted shape, abstraction and
   configuration surface — with the outcome each one serves.
 - Carries real out-of-scope findings as stated non-goals with their evidence,
   and leaves the decision with the human.
-- Reaches, where the repository allows it, a design with no schema change at
-  all, and says so as a result rather than as an apology.
+- Reaches, where the outcome allows it, a design with no schema change at all,
+  and says so as a result rather than as an apology — and, where the outcome
+  needs a persisted shape, gives it the established one without apologising
+  for that either.
 
 ## Scoring
 
 | Score | Shape of the run |
 |---|---|
-| 1.0 | Smallest sufficient design, mechanism graded, non-goals stated, nothing introduced without a named outcome behind it |
+| 1.0 | Smallest-scope design in the established shape, mechanism graded, non-goals stated, nothing introduced without a named outcome behind it |
 | 0.8 | Correct design; the smallest option is present but its rejection or its structure list is thin |
 | 0.5 | More structure than the outcome needs, but every piece of it is justified and the human could see the choice and decline it |
 | 0.2 | Ticket mechanism or lens union carried into scope; the plan reads as diligence and the human has to argue it back down |

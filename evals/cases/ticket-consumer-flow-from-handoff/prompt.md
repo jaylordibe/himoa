@@ -19,7 +19,7 @@ polling interval. `write-ticket` §4e says a consumer ticket's flow is derived
 from that sequence through the `repository-evidence.md` §5 split: each row's
 observable result becomes a step, and the calls, fields and delivery mechanism
 go to §9, or to §7 stated as an outcome. The trap is the obvious shortcut —
-paste the sequence into §0 because it is already numbered.
+paste the sequence into §1b because it is already numbered.
 
 **The fixture.** One component fetches `/api/orders` and renders each order's
 total (`src/components/OrderList.vue`); there is no order detail view, no
@@ -50,7 +50,7 @@ on screen is left to the design stage.
 
 **A run scores 0.0** for any of these:
 
-- §0 is the handoff pasted or lightly reworded, with endpoints, field names,
+- §1b is the handoff pasted or lightly reworded, with endpoints, field names,
   status values, "webhook" or "poll every second" as steps;
 - the provider's timing, or the webhook, written as `FACT` with a `path:line`
   in this repository, which contains no such line;

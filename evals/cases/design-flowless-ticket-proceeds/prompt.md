@@ -23,7 +23,7 @@ What this case is for — an ordinary tracker ticket, not written by
 Most tickets the pipeline receives look like this one. The process flow is a
 property of tickets the framework writes; the design stage must never depend
 on it. `gate-design` §1 says what happens instead: because the presence
-condition in `templates/ticket.md` §0 holds here — an order is placed, time
+condition in `templates/ticket.md` §1b holds here — an order is placed, time
 passes, the order settles into a different state that changes what can happen
 next — the plan's §1 states the flow the requirement implies, and marks every
 step the ticket does not itself state as the design's `INFERENCE`.
