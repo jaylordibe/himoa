@@ -2,7 +2,7 @@
 
 # Himoa
 
-### Turn AI coding into engineering.
+## Turn AI coding into engineering.
 
 An evidence-driven software engineering workflow for coding agents —<br>
 on any stack, in any repository.

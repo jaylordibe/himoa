@@ -50,7 +50,7 @@ behaviour is version-sensitive; re-verify before relying on a row
 
 | Requirement | Claude Code | OpenAI Codex |
 |---|---|---|
-| **Always-on methodology bootstrap** | SessionStart hook injects the charter; **version-stamped** from `plugin.json`; native | `AGENTS.md` (root→CWD cascade, 32 KiB cap), always read; **no version stamp**; native-load, content advisory |
+| **Always-on methodology bootstrap** | SessionStart hook injects the charter; **version-stamped** from `plugin.json`; native | `AGENTS.md` (root→CWD cascade, 32 KiB cap), always read; **stamped once, never refreshed**; native-load, content advisory |
 | **Progressive-disclosure skills** | `SKILL.md` + description-driven load; native | `SKILL.md` + `name`/`description`, ≤2% preview, `.agents/skills/`; native |
 | **Independent read-only reviewers** | subagents, `disallowedTools`, fresh context; native | subagents `.codex/agents/*.toml`, `sandbox_mode="read-only"`, isolated context; native |
 | **Human-approval gate the model cannot self-start** | `disable-model-invocation` gate skills; native + methodology | `policy.allow_implicit_invocation:false`; native + methodology. Plus `approval_policy=on-request` is **hard** for restricted ops |
@@ -60,10 +60,13 @@ behaviour is version-sensitive; re-verify before relying on a row
 
 ### What each row implies for an adapter
 
-- **The bootstrap has one honest gap on Codex: no version stamp.** Claude Code's
-  charter carries the plugin version and auto-updates; a Codex `AGENTS.md` does
-  neither. An adapter must surface that a Codex repository can silently run an
-  old methodology, rather than imply parity.
+- **The bootstrap has one honest gap on Codex: its version stamp goes stale.**
+  Claude Code's charter carries the plugin version and auto-updates. A Codex
+  `AGENTS.md` records the version its bootstrap was written with, but
+  re-running the installer leaves an existing bootstrap untouched and no doctor
+  compares that stamp, so it does not update. An adapter must surface that a
+  Codex repository can silently run an old methodology, rather than imply
+  parity.
 - **Both hosts can *hard-gate* a tool call, and Himoa declines to on both.** The
   "methodology, not enforcement" line is platform-independent — it is a design
   choice, not a Claude limitation. An adapter never turns a stated boundary into
