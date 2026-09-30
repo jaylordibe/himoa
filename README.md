@@ -29,8 +29,8 @@ Claude&nbsp;Code · Codex · Cursor · Gemini&nbsp;CLI · GitHub&nbsp;Copilot
 
 Coding agents are very good at producing code. Shipping a change well takes
 more than that: knowing what the system already is, deciding what should change
-before changing it, having the result checked by someone who did not write it,
-and proving it against the checks the repository trusts. That is software
+before changing it, having the result reviewed outside the context that wrote
+it, and proving it against the checks the repository trusts. That is software
 engineering — and under time pressure it is the part most easily skipped.
 
 Himoa gives your coding agent that working method. **The model brings the
@@ -143,8 +143,8 @@ review is never sufficient there.
 
 If you pass `work-item` a real issue key and an issue-tracker MCP server is
 connected, the final stage posts one comment on that item, and one on each
-same-tracker item linked as depending on or blocked by it. It never transitions
-an issue or edits a field.
+same-tracker item linked as depending on or blocked by it whose visibility is
+no wider than the item's own. It never transitions an issue or edits a field.
 
 > [!NOTE]
 > This is methodology the agent is instructed to follow, not a runtime block.
@@ -179,7 +179,8 @@ What Himoa asks of an agent, grouped by where in the lifecycle it matters.
 
 On Claude Code — [other agents](#install-on-other-agents) below.
 
-**1. Install the plugin** — once per machine, then restart Claude Code.
+**1. Install the plugin** — once per machine. If its commands don't appear,
+run `/reload-plugins` or restart Claude Code.
 
 ```text
 /plugin marketplace add jaylordibe/himoa
@@ -196,7 +197,8 @@ On Claude Code — [other agents](#install-on-other-agents) below.
 `framework-install` scaffolds `AGENTS.md`, a thin `CLAUDE.md` that imports it,
 and the plugin declaration in `.claude/settings.json`. `framework-doctor` checks
 the files exist, the declared commands resolve and the documentation still
-matches the code. Fill `AGENTS.md` in (below), then commit. A teammate who
+matches the code; both need `jq` on `PATH`, and without it say so rather
+than guess. Fill `AGENTS.md` in (below), then commit. A teammate who
 pulls the repository runs only `/plugin install himoa@jaylordibe`.
 
 **3. Run a change**
@@ -208,7 +210,7 @@ pulls the repository runs only `/plugin install himoa@jaylordibe`.
 `work-item` also accepts an issue key or an issue URL. On Claude Code, the
 approval stop is a single decision in plan mode, not a command to type.
 
-#### Where your truth lives
+### Where your truth lives
 
 Repository facts live in one file — **`AGENTS.md`** at the repository root —
 read by every agent. Claude Code reads it through the thin `CLAUDE.md`
@@ -235,7 +237,7 @@ itself, and the methodology forbids inferring approval.
 | Agent | Status | What that means |
 |---|---|---|
 | **Claude Code** | **Reference — full** | Native plugin; gate skills the model cannot invoke; read-only review subagents; an always-on `SessionStart` charter stamped with the plugin version |
-| **OpenAI Codex** | **Supported — initial adapter** | Native skills; gates set `allow_implicit_invocation: false`; read-only sandboxed subagents; `AGENTS.md`. Structurally validated, live end-to-end run pending. `AGENTS.md` carries no version stamp, so a repository can run an older methodology silently |
+| **OpenAI Codex** | **Supported — initial adapter** | Native skills; gates set `allow_implicit_invocation: false`; read-only sandboxed subagents; `AGENTS.md`. Structurally validated, live end-to-end run pending. The `AGENTS.md` bootstrap records the version it was written with and never updates itself, so a repository can run an older methodology silently |
 | **Cursor** | **Supported — initial adapter** | Native `SKILL.md` and `AGENTS.md`; `disable-model-invocation` honoured; read-only reviewer subagents. Shares its install with Codex. Live end-to-end run pending |
 | **Gemini CLI** | **Supported — initial adapter** | Reuses `AGENTS.md`; native read-only reviewer subagents; `/himoa:*` slash commands; gates are human-typed commands. Live end-to-end run pending |
 | **GitHub Copilot** | **Supported with limitations** | Repository-committed `AGENTS.md`; approval is hard, because a human merges the pull request. Reviewer lenses are advisory — no read-only subagent, no skills mechanism — and `context-mapper` is not projected (over the host's custom-agent size limit) |
@@ -258,9 +260,10 @@ behalf.
 
 <br>
 
-The `himoa-*` bins are on your `PATH` once the Claude plugin is installed, or
-run them from a clone:
-`git clone https://github.com/jaylordibe/himoa && himoa/plugins/himoa/bin/himoa-<host>-install`
+Run the installers from a clone:
+`git clone https://github.com/jaylordibe/himoa && himoa/plugins/himoa/bin/himoa-<host>-install`.
+Inside a Claude Code session with the plugin enabled, they are also on that
+session's `PATH` by name, as below.
 
 ```bash
 himoa-codex-install          # Codex  — skills + read-only reviewers + standards (machine)
@@ -304,7 +307,7 @@ migration gets everything it needs.
 | Tier | Examples | You get |
 |---|---|---|
 | **Below Low** | Comment fix, rename in one file, log line, a one-liner whose cause and effect are on screen | The edit and a one-line note. No map, plan, lens or report |
-| **Low** | Copy, isolated rename, test-only cleanup | No plan document; review and validation still run in full |
+| **Low** | Copy, isolated rename, test-only cleanup | No plan document; a self-review without lens subagents, then validation |
 | **Medium** | Business logic, endpoint behaviour | A plan; `reviewer` plus the one domain lens the change touches |
 | **High** | Authentication, authorization, tenancy, personal data, money, uploads, webhooks, integrations, migrations, public contracts, concurrency | Full plan, threat model, negative tests, multi-lens review |
 | **Critical** | Identity infrastructure, cryptography, broad privileged access, destructive data work, production repair, release infrastructure | All of High, the `architect` lens, and **human security review** — automated review is never sufficient |
@@ -319,9 +322,10 @@ requires.
 
 **Risk sets rigor, not the model.** The tier answers *how much engineering this
 change needs*. Model choice is a separate, per-launch decision by the kind of
-work: reasoning work — design, implementation, review — uses your session's
-model and is never downgraded to save usage, and no guarantee Himoa makes
-depends on which model ran.
+work: reasoning work — design, implementation, review — uses at least your
+session's model, is raised where a stronger one is available for the hardest
+calls, and is never downgraded to save usage. No guarantee Himoa makes depends
+on which model ran.
 
 **Investigate deeply, build minimally.** A High-risk change may earn a deep
 map, a threat model and a full review panel and still ship as a five-line
@@ -335,12 +339,12 @@ the same problem — not squeezed into a shortcut to avoid a table. Policy:
 
 ## Independent review lenses
 
-Eight read-only agents. None of them can edit your code; each reviewing lens
-runs in a fresh context and owns one decision.
+Eight read-only agents. None of them is given a file-editing tool; each
+reviewing lens runs in a fresh context and owns one decision.
 
 | Lens | Examines | Runs when |
 |---|---|---|
-| `context-mapper` | Actual architecture and blast radius, before design | Always, first |
+| `context-mapper` | Actual architecture and blast radius, before design | First, before every design |
 | `reviewer` | Correctness, state and concurrency defects, error handling, responsibility placement, dead or duplicated code, your declared conventions | Medium and above |
 | `security` | Trust boundaries and sensitive operations (below) | High and above, or when the diff touches a trust boundary |
 | `tester` | Whether tests actually protect the changed behaviour; test quality and determinism; whether the evidence supports the verdict | High and above, or when coverage is material |
