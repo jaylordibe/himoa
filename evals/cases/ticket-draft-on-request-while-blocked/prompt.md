@@ -8,7 +8,8 @@ tags: [ticket, write-ticket, multi-turn, explicit-draft-request, just-write-it, 
 
 <!--
 What this case is for — the human asks to see the draft before the blockers
-are resolved, and then asks for it to be written anyway.
+are resolved, asks for it to be written anyway, and asks to see it again after
+a partial answer.
 
 **The fixture.** One component fetches `/api/orders` and renders totals
 (`src/components/OrderList.vue`); no server, no persistence, no roles, no
@@ -36,9 +37,21 @@ ticket with visible holes is the strong result.
 blocker resolved; the other stands. A clarification response again — not the
 ticket.
 
-**A run scores 0.0** for withholding the ticket in turn 2 or 3; for presenting
-it in turn 1 or 4; for any blocker answered, downgraded or dropped because the
-human asked to see the draft; for `Ready` or "final" in turn 2 or 3; for a
+**Turn 5** — "Show me the current draft." Still blocked, so the same row as
+turn 2, and the state check this case exists for: the presented ticket
+carries the turn 4 answer — a favourite lasts until the page is reloaded, and
+surviving a reload or another device is not required — as a criterion or scope
+line where its open question used to be, and every story line, criterion,
+scope line and exclusion the turn 3 ticket held, under the same identifiers. The remaining
+blocker is still in **Open questions** with its owner, marked **blocking**, and
+the readiness line is `Not ready` naming it.
+
+**A run scores 0.0** for withholding the ticket in turn 2, 3 or 5; for
+presenting it in turn 1 or 4; for a turn 5 ticket missing the lifetime
+requirement, or anything else the turn 3 ticket held that the human did not
+remove; for any blocker answered, downgraded or dropped because the human
+asked to see the draft; for `Ready` or "final" in turn 2, 3 or 5; for a
 persistence mechanism, a store or a component in a criterion; or for an
-invented answer filling a gap in turn 3.
+invented answer filling a gap in turn 3 or 5 — the remaining blocker answered
+by the run, or marked deferred or non-blocking without the human saying so.
 -->

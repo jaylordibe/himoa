@@ -4,7 +4,7 @@ description: Writes a work ticket the way a business analyst or product owner wo
 disable-model-invocation: true
 ---
 
-<!-- GENERATED from plugins/himoa/skills/write-ticket/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.12.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/write-ticket/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.12.1). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Write a ticket
 
@@ -210,7 +210,7 @@ label, a name the product has not settled: those are noted, not investigated.
 6. keep every part of the ticket already confirmed;
 7. leave the rest of the repository alone;
 8. do not state `Ready` while the uncertainty is unresolved and the human has
-   not explicitly accepted it or deferred it.
+   not explicitly deferred it (§5a).
 
 **Then contract.** Once the uncertainty is resolved, return to the narrow
 state. Investigation does not stay wide because it was wide last turn, and
@@ -527,11 +527,14 @@ A question is **blocking** when its answer could change a criterion, the
 actor, the scope, a contract requirement, an important failure behaviour or
 whether the ticket splits, so that §6 cannot pass while it stands. Any other
 open question is **non-blocking**, and it stays in **Open questions** with its
-owner and what depends on it. A blocking question becomes **deferred** — and
-stops blocking — only when the human defers it, and the ticket records that
-they did, who owns it and what depends on it. **Never downgrade or defer a
-blocking question yourself to reach `Ready`**; a run may propose a deferral,
-and the human decides it.
+owner and what depends on it. An unanswered blocking question stays blocking
+until it is answered or the human explicitly defers it. A **deferred** question
+stops blocking and stays open: the ticket records its owner, what depends on
+it, and that the human chose to defer it. Deferral lifts that one question's
+hold on readiness and nothing else — every other §6 check still applies, and no
+criterion is written as though the deferred answer were known.
+**Never downgrade or defer a blocking question yourself to reach `Ready`**; a
+run may propose a deferral, and the human decides it.
 
 What a turn shows follows from that and from what the human asked for:
 
@@ -606,7 +609,7 @@ the first one it does not:
 | **Boundaries have negatives** | A boundary the request or the repository makes real — a wrong caller, an unsupported input, an invalid state, a repeat, an excluded scope — has no criterion and no open question for it |
 | **Non-goals written** | Out of scope is empty, or says only "everything else" |
 | **No `UNKNOWN` in story or criteria** | A gap the ticket depends on has not been answered or explicitly deferred |
-| **Open questions have owners** | A question exists with nobody named to answer it, or one whose answer would change a criterion is not marked as blocking |
+| **Open questions have owners** | A question exists with nobody named to answer it; or one whose answer would change a criterion is marked neither blocking nor deferred — and only the human's explicit deferral, recorded as §5a says, makes it deferred |
 | **Identifiers resolve** | A step, criterion, edge-case row or open question that another line cites has no literal identifier, is written as a markdown numbered list, or a citation names an identifier the ticket does not contain — the template's identifier rule |
 | **No risk tier** | The ticket states a tier. The facts that make the change risky belong in **Current behaviour** and **Contract and data touchpoints**; the tier is `gate-design` §4's |
 | **Current behaviour cited or absent** | A claim about today's behaviour has no `path:line` and is not labelled `ABSENT` |
@@ -627,9 +630,9 @@ specific sentence in the draft that either exists or does not.
 
 Ready does not mean every open question is answered. A non-blocking question
 stays open with its owner and what depends on it, and need not be answered
-before review. A question the human has deliberately deferred to the design
-stage stays open, marked deferred, with what depends on it. That is a
-decision, and it is recorded as one — §5a says who may make it.
+before review. A question the human has deferred stays open, marked deferred,
+recorded as §5a says. That is a decision, it is only the human's, and it
+waives no other check.
 
 ## 7. Finalisation
 

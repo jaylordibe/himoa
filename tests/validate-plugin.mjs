@@ -1185,7 +1185,10 @@ const NORMATIVE_ANCHORS = [
   // same breath; a blocker is never downgraded by the run to reach Ready; and
   // compaction recovery no longer assumes a full ticket was ever displayed, so
   // what cannot be recovered is asked for rather than guessed. Each sentence is
-  // pinned where it is stated.
+  // pinned where it is stated. 3.12.1: §6 once failed every unmarked
+  // criterion-changing question, so a human's deferral could never pass; the
+  // deferral sentence is pinned so §5a stays the one place that says what a
+  // deferral lifts and what it does not.
   {
     file: 'skills/write-ticket/SKILL.md',
     guarantee: 'while a blocker stands a turn is a clarification response and not the complete ticket; the last blocker resolved announces readiness and offers presentation once; a clear request is presented directly; asking to see the draft resolves nothing; and only the human finalises',
@@ -1193,8 +1196,8 @@ const NORMATIVE_ANCHORS = [
   },
   {
     file: 'skills/write-ticket/SKILL.md',
-    guarantee: 'a blocking question is defined once, deferred only by the human, never downgraded by the run to reach Ready, and Ready waits on every readiness check rather than an empty question list',
-    patterns: [/A question is \*\*blocking\*\* when/, /Never downgrade or defer a\s+blocking question yourself to reach `Ready`/, /`Ready` is announced only when §6 passes/],
+    guarantee: 'a blocking question is defined once, deferred only by the human, never downgraded by the run to reach Ready, a deferral waives no other readiness check, and Ready waits on every readiness check rather than an empty question list',
+    patterns: [/A question is \*\*blocking\*\* when/, /Never downgrade or defer a\s+blocking question yourself to reach `Ready`/, /Deferral lifts that one question's\s+hold on readiness and nothing else/, /`Ready` is announced only when §6 passes/],
   },
   {
     file: 'skills/write-ticket/SKILL.md',

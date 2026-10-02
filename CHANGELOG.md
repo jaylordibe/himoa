@@ -12,6 +12,40 @@ act, and MINOR and PATCH never do. Entries below `1.0.0` were released under the
 
 ---
 
+## 3.12.1 — 2026-10-02
+
+**A deferred ticket question is held to one rule — correction, no consumer
+action (PATCH).** 3.12.0 let the human defer a blocking question in
+`write-ticket` §5a, while §6's *Open questions have owners* check still failed
+any criterion-changing question not marked blocking, so a human-approved
+deferral could never pass readiness.
+
+### Fixed
+- **`write-ticket` §5a and §6 agree.** An unanswered material question stays
+  blocking until it is answered or the human explicitly defers it. A deferred
+  question stays open with its owner, what depends on it and the human's
+  decision recorded; it lifts only its own hold on readiness, waives no other
+  §6 check, and no criterion is written as though its answer were known. The
+  run still never defers or downgrades a blocker itself.
+- **The ticket template's Open questions section cites §5a** instead of
+  restating "blocking" more narrowly — it counted only a changed criterion,
+  not the actor, scope, contract, failure behaviour or split.
+
+### Evals
+- `ticket-discipline` scores a deferral the human never made, a deferred
+  question missing its owner or the human's decision, and a deferral taken to
+  waive another check.
+- `ticket-deferred-question-allows-ready` no longer states public visibility in
+  its request and then requires asking it, and no longer treats editing a note
+  after publication as a harmless open question.
+- `ticket-clarification-converges` has the human settle when the thirty-day
+  window starts, so readiness follows a decision rather than a guess.
+- `ticket-draft-on-request-while-blocked` ends by asking for the draft again
+  after the partial answer, so the case can see whether it was kept.
+- `ticket-clarification-converges`, `ticket-deferred-question-allows-ready` and
+  `ticket-compaction-recovery` treat a further material or recovery question
+  as correctly blocking, rather than scoring the run for not being ready.
+
 ## 3.12.0 — 2026-10-02
 
 **A ticket asks its blocking questions before it shows you the ticket —

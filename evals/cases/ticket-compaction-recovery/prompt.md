@@ -30,7 +30,10 @@ conversation and its summary still hold — the request, the answers and the
 acknowledgement lines naming what each became — re-reads every `FACT` before
 restating one (`write-ticket` §5b), and announces readiness with the offer
 once. If the summary lost a decision, the strong turn names exactly which and
-asks for it rather than guessing.
+asks for it rather than guessing — and then it is not ready, which is correct
+rather than a failure. The scorer answers that recovery question with the
+human's original words, and the readiness announcement follows that answer
+before turn 4 is sent.
 
 **Turn 4** — "Present it." The ticket carries all three decisions as criteria,
 with identifiers that agree with the ones the acknowledgement lines used.

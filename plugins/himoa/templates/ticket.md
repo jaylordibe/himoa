@@ -194,10 +194,10 @@ and goes in §9.
 ## 8. Open questions
 
 Only while a question is open. Each with an owner and what depends on the
-answer. **Blocking** means a criterion changes with the answer; **deferred**
-means the human has chosen to let the design stage decide, and that choice is
-recorded here. A question the human answered becomes the criterion, scope
-line or fact it was asking about, and leaves this table.
+answer, marked **blocking** or **deferred** as `write-ticket` §5a defines
+them — only the human defers a question, and that choice is recorded here.
+A question the human answered becomes the criterion, scope line or fact it was
+asking about, and leaves this table.
 
 | # | Question | Owner | Depends on it | Blocking / deferred |
 |---|---|---|---|---|
