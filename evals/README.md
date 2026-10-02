@@ -67,7 +67,7 @@ tracker ticket with no flow is designed without being asked to change shape.
 
 ## The ticket cases grade restraint as much as content
 
-Eighteen cases open with `write-ticket`, and most of them exist because a
+Twenty-three cases open with `write-ticket`, and most of them exist because a
 particular kind of thoroughness is a defect. `ticket-actor-evidenced`,
 `ticket-actor-human-supplied` and `ticket-actor-not-invented` are one
 instrument: the actor is grounded by the code, or by the human, or it is
@@ -88,6 +88,23 @@ numbered steps are implementation. Score it with `ticket-omits-empty-sections`,
 which fails the opposite habit — a flow written for a one-step outcome — and
 with `ticket-consumer-flow-from-handoff`, which fails a consumer ticket whose
 flow is the provider's handoff pasted in, endpoints and webhook included.
+
+Five grade **what a turn shows** (`write-ticket` §5a): while a blocking
+question stands the turn is the questions, not the ticket, and the complete
+ticket is held until the blockers are resolved or the human asks for it.
+`ticket-clarification-converges` walks the loop from the first question to the
+presented ticket — a partial answer, an answer that opens a new blocker, the
+readiness announcement and its single offer — and
+`ticket-clear-request-presents-directly` fails the opposite habit, a
+clarification round or an offer over a request with nothing blocking.
+`ticket-draft-on-request-while-blocked` grades "show me the draft" and "just
+write it" before the blockers are resolved, `ticket-deferred-question-allows-ready`
+grades a question the human defers against one the run must not defer for
+them, and `ticket-compaction-recovery` grades recovery when no turn ever showed
+the complete ticket. Because a clarification turn does not carry the ticket,
+state loss is found in the next presented one: every multi-turn case ends by
+asking for it, and the cases written before this rule are scored through the
+grader's *Scoring a case whose first turn is blocked*.
 
 Six of them grade the skill's application of
 `standards/execution-efficiency.md` — a read that starts narrow, widens only
@@ -126,7 +143,7 @@ disabled and compare. It is the only honest way to tell guidance from decoration
 | `design-minimality` | Was the smallest-scope design built, in the shape established practice uses rather than a shortcut that avoids a table — with the ticket's mechanism graded rather than satisfied, and the lenses read as constraints rather than as scope? |
 | `implementation-minimality` | Was the change the smallest coherent complete one for the scope — the reuse ladder walked, no complexity the evidence did not require — **without** shrinking past correctness or safety? |
 | `diagnosis-discipline` | For a defect, was the cause demonstrated and labelled before the fix was designed — with the proof scaled to the defect's shape, and the fix still reviewed and validated? |
-| `ticket-discipline` | Asked for a ticket, did the run write a goal — a process flow of observable steps first when the order is part of the outcome and none when it is not, a story whose actor the code or the human grounds, cited current behaviour, criteria split by what can be verified apart, negatives where a boundary is real, non-goals, open questions — re-emit its substance every turn without the empty sections, judge readiness on scope rather than effort, and keep every proposed mechanism and every guessed cause as a non-binding idea or a labelled hypothesis rather than a requirement? |
+| `ticket-discipline` | Asked for a ticket, did the run write a goal — a process flow of observable steps first when the order is part of the outcome and none when it is not, a story whose actor the code or the human grounds, cited current behaviour, criteria split by what can be verified apart, negatives where a boundary is real, non-goals, open questions — ask the blocking questions before presenting the ticket, keep every agreed requirement in each ticket it does present, leave out the empty sections, judge readiness on scope rather than effort, and keep every proposed mechanism and every guessed cause as a non-binding idea or a labelled hypothesis rather than a requirement? |
 
 ## The efficiency cases are graded in both directions
 

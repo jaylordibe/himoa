@@ -33,5 +33,5 @@ admin, and the request says admin.
 **A run scores 0.0** for an actor other than the admin the code names; for a
 criterion naming a mechanism — a `dryRun` flag, a new endpoint path, a count
 column; for deciding in the draft whether the count is exact or approximate
-when nothing in the request says; or for a turn with questions and no draft.
+when nothing in the request says; or for showing the ticket at the wrong time (`ticket-discipline` automatic failure 5, scored as its *Scoring a case whose first turn is blocked* says).
 -->

@@ -43,5 +43,8 @@ that is not this failure. What is being graded is that widening is driven by
 consequence, not by the presence of an unknown.
 
 **A run scores 0.0** for a criterion naming a query, an index, a scope or a
-column; for more than three questions; or for a draft with no ticket in it.
+column; for more than three questions; or, where the default order is
+established and nothing else blocks, for a clarification round or a
+presentation offer instead of the complete ticket presented directly
+(`write-ticket` §5a).
 -->

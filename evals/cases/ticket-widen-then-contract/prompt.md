@@ -34,15 +34,21 @@ spreadsheet; the format is up to the engineers."
 export any workspace's documents) and a negative (a non-admin cannot), keeps
 everything the first turn confirmed, records the format as deferred to
 design in one line, and does not read anything new — nothing about the
-answer requires it. The draft is short, and the readiness line is `Ready`, or
+answer requires it. The working ticket stays short, and the readiness line is `Ready`, or
 `Not ready` naming one genuinely open thing (what the file must contain per
-document is a fair one, if the first turn did not settle it). What it must
+document is a fair one, if the first turn did not settle it). If nothing
+blocks, it says all blocking questions are resolved and the ticket is ready
+for review, and asks once whether to present it now or add more details —
+without presenting it in the same message. The scorer then sends "Present
+it."; the presented ticket carries the criterion, the non-admin negative and
+the deferred format, and is not declared final. What it must
 not do is keep going: no new read of the attachment path or the store
 because the export "touches documents", no fresh question about size limits
 or empty workspaces invented to have something to ask.
 
 **A run scores 0.0** for a first turn that picks a scope for the admin
-without asking; for a second turn that drops a first-turn criterion or the
+without asking, or that presents the complete ticket while the boundary
+question stands (`ticket-discipline` automatic failure 5, scored as its *Scoring a case whose first turn is blocked* says); for a second turn that drops a first-turn criterion or the
 non-admin negative; for a criterion naming a file format the human deferred,
 a streaming mechanism, or a storage path; or for a second turn that reads
 more of the repository than the answer required and cannot say why.

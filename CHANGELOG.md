@@ -12,6 +12,68 @@ act, and MINOR and PATCH never do. Entries below `1.0.0` were released under the
 
 ---
 
+## 3.12.0 — 2026-10-02
+
+**A ticket asks its blocking questions before it shows you the ticket —
+improved guidance, no consumer action (MINOR).** `write-ticket` re-emitted the
+whole draft every turn, the first one included, so the human reread an
+unfinished ticket to reach the two or three questions at the end of it. The
+graders rewarded that.
+
+### Changed — what a `write-ticket` turn shows
+- **§5a — while a blocking question stands, a turn is a clarification
+  response.** A line on what the last answer decided and the identifier it
+  became (`Q2 → AC4`), at most three ranked questions, the remaining blockers
+  in one line, an excerpt only when a question needs one, and the readiness
+  line. Not the complete ticket — on the first turn included. Questions the
+  repository can answer are still read and answered from evidence.
+- **The complete working ticket is held throughout** (§5 step 3): every answer
+  goes into the requirement it resolves, identifiers stay stable, and a short
+  turn is a short message, never a smaller ticket. Nothing is stored outside
+  the conversation.
+- **The readiness transition.** When the last blocker is resolved and §6
+  passes, the run says the ticket is ready for review and asks once: "Would you
+  like me to present the complete ticket now, or add more details first?" — and
+  does not present it in the same message unless already asked. A request clear
+  enough that nothing blocks is presented directly, with no offer step. Ready,
+  presented and final are three separate acts; only the human finalises.
+- **Explicit requests.** "Show me the draft" shows the complete current ticket
+  with the blockers marked, and resolves nothing. "Just write it" keeps its
+  honest-draft behaviour. A request for the ticket after readiness gets the
+  ticket, not another offer. New detail that raises a blocker after readiness or
+  review returns to a clarification response.
+- **Blocking is defined once.** A question blocks when its answer could change
+  a criterion, the actor, the scope, a contract, an important failure behaviour
+  or the split. Only the human defers one; the run never downgrades a blocker to
+  reach `Ready`, and `Ready` waits on every §6 check, not an empty question list.
+- **§5b — compaction recovery** no longer rebuilds from "the last full ticket",
+  which a clarification loop may never have shown. It rebuilds from the
+  request, the answers and the acknowledgement lines, re-reads every `FACT`, and
+  asks for anything it cannot recover rather than guessing.
+- §8 replaces **The interview before the draft** with **The questionnaire** and
+  adds **The draft over the blockers**, **The ready that was not** and **The
+  repeated offer**.
+
+### Evals
+- `ticket-discipline` automatic failure 5 now fails a ticket shown at the wrong
+  time — presented unasked over a blocker, or withheld when asked or when
+  nothing blocks — and any presented ticket that lost agreed content. New
+  signals score the clarification response and the readiness transition. A new
+  section, *Scoring a case whose first turn is blocked*, scores the existing
+  cases' ticket content on the draft shown after `Show me the current draft.`
+- `ticket-refinement-retains-state` is rewritten across seven turns. New cases:
+  `ticket-clarification-converges`, `ticket-draft-on-request-while-blocked`,
+  `ticket-clear-request-presents-directly`,
+  `ticket-deferred-question-allows-ready` and `ticket-compaction-recovery`.
+  Thirteen other `ticket-*` cases are updated so a blocked first turn is a
+  clarification response; none still fails "a turn with questions and no
+  draft".
+- `ticket-defect-hypothesis-stays-hypothesis` no longer expects a risk tier in
+  the ticket, which 3.11.0 removed; the tenancy fact stays in current
+  behaviour.
+- `validate-plugin.mjs` pins the clarification response, the single offer, the
+  blocking definition and the compaction rule.
+
 ## 3.11.0 — 2026-09-30
 
 **A design builds the smallest scope in the established shape, never a

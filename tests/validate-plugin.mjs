@@ -1152,8 +1152,9 @@ const NORMATIVE_ANCHORS = [
   // or by the human and is never invented; readiness is judged on whether the
   // outcome is bounded, never on an estimate — the estimate is the design
   // decision the skill exists not to make; a criterion is split by what can be
-  // verified apart, not by the word "and"; every turn re-emits the substantive
-  // ticket and omits the sections with nothing in them. Each of these has a
+  // verified apart, not by the word "and"; every turn carries the whole
+  // working ticket and a presented ticket omits the sections with nothing in
+  // them. Each of these has a
   // plausible-looking opposite that reads as thoroughness, which is why the
   // sentence stating the rule is what is pinned.
   {
@@ -1173,8 +1174,32 @@ const NORMATIVE_ANCHORS = [
   },
   {
     file: 'skills/write-ticket/SKILL.md',
-    guarantee: 'every turn re-emits the substantive ticket and omits the sections with nothing in them',
-    patterns: [/re-emit the whole substantive ticket/i, /omitted section is omitted/i, /survives compaction/i],
+    guarantee: 'every turn carries the whole working ticket forward — a short turn is never a smaller ticket — and a presented ticket is rendered whole without the sections with nothing in them',
+    patterns: [/carry the whole working ticket forward/i, /a short turn is a short\s+message, never a smaller ticket/i, /omitted section is omitted/i, /rendered whole/i],
+  },
+  // 3.12.0. While a blocking question stands, a turn is a clarification
+  // response, not the complete ticket: re-emitting the whole draft every turn
+  // made the human reread an unfinished document to reach the questions. The
+  // rule has three edges that each fail silently in the other direction — the
+  // readiness transition offers presentation once and does not present in the
+  // same breath; a blocker is never downgraded by the run to reach Ready; and
+  // compaction recovery no longer assumes a full ticket was ever displayed, so
+  // what cannot be recovered is asked for rather than guessed. Each sentence is
+  // pinned where it is stated.
+  {
+    file: 'skills/write-ticket/SKILL.md',
+    guarantee: 'while a blocker stands a turn is a clarification response and not the complete ticket; the last blocker resolved announces readiness and offers presentation once; a clear request is presented directly; asking to see the draft resolves nothing; and only the human finalises',
+    patterns: [/### 5a\. What a turn shows/, /\*\*clarification response\*\*/i, /Would you like me to present the complete ticket now, or add more details first\?/, /presented directly as the review draft/i, /resolves nothing and finalises nothing/i, /the offer is not repeated/i, /three\s+separate acts, and only the last ends the mode/i],
+  },
+  {
+    file: 'skills/write-ticket/SKILL.md',
+    guarantee: 'a blocking question is defined once, deferred only by the human, never downgraded by the run to reach Ready, and Ready waits on every readiness check rather than an empty question list',
+    patterns: [/A question is \*\*blocking\*\* when/, /Never downgrade or defer a\s+blocking question yourself to reach `Ready`/, /`Ready` is announced only when §6 passes/],
+  },
+  {
+    file: 'skills/write-ticket/SKILL.md',
+    guarantee: 'after compaction the working ticket is rebuilt from the conversation without assuming a full draft was shown, every FACT is re-read, and what cannot be recovered is asked for rather than guessed',
+    patterns: [/### 5b\. After compaction/, /no "last full\s+ticket" to rebuild from/i, /re-read from the code before it is restated/i, /never reconstruct it by guessing/i],
   },
   // Adaptive depth is the execution-efficiency standard applied to a ticket,
   // and the skill must keep saying so: without the citation this section is a

@@ -43,6 +43,6 @@ outcomes fused so that a validation can pass one and report both.
 **A run scores 0.0** for a criterion naming a uniqueness constraint, an index,
 a column or a validation rule class; for deciding in the draft what the
 rejection looks like to the caller — a status, a message — when nothing says;
-or for asking about the feed without emitting a draft. It scores weakly for
+or for showing the ticket at the wrong time (`ticket-discipline` automatic failure 5, scored as its *Scoring a case whose first turn is blocked* says). It scores weakly for
 the mechanical split of sentence one or the missing split of sentence two.
 -->

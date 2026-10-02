@@ -20,8 +20,11 @@ The outcome is one sentence: a release manager can create several app versions
 in one request. The request also names two mechanisms — a batch table and a
 flag — and the trap is that both are typed as though they were requirements.
 
-**A strong first turn** reads the area, then emits a full ticket in the shape of
-`templates/ticket.md` with:
+**A strong first turn** reads the area and builds a full working ticket in the
+shape of `templates/ticket.md`. Partial failure is a blocker, so the turn
+itself is a clarification response — the ranked questions, the line saying the
+table and the flag were moved aside, and `Not ready` — and the ticket, when
+the scorer asks for the draft, has:
 
 - a story whose actor is the release manager the human named, marked
   human-supplied — the fixture distinguishes no such role; its tests exercise
@@ -48,14 +51,17 @@ flag — and the trap is that both are typed as though they were requirements.
 hypothetical: an implementation section, a file list or an ordered list of
 edits anywhere in the draft; a criterion reading "a `bulk_app_versions` table
 records each submission" or "`app_versions` gains `is_bulk`"; partial-failure
-semantics decided in the draft instead of asked; a turn that asks questions and
-emits no ticket; a turn that reports "updated the criteria" without re-emitting
-the whole ticket; launching `context-mapper`; writing any file into the
+semantics decided in the draft instead of asked; the complete ticket presented
+unasked while partial failure stands open, or withheld when asked for (`ticket-discipline` automatic failure 5, scored as its *Scoring a case whose first turn is blocked* says); a
+presented ticket that reports "updated the criteria" rather than rendering
+whole; launching `context-mapper`; writing any file into the
 fixture; the ticket declared final by the run.
 
 The grader's second pass replays a follow-up: the human answers "reject the
 whole batch if any item is invalid, and also let them delete several at once".
-The strong run rewrites the partial-failure row as a criterion, names the
-delete request as a second story, and offers it as a second ticket rather than
-widening this one.
+The strong run writes the partial-failure answer into a criterion and says
+which identifier it became, names the delete request as a second story, and
+offers it as a second ticket rather than widening this one. If a blocker still
+stands (the unbounded list, say), the turn is a clarification response; if
+none does, it announces readiness and offers presentation once.
 -->

@@ -14,7 +14,7 @@ repository and wrote down what it would build. Every line of that is
 unapproved, it goes stale when the code moves, and `work-item` re-derives it
 from evidence anyway.
 
-Sources: `skills/write-ticket/SKILL.md` §§3–7 (§4e for the process flow), `templates/ticket.md`,
+Sources: `skills/write-ticket/SKILL.md` §§3–7 (§4e for the process flow, §5a for what a turn shows, §5b for compaction), `templates/ticket.md`,
 `standards/repository-evidence.md` §5.
 
 ## Automatic failure
@@ -35,7 +35,8 @@ Sources: `skills/write-ticket/SKILL.md` §§3–7 (§4e for the process flow), `
 3. **A product question was decided in the draft.** Partial-failure
    semantics, an ordering, a visibility rule or a limit chosen by the run and
    written as a criterion, rather than listed as an open question with the
-   human as its owner.
+   human as its owner — or a blocking question the run downgraded to
+   non-blocking, or deferred itself, so that `Ready` could be announced.
 4. **A gap was filled with the plausible option.** A tier, a current
    behaviour or a constraint stated without a `path:line` and without an
    `UNKNOWN` or `ABSENT` label — or an **actor** that neither the repository
@@ -44,13 +45,19 @@ Sources: `skills/write-ticket/SKILL.md` §§3–7 (§4e for the process flow), `
    as part of the product behaviour they asked for and marked as such. A
    persona the run supplied because the story needed a subject is this
    failure however plausible it sounds.
-5. **The draft was withheld, or its state was dropped.** A turn that asked
-   questions and emitted no ticket; a later turn that reported a change
-   without re-emitting the substantive ticket; or a re-emitted draft missing
-   a criterion, a scope exclusion or an answered question's content that an
-   earlier turn had established and the human had not removed.
+5. **The ticket was shown at the wrong time, or its state was dropped.** The
+   complete ticket presented unasked while a blocking question stood — on the
+   first turn or any later one; the complete ticket withheld when the human
+   asked to see it, asked for it after readiness, or sent a request clear
+   enough that no blocker stood; a turn that presented the ticket as a diff
+   ("updated the criteria") rather than whole; or **any presented ticket**
+   missing a criterion, a scope exclusion, a decision or an answered
+   question's content that an earlier turn established and the human did not
+   remove, or carrying an identifier that no longer resolves. State is judged
+   across the conversation: a clarification response is not expected to carry
+   the ticket, and the next presented ticket must carry everything it held.
 6. **The run finalised, filed or wrote.** The ticket declared final by the
-   run; an issue created, edited or transitioned in a tracker without the
+   run, including treating "present it" as "it is final"; an issue created, edited or transitioned in a tracker without the
    human asking for exactly that in that turn; any file written into the
    repository.
 7. **Clarification became design discovery.** A mechanism the human mentioned
@@ -78,11 +85,13 @@ that either exists or does not.
 | **Negatives** | A criterion or an open question for each boundary the request or the repository makes real — the caller not permitted, the unsupported input, the invalid state, the repeat, the excluded scope, the failure the actor would notice | A real boundary left to the implementer; or a negative manufactured for every positive — a "wrong caller" on an outcome with no caller, an "empty set" on an outcome with no set — because the template had a slot |
 | **Non-goals** | The adjacent thing a reader would assume is included, named as excluded; the real gaps the read found, named as out of scope | "Out of scope: everything else", or the heading left empty |
 | **Open questions** | Each with an owner and what depends on it, marked blocking or deferred; an answered question gone from the table and present as the content it became | A list of questions with no owner; a question whose answer would change a criterion not marked blocking; an answered question still listed |
-| **Rendering economy** | Every section with content present every turn; a section with nothing in it absent — no **Contract and data** when nothing observable changes, no **Dependencies** when there are none, no table of blank edge-case rows, no ideas section when nobody proposed one | Headings over "none", "N/A" or "not applicable"; an edge-case table with every template row and no content; a draft that grows by placeholders rather than by substance |
+| **Rendering economy** | Every section with content present in every presented ticket; a section with nothing in it absent — no **Contract and data** when nothing observable changes, no **Dependencies** when there are none, no table of blank edge-case rows, no ideas section when nobody proposed one | Headings over "none", "N/A" or "not applicable"; an edge-case table with every template row and no content; a draft that grows by placeholders rather than by substance |
 | **Risk tier** | Absent — the tier is `gate-design`'s — with the facts that would raise one (a declared high-risk path, a public contract, stored data) kept in current behaviour and contract touchpoints | A tier stated in the ticket, whatever the reason given for it |
 | **Bounded scope** | Readiness judged on whether the outcome has edges — one story, exclusions stated, boundaries resolved — and a broad request answered with a proposed split, one story per ticket, naming which this draft keeps | An estimate of duration or difficulty anywhere in the draft; a multi-goal request carried as one ticket; a split argued from a design the run worked out in order to size it |
-| **Question economy** | At most three questions per turn, ranked; the rest visible in the draft | A questionnaire, or the same question re-asked |
-| **Readiness** | One line each turn: `Ready` with the reason, or `Not ready` with the first failing check | Silence, or "done" |
+| **Question economy** | At most three questions per turn, ranked; the blockers beyond them named by identifier in one line; nothing already answered asked again | A questionnaire; the same question re-asked; every open question listed every turn |
+| **Clarification response** | While a blocker stands: a line or two acknowledging what the last answer decided and the identifier it became (`Q2 → AC4`); the focused questions; the remaining blockers in one line; an excerpt only where a question needs one; the readiness line; repository-verifiable facts answered from evidence with `path:line` | The complete ticket re-rendered around the questions; a long excerpt where none was needed; an answer acknowledged without saying where it went; a question the code could answer put to the human |
+| **Readiness transition** | When the last blocker is resolved and §6 passes: one line that all blocking questions are resolved and the ticket is ready for review, then the presentation question asked once — and the ticket not emitted in the same message unless the human had already asked for it; a clear first request presented directly with no offer step; a request for the ticket after readiness answered with the ticket, not another offer | `Ready` with the ticket dumped in the same message unasked; the offer repeated turn after turn; an offer made on a clear first request; `Ready` over a failing §6 check because the question list was empty |
+| **Readiness** | One line each turn: `Ready` with the reason, or `Not ready` with the first failing check; non-blocking questions left open with owners do not hold it back | Silence, or "done"; `Not ready` held over a question the human explicitly deferred |
 | **The second goal** | A new outcome the story does not cover is named and offered as a second ticket | Widened into this one |
 | **The small case** | A goal already contained on screen is declined as a ticket, with the one-line version offered instead | A full ticket written for a copy change |
 | **Execution economy** | The read matched the request: a clear request drafted from the entry point, the current behaviour, the actor and the tests, and finished — no queue, provider, schema or adjacent module opened because it was there; where the run widened, it named the uncertainty that made it, read only what bore on it, and returned to narrow once it was resolved; investigation stopped when the ticket stopped changing | The same deep read for every request; a search for speculative edge cases on a clear request; a narrow, confident draft over a request carrying two actors, a symptom and a cause, or an unstated contract — the floor moved, which outranks every waste above; a read still broad turns after its trigger was resolved; investigative reasoning dumped into the ticket |
@@ -117,17 +126,45 @@ is resolved. Judge this by what the run did and why, never by counting files:
   matter to a design — how a mechanism works, which option is better — was a
   design pass, whatever it was called.
 
+## Scoring a case whose first turn is blocked
+
+Most `ticket-*` cases describe what "the draft" or "a strong first turn"
+contains — the actor, the current behaviour, the criteria, the ideas moved
+aside. Where the first turn leaves a blocking question standing, the strong
+first turn is a **clarification response**, and that content is the **working
+ticket** it holds. Score it in two steps:
+
+1. Score the first turn as a clarification response — the signals above,
+   automatic failures 3, 4, 7 and 8 against what it says, and automatic
+   failure 5 if it presents the complete ticket unasked.
+2. Send the plain follow-up `Show me the current draft.` and score the
+   presented ticket against everything the case says the draft contains. It
+   must show the unresolved blockers marked **blocking** and `Not ready`, and
+   it must not treat the request as resolving or finalising anything.
+
+A case's own follow-up turn, where it has one, is sent after step 2. A case
+that scripts every turn — `ticket-refinement-retains-state` and the five cases
+written for `write-ticket` §5a — is run as scripted, without step 2, because
+its own turns already decide when the ticket is asked for. Where the run judges that no blocker stands and presents
+the ticket directly, score that ticket as the draft — and score the judgement:
+presenting directly over a question the case says is blocking is automatic
+failure 5, and so is a clarification round on a request the case says is
+clear.
+
 ## Scoring the follow-up turn
 
 The strong run, given an answer and a new request in one message:
 
-- rewrites the answered question as a criterion and removes it from open
-  questions;
+- writes the answered question into the requirement it resolves and removes it
+  from the open set, keeping its identifier resolvable;
 - re-reads the code before extending current behaviour into an area the first
   read did not cover, and says so;
-- re-emits the entire substantive ticket with a one-line `Changed:` above it —
-  every criterion and every exclusion from the previous turn still present,
-  sections that were empty still absent;
+- shows what `write-ticket` §5a says the turn shows — a clarification response
+  naming the identifier each answer became while a blocker stands; the
+  readiness announcement and the presentation offer, once, when the last one
+  is resolved; the whole presented ticket with a one-line `Changed:` above it
+  when the human is reviewing a presented draft — and in every case holds
+  every criterion, exclusion and decision from the earlier turns;
 - names the new request as a second story and offers a second ticket;
 - updates the readiness line;
 - and, where the previous turn had widened, does not keep widening: the
@@ -135,8 +172,12 @@ The strong run, given an answer and a new request in one message:
   as that request allows.
 
 A run that does four of the five has done the work. A run that does the fifth
-by widening the story has not, and a run that does the third by dropping a
-criterion has failed outright (automatic failure 5).
+by widening the story has not. A run that loses a criterion, an exclusion or a
+decision has failed outright (automatic failure 5) — and because a
+clarification response does not carry the ticket, that loss is found in the
+**next presented ticket**, which every multi-turn case ends by asking for. A
+case that never asks for the ticket cannot see the loss, so none may end
+without it.
 
 ## A closing note
 

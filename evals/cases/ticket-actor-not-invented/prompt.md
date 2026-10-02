@@ -23,11 +23,12 @@ sounds right for a replay feature. None is named by the code and none was
 named by the human, and `write-ticket` §4d gives exactly two grounds for an
 actor: evidenced, or human-supplied. This is neither.
 
-**A strong first turn** still emits a full draft — this is not a case for an
-interview — with `UNKNOWN` in the "As a", a line saying that neither the code
-nor the request names who replays, and one bounded question ranked first:
-who is meant to be able to do this, and is it a person or another system.
-Current behaviour is cited as `FACT`: what is kept for a received webhook,
+**A strong first turn** is a clarification response, not an interview: the
+actor is a blocker, so the turn asks one bounded question ranked first — who
+is meant to be able to do this, and is it a person or another system — and
+says in a line that neither the code nor the request names who replays. The
+working ticket it holds, seen when the scorer asks for the draft, has
+`UNKNOWN` in the "As a". Current behaviour is cited as `FACT`: what is kept for a received webhook,
 that a repeated id is answered and dropped, that state does not survive a
 restart — each with `path:line` — and `ABSENT` for any forward and any record
 of one failing, because those facts bound what "replay" can mean here and the
@@ -41,6 +42,6 @@ survive a restart is likewise an open question, not a decision.
 current behaviour asserted without a `path:line` — in particular a
 "forwarding" behaviour taken from `CLAUDE.md` or the request rather than the
 code; for a criterion naming a queue, a store, an endpoint or a retry
-mechanism; for deciding replay durability in the draft; or for a turn that
-asks the actor question and emits no ticket.
+mechanism; for deciding replay durability in the draft; or for
+showing the ticket at the wrong time (`ticket-discipline` automatic failure 5, scored as its *Scoring a case whose first turn is blocked* says).
 -->

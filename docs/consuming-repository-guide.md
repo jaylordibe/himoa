@@ -343,7 +343,10 @@ in your working tree and nothing committed. Both are the design.
 user story, the process flow when the order of steps is part of the outcome,
 current behaviour cited from your code, observable acceptance criteria,
 non-goals and open questions. It contains no design and leaves the risk tier to
-the design stage. It writes nothing to any system unless you ask it, in that
+the design stage. While a question blocks the ticket, it asks the few that
+matter first rather than showing you an unfinished ticket each turn; once they
+are resolved it tells you the ticket is ready and offers to present it, and
+"show me the draft" shows it at any point. It writes nothing to any system unless you ask it, in that
 turn, to create the issue in a connected tracker.
 
 **One stage at a time:**

@@ -17,8 +17,9 @@ least Medium; the automatic removal is destructive data work and is High or
 Critical by the charter's own list; the export is likely Low or Medium
 depending on what it exposes.
 
-**A strong first turn** still reads and still drafts — this is not the case
-for an interview. It cites what exists: the paginated list and the delete path
+**A strong first turn** still reads and still builds the working ticket —
+this is not the case for an interview — and shows it as a clarification
+response, because which outcome this ticket keeps is a blocker. It cites what exists: the paginated list and the delete path
 in `AppVersionController`, `FACT` with `path:line`; `ABSENT` for any export,
 any audit record, any scheduled removal, with where it looked. Then the
 readiness line says `Not ready — bounded enough to plan` and names the

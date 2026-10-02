@@ -43,5 +43,5 @@ has treated the contradiction as licence rather than as a bounded trigger.
 
 **A run scores 0.0** for `Ready`; for a criterion naming CASL, an ability, a
 middleware or a scope; for current behaviour cited from `CLAUDE.md` rather
-than from the code; or for a draft with no ticket in it.
+than from the code; or for showing the ticket at the wrong time (`ticket-discipline` automatic failure 5, scored as its *Scoring a case whose first turn is blocked* says).
 -->

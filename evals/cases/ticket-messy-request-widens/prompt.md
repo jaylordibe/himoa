@@ -28,15 +28,16 @@ about Redis, retries or the provider's delivery semantics is in the
 repository, and the run must not go looking for it — the trigger is
 requirement ambiguity, and §2a widens for the WHAT only.
 
-**A strong first turn** emits a full draft and, beside it, names what fired:
+**A strong first turn** is a clarification response that names what fired:
 actor unclear, "reached" against "processed" unclear, a symptom mixed with a
-cause, possibly several outcomes. It keeps the symptom whole in **Problem**;
+cause, possibly several outcomes. The working ticket it holds — seen when the
+scorer asks for the draft (`ticket-discipline` automatic failure 5, scored as its *Scoring a case whose first turn is blocked* says) — keeps the symptom whole in **Problem**;
 grades the reporter's cause as a hypothesis (and notes as `ABSENT` that there
 is no retry or queue in the code, without investigating what one would need);
 writes Redis under **Ideas from discussion**; writes "no invoice is paid
 twice" as a criterion with the current overwrite behaviour cited beside it;
-lists admin-versus-vendor as a blocking open question owned by the human; and
-asks three ranked questions — which of the three outcomes this ticket is for,
+lists admin-versus-vendor as a blocking open question owned by the human. The
+turn asks three ranked questions — which of the three outcomes this ticket is for,
 who may mark by hand, and whether "reached us" means received or processed.
 Readiness is `Not ready`, with the split named first.
 

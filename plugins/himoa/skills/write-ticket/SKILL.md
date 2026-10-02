@@ -1,6 +1,6 @@
 ---
 name: write-ticket
-description: Writes a work ticket the way a business analyst or product owner would — a goal in user-story form, then the outcome's process flow when its order is part of the outcome, current behaviour cited from the repository, observable acceptance criteria, explicit non-goals and the questions still open, every cross-referenced item carrying a literal identifier. Leaves the risk tier to gate-design. Iterates with the human across turns, re-emitting the full substantive draft each time, and never writes a design, a file, or an issue into any system on its own.
+description: Writes a work ticket the way a business analyst or product owner would — a goal in user-story form, then the outcome's process flow when its order is part of the outcome, current behaviour cited from the repository, observable acceptance criteria, explicit non-goals and the questions still open, every cross-referenced item carrying a literal identifier. Leaves the risk tier to gate-design. Resolves the blocking questions with the human first, a few focused ones per turn, while holding the complete working ticket; presents it when the blockers are resolved or the human asks, and never writes a design, a file, or an issue into any system on its own.
 argument-hint: "<one-line goal | rough notes | issue key | issue URL | nothing yet>"
 disable-model-invocation: true
 disallowed-tools: Edit, Write, NotebookEdit
@@ -19,10 +19,13 @@ $ARGUMENTS
 This skill starts a **mode the conversation stays in** until the human says
 the ticket is final. A ticket is rarely right on the first draft. It converges
 through turns, and the rules below describe what every one of those turns owes.
+While a blocking question stands, those turns are short — the questions, not
+the document (§5a); the complete ticket is held throughout and presented when
+it is worth reading.
 
 Run it in the **main conversation context**. Do not fork it into a subagent:
-the draft is held in the message, the questions are answered by the person
-here, and the person is the only one who can end the mode.
+the working ticket is held in the conversation, the questions are answered by
+the person here, and the person is the only one who can end the mode.
 
 The work here is bounded — classifying the input, a targeted read, separating
 the outcome from the mechanism, and writing the draft. It maps nothing,
@@ -60,7 +63,7 @@ outcomes that would prove it, and stops there on purpose.
   this rule: every step in it is an event someone outside the system can
   observe, which is what makes it the goal rather than a plan for it.
 - **Never write anything into the repository.** The ticket lives in the
-  message. `disallowed-tools` enforces this for the turn that invokes the
+  conversation. `disallowed-tools` enforces this for the turn that invokes the
   skill; the rule holds for every turn after it.
 - **Never create, edit or transition an issue in a tracker on your own.** The
   finished ticket is handed over as text. If a tracker is connected and the
@@ -98,14 +101,20 @@ else.
    question: what should be true afterwards that is not true now. Do not read
    the repository until there is a goal to read against.
 
-## 2. First turn: read, then draft
+## 2. First turn: read, build the ticket, then ask or present
 
-**Draft first, interview second.** A draft the human can correct is faster
-than a questionnaire they must complete, and a draft with `UNKNOWN` written in
-it is a more precise question than any list. The first turn produces a full
-ticket in the shape of `${CLAUDE_PLUGIN_ROOT}/templates/ticket.md`, with every
-gap labelled — and, when the flow's presence condition holds (§4e), the
-**process flow** straight after the story. The flow is drafted before the
+**Build the draft first; show it when it is worth reading.** The first turn
+builds a full working ticket in the shape of
+`${CLAUDE_PLUGIN_ROOT}/templates/ticket.md`, with every gap labelled — and,
+when the flow's presence condition holds (§4e), the **process flow** straight
+after the story. Building it is what finds the questions that matter: a gap
+written into a draft as `UNKNOWN` is a more precise question than any list.
+What the turn **shows** is §5a's to decide. When a blocking question remains,
+the turn is a clarification response — the focused questions, with the ticket
+held rather than presented — because a complete ticket over unanswered
+blockers is a document the human reads only to reach the questions at the end
+of it. When none remains, the turn presents the complete ticket as the review
+draft, with no clarification round and no offer to present it first. The flow is drafted before the
 criteria because it is the goal told in order: the criteria and the edge cases
 are then written against its steps rather than assembled beside them. It is
 placed after the story because a reader needs to know what the work is for
@@ -440,9 +449,10 @@ the consumer's own actor sees at each step.
 For a **defect**, the flow is the intended one, and the step where the observed
 behaviour departs from it is marked — an observation, never a cause (§4b).
 
-## 5. Every turn after the first
+## 5. Every turn
 
-Each turn in the mode does all of the following, in this order.
+Each turn in the mode does all of the following, in this order. The first
+turn starts at step 3, with §2's read in place of steps 1 and 2.
 
 1. **Absorb the answer.** The human's message may answer a question, add a
    requirement, name a mechanism, or change their mind. Apply §3 to it.
@@ -450,29 +460,22 @@ Each turn in the mode does all of the following, in this order.
    the first read did not cover gets the same bounded read before the
    **Current behaviour** section is extended. Never extend it from
    assumption.
-3. **Re-emit the whole substantive ticket.** Never a diff, never "updated the
-   criteria section". Every turn carries the full current state — the story,
-   the current behaviour where evidence exists, the problem, the scope with
-   its exclusions, every acceptance criterion, and every open question still
-   unresolved, with the process flow after the story when the ticket has one — so the
-   last message stands alone and survives compaction. A
-   criterion or an exclusion established in an earlier turn is in this turn's
-   draft unless the human removed it, and an answer the human gave is in the
-   draft as the content it became. What is **not** re-emitted is a section
-   with nothing in it: no **Contract and data touchpoints** when nothing a
-   consumer could observe changes, no **Dependencies** when there are none,
-   no **Edge cases** table of blank rows, no **Ideas from discussion** when
-   nobody proposed one. An omitted section is omitted, not written as "none",
-   "N/A" or "not applicable" — a placeholder is output the reader has to
-   check and it says nothing. Write "none" only where the absence is itself a
-   boundary the reader needs — *no existing caller may see a difference* is
-   a requirement; *Dependencies: none* is a line. Above the draft, one line
-   beginning `Changed:` says what this turn altered. When §2a widened this
-   turn, what accompanies the draft is the uncertainty, the evidence that
-   bears on it and the readings it decides between — never the investigation
-   itself. Search results, files that turned out not to matter and reasoning
-   that changed no line of the ticket stay out of the message
-   (`${CLAUDE_PLUGIN_ROOT}/standards/execution-efficiency.md` §9).
+3. **Carry the whole working ticket forward.** The working ticket is the
+   complete current state, held whether or not this turn shows it — the story,
+   the process flow after it when the ticket has one, the current behaviour
+   where evidence exists, the problem, the scope with its exclusions, every
+   acceptance criterion and edge case, the contract and data touchpoints, the
+   ideas from discussion, and every open question with its status. Each answer
+   goes into the requirement it resolves — a criterion, an exclusion, a step,
+   an edge-case row — and its question leaves the open set; it is never kept
+   only as a remark. Identifiers are stable: an answered `Q2` is not
+   renumbered away, and anything that cited it now cites what it became. A
+   criterion or an exclusion established in an earlier turn is in the
+   working ticket unless the human removed it. **A short turn is a short
+   message, never a smaller ticket**: what a clarification response leaves out
+   of the message it has not dropped from the ticket. Nothing outside the
+   conversation holds this state — no file, no tracker, no store — and nothing
+   needs to.
 4. **Ask at most three questions**, ranked by how much the answer changes the
    ticket. Three is the hard limit; the usual number is fewer. A question is
    justified only when its answer could change at least one of: readiness,
@@ -484,13 +487,31 @@ Each turn in the mode does all of the following, in this order.
    question — "can you give more detail", "what else should happen", "any
    edge cases?" — ask the focused one that exposes the exact unresolved
    decision, with the readings it decides between where that helps. Every
-   other question waits, still visible in **Open questions**. A question the
-   draft already shows as `UNKNOWN` is asked by pointing at it, not by
-   restating it.
-5. **State readiness in one line.** `Ready` with the reason, or `Not ready`
+   other question waits in the working ticket's **Open questions**. A question
+   already answered is never asked again; one the answer left partly open is
+   asked about the part still open, and says so.
+5. **Show what §5a says this turn shows.**
+6. **State readiness in one line.** `Ready` with the reason, or `Not ready`
    with the one thing that most stands in the way. §6 defines ready.
 
-And two things it watches for:
+When the turn presents the ticket, it renders the working ticket whole — never
+a diff, never "updated the criteria section" — with one line beginning
+`Changed:` above it saying what this turn altered. What is **not** rendered is
+a section with nothing in it: no **Contract and data touchpoints** when nothing
+a consumer could observe changes, no **Dependencies** when there are none, no
+**Edge cases** table of blank rows, no **Ideas from discussion** when nobody
+proposed one. An omitted section is omitted, not written as "none", "N/A" or
+"not applicable" — a placeholder is output the reader has to check and it says
+nothing. Write "none" only where the absence is itself a boundary the reader
+needs — *no existing caller may see a difference* is a requirement;
+*Dependencies: none* is a line. Whatever the turn shows, when §2a widened it,
+what the message carries is the uncertainty, the evidence that bears on it and
+the readings it decides between — never the investigation itself. Search
+results, files that turned out not to matter and reasoning that changed no
+line of the ticket stay out of the message
+(`${CLAUDE_PLUGIN_ROOT}/standards/execution-efficiency.md` §9).
+
+And two things every turn watches for:
 
 - **A second goal.** When the conversation grows an outcome the story does not
   cover — "and while we're there…" — say so, and offer it as a second ticket.
@@ -502,15 +523,73 @@ And two things it watches for:
   new feature. `${CLAUDE_PLUGIN_ROOT}/standards/repository-evidence.md` §4c
   owns the distinction.
 
-**If the human says "just write it."** Produce the smallest honest ticket: a
-story, the criteria the input supports, and every gap as an open question with
-its owner. A short ticket with visible holes is a good ticket. A short ticket
-with the holes quietly filled is a specification of the wrong thing.
+### 5a. What a turn shows
 
-**After compaction** the draft is rebuilt from the last full ticket in the
-summary, and every `FACT` in it is re-read from the code before it is
-restated — `${CLAUDE_PLUGIN_ROOT}/standards/execution-efficiency.md` §11. A
-summary's account of what the code does is not evidence.
+A question is **blocking** when its answer could change a criterion, the
+actor, the scope, a contract requirement, an important failure behaviour or
+whether the ticket splits, so that §6 cannot pass while it stands. Any other
+open question is **non-blocking**, and it stays in **Open questions** with its
+owner and what depends on it. A blocking question becomes **deferred** — and
+stops blocking — only when the human defers it, and the ticket records that
+they did, who owns it and what depends on it. **Never downgrade or defer a
+blocking question yourself to reach `Ready`**; a run may propose a deferral,
+and the human decides it.
+
+What a turn shows follows from that and from what the human asked for:
+
+| State after this turn | The turn shows |
+|---|---|
+| A blocking question stands, and the human has not asked to see the draft | A **clarification response**, below. Not the complete ticket — on the first turn included |
+| The human asks to see the draft while a blocker stands — "show me the draft", "just write it" | The complete current ticket, with every unresolved blocker marked **blocking** in **Open questions** and the readiness line `Not ready`. Asking to see it resolves nothing and finalises nothing. "Just write it" is this row: the smallest honest ticket — a story, the criteria the input supports, every gap an open question with its owner — and the holes stay visible rather than filled. The next turn with a blocker standing is a clarification response again |
+| The last blocker was resolved this turn and §6 passes | One line saying all blocking questions are resolved and the ticket is ready for review, then once: **"Would you like me to present the complete ticket now, or add more details first?"** Not the ticket in the same message, unless the human has already asked for it |
+| No blocker stands and §6 passes on the **first** turn | The complete ticket, presented directly as the review draft — no clarification round, no offer step |
+| The human asks for the ticket, or for the final ticket, with no blocker standing | The complete ticket, at once — no offer first. "Final" is §7 |
+| The ticket is ready or presented, and new detail raises no blocker | A presented ticket the human is reviewing is presented again with its `Changed:` line. A ticket not yet presented gets one line of acknowledgement and the readiness line; the offer is not repeated |
+| The ticket was ready or presented, and new detail raises a blocker | A clarification response again, not the complete ticket |
+
+When the blocking set empties but §6 still fails on something else — a step
+no criterion proves, an identifier that does not resolve, a negative a real
+boundary lacks — that is not readiness. Fix what the run can fix from the
+input and the evidence; what needs a decision is a blocking question, and the
+turn is a clarification response. `Ready` is announced only when §6 passes.
+
+**A clarification response** is short, and it holds, in order:
+
+- **What the latest answer decided or changed**, in a line or two, naming the
+  identifier each answer became — *"Q2 → AC4: the latest endpoint skips
+  withdrawn versions."* Nothing on the first turn except, where §3 moved a
+  mechanism or graded a claim, the one line saying so.
+- **At most three questions**, ranked, each justified as §5 step 4 requires
+  and carrying its identifier.
+- **The blockers that remain beyond those**, by identifier and a few words
+  each, in one line — not the questions already answered, and not an inventory
+  of every open question.
+- **An excerpt**, only when a question cannot be understood without one: the
+  criterion, step or `FACT` it would change, a few lines at most.
+- **The readiness line**.
+
+The investigation §2a asks for continues inside these turns, unchanged:
+anything the repository can answer is read and answered from evidence, with
+its `path:line`, and the response says so in a line rather than asking.
+
+### 5b. After compaction
+
+A clarification turn shows no complete ticket, so there may be no "last full
+ticket" to rebuild from — and nothing is stored outside the conversation that
+could stand in for one. Rebuild the working ticket from the conversation as it
+survives: the original request; each answer the human gave and the identifier
+each acknowledgement line says it became; the last presented draft, where
+there was one, with every later acknowledgement applied over it; and the
+questions still marked blocking, non-blocking or deferred. The acknowledgement
+lines are written to make this possible: each records a state change in the
+words it will be recovered from.
+
+Every `FACT` is re-read from the code before it is restated —
+`${CLAUDE_PLUGIN_ROOT}/standards/execution-efficiency.md` §11. A summary's
+account of what the code does is not evidence. **Where a material decision, an
+exclusion, a question's status or an identifier cannot be recovered, say
+exactly which and ask for it.** Never reconstruct it by guessing, and never
+claim the state was retained when it was not.
 
 ## 6. What "ready" means
 
@@ -548,18 +627,23 @@ These are the ordinary tests a good story is held to — independent,
 negotiable, valuable, bounded, testable — written so that each one is a
 specific sentence in the draft that either exists or does not.
 
-Ready does not mean every open question is answered. A question the human has
-deliberately deferred to the design stage stays open, marked deferred, with
-what depends on it. That is a decision, and it is recorded as one.
+Ready does not mean every open question is answered. A non-blocking question
+stays open with its owner and what depends on it, and need not be answered
+before review. A question the human has deliberately deferred to the design
+stage stays open, marked deferred, with what depends on it. That is a
+decision, and it is recorded as one — §5a says who may make it.
 
 ## 7. Finalisation
 
-When the human says the ticket is final:
+Announcing readiness, presenting the ticket and finalising it are three
+separate acts, and only the last ends the mode. The run does the first two;
+only the human does the third. When the human says the ticket is final:
 
 1. Emit the ticket once more, **clean**: draft markers, `Changed:` lines,
    readiness lines and grading notes stripped; `UNKNOWN` labels that survived
-   converted to open questions with owners; sections the ticket never earned
-   still absent. Put it in one fenced block so it pastes into a tracker
+   converted to open questions with owners; a blocking question the human
+   finalised over still listed, marked blocking — saying "final" does not
+   answer it; sections the ticket never earned still absent. Put it in one fenced block so it pastes into a tracker
    unchanged.
 2. Say what happens next, in two lines: the ticket can be fed to
    `/himoa:work-item` as pasted text or by its key once filed,
@@ -583,8 +667,14 @@ Each of these has been observed in a real transcript, and each is a defect.
   pass one at a time and the integration is still wrong — the call made before
   the answer it needed, the first response shown as the result. The developer
   steering the implementation has no sequence to hold it to.
-- **The interview before the draft.** Eight questions and no ticket. The human
-  came with a goal; give them something to correct.
+- **The questionnaire.** Eight questions on the first turn, or every unknown
+  the read found turned into a question. The human came with a goal; ask the
+  few whose answers change the ticket, answer what the repository can, and
+  let the rest wait in the working ticket.
+- **The draft over the blockers.** The complete ticket emitted every turn
+  while blocking questions stand, so the human rereads an unfinished document
+  to reach the three questions at the end of it. Until the blockers are
+  resolved or the human asks for the draft, the turn is the questions.
 - **The interview disguised as clarification.** Three questions a turn, every
   turn, none of which would change a line — asked because widening was
   permitted, not because anything was uncertain. §2a widens on material
@@ -654,15 +744,23 @@ Each of these has been observed in a real transcript, and each is a defect.
   numbered list, cited elsewhere as "Step 6" or "criterion 38". Pasted into a
   tracker, the list is renumbered or stripped and every citation points at
   nothing — or at a section that shares the number.
-- **The diff instead of the draft.** "I updated the criteria" with the ticket
-  nowhere in the message. The next turn, or the next session, has nothing to
-  work from.
-- **The dropped criterion.** A re-emitted draft that is shorter than the last
-  one because a criterion or an exclusion the human agreed to two turns ago
-  quietly fell out. The full substantive state is re-emitted every turn; only
-  the empty sections are not.
+- **The diff instead of the draft.** "I updated the criteria" in a turn that
+  presents the ticket, with the ticket nowhere in the message. A presented
+  ticket is rendered whole.
+- **The dropped criterion.** A presented ticket that is shorter than the
+  working ticket should be because a criterion, an exclusion or an answered
+  question's content the human agreed to turns ago quietly fell out while the
+  turns were short. A short clarification response is a short message, never
+  a smaller ticket; only the empty sections are left unrendered.
+- **The ready that was not.** `Ready` announced because the question list
+  emptied — a blocker the run quietly downgraded or deferred itself, or §6
+  still failing on a step no criterion proves.
+- **The repeated offer.** "Would you like me to present the ticket?" asked
+  again every turn after readiness, or asked when the human had already said
+  to present it. The offer is made once.
 - **The form filled in.** Every heading of the template present every turn,
   with "N/A" under half of them. The template is structure. A section with
   nothing in it is omitted, and the reader is spared the checking.
 - **Finalising unasked.** Announcing the ticket done because no question
-  remains. The human closes the mode.
+  remains, or treating "present it" as "it is final". Ready, presented and
+  final are three different things, and the human closes the mode.

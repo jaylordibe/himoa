@@ -76,7 +76,8 @@ To write the requirement first:
 
 A story, current behaviour cited from your code, observable acceptance
 criteria, non-goals and open questions, iterated with you until you say it is
-final. It starts with bounded evidence gathering and widens only when material
+final. While a question blocks the ticket it asks a few focused ones at a time,
+and shows the complete ticket once they are resolved or whenever you ask. It starts with bounded evidence gathering and widens only when material
 ambiguity requires it. No design — that is `work-item`'s job, with your
 approval.
 

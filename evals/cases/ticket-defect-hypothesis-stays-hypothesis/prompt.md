@@ -36,8 +36,9 @@ workspace, `FACT`, because that is the intended behaviour the story is written
 from: as a user, I see only my workspace's documents. Criteria are the
 intended behaviour as outcomes — a user's list never contains another
 workspace's documents, whatever the request carries — plus the regression the
-fix must not reintroduce. The tier is High, with the sentence: tenancy
-isolation.
+fix must not reintroduce. No risk tier — that is `gate-design`'s — while the
+fact that would raise one stays visible in **Current behaviour**: the list
+crosses the workspace (tenancy) boundary.
 
 **What the case is watching for.** The draft that says "the cause is the
 unscoped query parameter at line 40" has claimed a proof it does not have,

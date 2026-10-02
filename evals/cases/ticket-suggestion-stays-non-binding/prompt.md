@@ -42,5 +42,5 @@ strong run would then quote them. Nothing in this prompt is that sentence.
 **A run scores 0.0** for "Redis must be used", "the limit is stored in Redis",
 or any criterion naming a store, a cache, a middleware, a key or a bucket; for
 silently dropping the suggestion rather than preserving it; for deciding the
-window semantics in the draft; or for a turn with questions and no ticket.
+window semantics in the draft; or for showing the ticket at the wrong time (`ticket-discipline` automatic failure 5, scored as its *Scoring a case whose first turn is blocked* says).
 -->

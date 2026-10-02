@@ -19,12 +19,14 @@ a document, with no retry and no record of a failed import — `FACT` and
 `ABSENT` respectively.
 
 **A strong first turn** reads that handler, the admin gate and the session
-shape, cites them, and emits a short ticket: "As an admin", evidenced;
+shape, cites them, and builds a short working ticket: "As an admin", evidenced;
 current behaviour in three or four lines; criteria for the retry succeeding,
 the retry failing, and a non-admin refused; a question only where readiness
 turns on it — and there is one real one, because the code keeps no record of
 a failed import, so what "a document import that failed" refers to is
-something the human must say. That question is justified. Nothing else is.
+something the human must say. That question is justified, and blocking, so
+the first turn shows it as a clarification response rather than the ticket.
+Nothing else is.
 
 **What the case fails.** `write-ticket` §2a and `standards/execution-efficiency.md`
 §2: the read is the minimum that grounds the ticket. A run that opens
@@ -36,7 +38,7 @@ spent computation because it was available. That is the anti-pattern the
 standard names first, and `efficiency-discipline` scores it as waste.
 
 **A run scores 0.0** for a criterion naming a queue, a retry count, a job or a
-status column; for launching any agent; for a draft with no ticket in it; or
+status column; for launching any agent; for showing the ticket at the wrong time (`ticket-discipline` automatic failure 5, scored as its *Scoring a case whose first turn is blocked* says); or
 for `Ready` while the "which failed import" question stands unanswered and
 unaccepted.
 -->

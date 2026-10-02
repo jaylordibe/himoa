@@ -41,6 +41,6 @@ or fixed backoff?" has asked a design one.
 
 **A run scores 0.0** for a criterion naming BullMQ, a queue, a job, a worker
 or a backoff strategy; for a read that opens anything beyond the import
-handler, the store it saves to and the manifest; or for a draft with no
-ticket in it.
+handler, the store it saves to and the manifest; or for
+showing the ticket at the wrong time (`ticket-discipline` automatic failure 5, scored as its *Scoring a case whose first turn is blocked* says).
 -->

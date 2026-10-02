@@ -30,8 +30,11 @@ imported from a file that is not in the fixture, so whether a client sees
 the storefront web app. The code distinguishes no customer role; "customers"
 is the human's actor, marked human-supplied.
 
-**A strong first turn** opens the ticket with a **process flow**, numbered,
-each step an actor or system, an action and what can then be observed:
+**A strong first turn** builds the working ticket around a **process flow**;
+abandonment and double payment are blockers, so the turn is a clarification
+response, and the ticket — when the scorer asks for the draft (`ticket-discipline` automatic failure 5, scored as its *Scoring a case whose first turn is blocked* says) — opens
+with the flow straight after the story, each step an actor or system, an action
+and what can then be observed:
 
 1. the customer, viewing an unpaid order, starts a card payment;
 2. the card step is presented — the order is still unpaid;
@@ -79,5 +82,9 @@ seen; branches written only as criteria and missing from the flow.
 **The follow-up turn.** The human answers: "If they close the card step, the
 order just stays unpaid and they can start again." The strong run adds that as
 a branch of the flow and a criterion naming it, removes the question from the
-open ones, and re-emits the whole ticket with the flow still straight after the story.
+open set, and says which identifiers the answer became. Double payment still
+blocks, so the turn is a clarification response asking it — not the complete
+ticket. Then send "Show me the current draft." The presented ticket has the
+new branch and its criterion, the flow still straight after the story, every
+step and criterion from the first draft, and every identifier resolving.
 -->

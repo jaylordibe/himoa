@@ -431,10 +431,16 @@ derived. A flow is never required of the input: when it is absent, the design
 stage states the flow the requirement implies in the plan's §1 and carries on.
 
 The mode is deliberately not a pipeline. There is no ledger and no state file:
-the whole substantive ticket is re-emitted every turn — every criterion, every
-exclusion, every open question, with the sections that have nothing in them
-left out rather than written as "none" — so the last message is the state,
-and a draft too long for that is a ticket that needs splitting. How much the
+the working ticket lives in the conversation. While a blocking question stands,
+a turn is a short clarification response — what the last answer became, the
+few questions that matter, the blockers left — because re-emitting the whole
+draft every turn made the human reread an unfinished document to reach the
+questions. The complete ticket is presented once the blockers are resolved or
+the human asks, with every criterion, exclusion and decision the short turns
+carried, and the sections that have nothing in them left out rather than
+written as "none". Each acknowledgement names the identifier an answer became,
+so compaction can rebuild the ticket without one ever having been displayed,
+and what it cannot rebuild is asked for rather than guessed. How much the
 skill reads and asks is `standards/execution-efficiency.md` applied to a
 ticket, not a policy of its own: the read starts narrow, widens only when
 evidence reveals an uncertainty that could change the ticket — its actor,
