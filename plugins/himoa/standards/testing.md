@@ -101,7 +101,10 @@ seen to fail** while the behaviour it protects was absent or wrong. Only the
 third shows it can detect anything. Where a change owes a test, get that
 observation the cheapest way the work allows — run the test before the code
 that satisfies it, or break or revert that code once green and watch the test
-fail. Building in thin vertical slices — one behaviour's test, then the code
+fail. **Break or revert it in a copy outside the worktree** — a temporary
+directory, or a second worktree — never by stashing, resetting, checking out or
+copying over a file in the developer's worktree, which holds their work as
+well as yours. Building in thin vertical slices — one behaviour's test, then the code
 that passes it — produces the observation as it goes and suits logic behind a
 clear interface; it is one way to get it, not a required process. Where it was
 not observed, the report says so: "added and passing, not seen to fail" is an

@@ -4,7 +4,7 @@ description: Independently reviews the current diff for conformance to the appro
 disable-model-invocation: true
 ---
 
-<!-- GENERATED from plugins/himoa/skills/gate-review/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.13.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/gate-review/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.13.1). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Review the current change
 
@@ -262,6 +262,11 @@ changes; the cycle costs more than the precision it buys there.
 - Fix Medium findings unless they require product or architecture approval.
 - Fix Low findings only when the fix is safe and local.
 - Add regression tests for every fix.
+- **The worktree is the developer's, including the change under review.** Edit
+  it only with targeted fixes; never stash, reset, clean, check out, restore or
+  copy over a file in it, even to put it back afterwards. A test seen failing
+  against the old code is seen in a copy —
+  `@HIMOA_HOME@/standards/testing.md` §4.
 - Return to the approval gate for material divergence. **Never edit the plan to
   match the diff.**
 - Re-run the affected checks after fixes, and re-run the affected lenses —

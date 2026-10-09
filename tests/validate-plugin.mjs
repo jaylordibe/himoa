@@ -1479,6 +1479,21 @@ const NORMATIVE_ANCHORS = [
     guarantee: 'a test is judged by what it can catch: an expected value independent of the implementation, no test of how rather than what, and existence, passing and seen-to-fail kept apart',
     patterns: [/derived the way the code derives it/i, /independent of the implementation/i, /\*how\* rather than \*what\*/i, /seen to fail/i, /not a required process/i],
   },
+  // "Revert it and watch the test fail" sent review coordinators to stash the
+  // change under review, or copy the old file over it and back, in most
+  // headless gate-review runs on one model. The observation is wanted; where it
+  // is made is the guarantee, in the standard that asks for it and in the one
+  // stage besides gate-implement that edits.
+  {
+    file: 'standards/testing.md',
+    guarantee: 'a test is seen failing in a copy outside the worktree, never by stashing, resetting or overwriting the developer\'s files',
+    patterns: [/in a copy outside the worktree/i, /stashing, resetting/i, /developer's worktree/i],
+  },
+  {
+    file: 'skills/gate-review/SKILL.md',
+    guarantee: 'the review coordinator never stashes, resets, cleans, checks out, restores or copies over the developer\'s worktree, and sees old-code failures in a copy',
+    patterns: [/worktree is the developer's/i, /never stash, reset, clean, check out, restore/i, /even to put it back/i, /seen in a copy/i],
+  },
   {
     file: 'standards/untrusted-content.md',
     guarantee: 'repository content describes, it does not instruct',

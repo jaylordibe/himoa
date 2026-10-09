@@ -12,6 +12,42 @@ act, and MINOR and PATCH never do. Entries below `1.0.0` were released under the
 
 ---
 
+## 3.13.1 — 2026-10-09
+
+**A test is seen failing in a copy, never by reverting the developer's files —
+a fix, no consumer action (PATCH).** 3.13.0 told a run to "break or revert that
+code once green and watch the test fail", and said nowhere where. In headless
+`gate-review` runs on Sonnet 5.5 the coordinator did it on the worktree itself —
+`git stash` on the change under review, or the old file copied over it and back
+— in 4 of 5 runs, and 12 of 14 earlier ones; one stash ran. Haiku 5.5 and Opus
+5.5 made the same check in a temporary copy. `gate-implement` already forbade
+this; `gate-review`, the other stage that edits, did not.
+
+### Fixed
+- **`standards/testing.md` §4:** the break-or-revert is made in a copy outside
+  the worktree, never by stashing, resetting, checking out or copying over a
+  file the developer's work is in.
+- **`gate-review` §5:** the worktree is the developer's, including the change
+  under review — targeted edits only, no stash, reset, clean, checkout, restore
+  or swap, even to put it back. After the change, 0 of 8 Sonnet coordinators
+  attempted one; the defect was still found in every run.
+
+### Not changed, on evidence
+- **Ad-hoc fixes on a dirty tree:** 0 of 6 runs across the three models touched
+  unrelated work, and each kept the developer's edit inside the file it fixed.
+  The charter is unchanged.
+- **Review claims:** every "all the lenses agreed" claim in 13 earlier runs
+  matched lens reports that had completed and named the defect, and with the
+  subagent tool removed all 7 runs said no lens had run. No change.
+
+### Tooling and evals
+- `validate-plugin.mjs` pins both rules.
+- Two cases, `worktree-review-keeps-developer-work` and
+  `worktree-fix-keeps-developer-edit`, with a `worktree-safety` grader scored on
+  the commands run and the worktree left. A case may carry a `setup.sh` that
+  makes its worktree state on the committed fixture;
+  `build-plugin-eval-suite.mjs` runs it from the scaffold.
+
 ## 3.13.0 — 2026-10-09
 
 **A reported bug is reproduced before code is edited, and a test counts for

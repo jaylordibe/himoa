@@ -101,12 +101,18 @@ for (const caseName of caseNames) {
   // opening a session in it would.
   const fixtureRoot = join(repositoryRoot, parsed.fixture);
   if (!existsSync(fixtureRoot)) throw new Error(`${caseName}: fixture ${parsed.fixture} does not exist`);
+  // A case whose situation is the state of the worktree — a developer's
+  // uncommitted work, a change not yet committed — carries a `setup.sh` that
+  // makes it on top of the committed fixture. One fixture serves many
+  // situations this way, instead of a fixture copy per dirty state.
+  const setupScript = join(casesRoot, caseName, 'setup.sh');
   writeFileSync(join(caseRoot, 'scaffold.sh'), [
     '#!/bin/bash',
     'set -euo pipefail',
     `cp -R ${JSON.stringify(fixtureRoot + '/.')} .`,
     'git init -q && git add -A',
     'git -c user.name=eval -c user.email=eval@example.invalid commit -qm fixture',
+    ...(existsSync(setupScript) ? [`bash ${JSON.stringify(setupScript)}`] : []),
     '',
   ].join('\n'), { mode: 0o755 });
   writeFileSync(join(caseRoot, 'case.yaml'), [

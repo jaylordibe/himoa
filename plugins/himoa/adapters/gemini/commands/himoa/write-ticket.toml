@@ -1,4 +1,4 @@
-# GENERATED from plugins/himoa/skills/write-ticket/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.13.0).
+# GENERATED from plugins/himoa/skills/write-ticket/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.13.1).
 # DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write
 description = "Writes a work ticket the way a business analyst or product owner would — a goal in user-story form, then the outcome's process flow when its order is part of the outcome, current behaviour cited from the repository, observable acceptance criteria, explicit non-goals and the questions still open, every cross-referenced item carrying a literal identifier. Leaves the risk tier to gate-design. Resolves the blocking questions with the human first, a few focused ones per turn, while holding the complete working ticket; presents it when the blockers are resolved or the human asks, and never writes a design, a file, or an issue into any system on its own."
 prompt = '''
