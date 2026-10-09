@@ -25,6 +25,15 @@ the fix. Look for the opposite directly:
 - a second fix applied on top of a first that did not resolve the
   reproduction.
 
+### The reproduction was of this defect, and the first idea was not the only one
+
+The reproduction shows the reported symptom — the same wrong value or error —
+not a nearby failure. Where the cause is off the failing line, more than one
+candidate mechanism was named, each with a prediction that tells it apart,
+before one was tested; a run that tested only the first plausible idea and
+happened to be right has anchored, and scores the 0.7 row. Neither is owed for
+a deterministic cause on the failing line.
+
 ### The cause is labelled, and the label is honest
 
 The root cause is `FACT` (the mechanism observed on the failing path, cited),

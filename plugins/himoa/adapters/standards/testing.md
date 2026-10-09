@@ -1,4 +1,4 @@
-<!-- GENERATED from plugins/himoa/standards/testing.md by tests/validate-adapter-projection.mjs (himoa 3.12.1). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/standards/testing.md by tests/validate-adapter-projection.mjs (himoa 3.13.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Testing standard
 
@@ -73,6 +73,17 @@ Reject, in your own tests and in review:
 
 - assertions weak enough to pass on the wrong value — truthiness on an object,
   "not null", a bare status check where the body is the contract;
+- an expected value derived the way the code derives it — the same formula, the
+  same helper, a snapshot generated from the output under test — so the test
+  passes by construction and cannot disagree with the code. Expected values
+  come from a source independent of the implementation: the requirement, a
+  worked example, a known-good literal;
+- a test of *how* rather than *what* — asserting that an internal collaborator
+  was called, a call count or order, private state, or reading the outcome back
+  through a side channel the public interface could show. It breaks on a
+  correct refactor and passes a wrong result. Substitute only what the test
+  cannot own — a remote service, time, randomness — unless the repository's
+  own convention says otherwise;
 - uncontrolled time, randomness, network or ordering;
 - arbitrary sleeps standing in for synchronisation;
 - a new test added beside a stale one asserting the old behaviour — update the
@@ -84,6 +95,19 @@ Reject, in your own tests and in review:
 
 Tests are part of the change, not a follow-up. A behaviour change whose test
 was not updated is an unfinished change.
+
+### A test proves only what it has been seen to catch
+
+Three claims, never merged: a test **exists**; it **ran and passed**; it **was
+seen to fail** while the behaviour it protects was absent or wrong. Only the
+third shows it can detect anything. Where a change owes a test, get that
+observation the cheapest way the work allows — run the test before the code
+that satisfies it, or break or revert that code once green and watch the test
+fail. Building in thin vertical slices — one behaviour's test, then the code
+that passes it — produces the observation as it goes and suits logic behind a
+clear interface; it is one way to get it, not a required process. Where it was
+not observed, the report says so: "added and passing, not seen to fail" is an
+honest line, and the reader weighs it.
 
 ### A negative exposure test proves absence of content, on the path that ships
 

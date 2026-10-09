@@ -92,6 +92,12 @@ const REQUIRED_GUARANTEES = [
   // The third pattern is not decoration. This section is only safe because it
   // is bounded; a version of it that dropped the sensitive-area list would
   // pass a test that checked for the exit alone, and be worse than no exit.
+  // A pointer to domain-debugging alone did not get it loaded: in headless
+  // runs of evals/cases/defect-symptom-far-from-cause neither model loaded it
+  // unprompted, and the one-line pointer moved Opus 1 run in 2. Stating the
+  // behaviour itself — reproduce and watch it fail before editing — moved Opus
+  // from 0 of 3 to 3 of 3. The behaviour is what has to survive a rewrite.
+  { concept: 'a reported bug is reproduced, and seen failing, before code is edited', patterns: [/reported bug/i, /before editing code/i, /reproduce/i, /watch it fail|see it fail|seen fail/i, /domain-debugging/] },
   { concept: 'the exit below the lowest tier, and the bound on it', patterns: [/below Low|below the line/i, /no map|no plan/i, /authorization/i, /tenancy/i] },
   // Stated in the always-on text rather than only in gate-design for the same
   // reason as the quality floor: a ticket is read, and its shape adopted, in

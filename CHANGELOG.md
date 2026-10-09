@@ -12,6 +12,53 @@ act, and MINOR and PATCH never do. Entries below `1.0.0` were released under the
 
 ---
 
+## 3.13.0 — 2026-10-09
+
+**A reported bug is reproduced before code is edited, and a test counts for
+what it has been seen to catch — improved guidance, no consumer action
+(MINOR).** In headless runs a plain bug report was fixed straight from reading
+the code: `domain-debugging` was listed and never loaded, and a pointer to it
+in the charter did not change that. Stating the behaviour in the charter did,
+on Opus 5.5 — reproduce-before-edit went from 0 of 3 runs to 3 of 3. It did
+not change Sonnet 5.5 in any wording tried.
+
+### Changed — the always-on charter
+- **Workflow:** "A reported bug: before editing code, reproduce it, watch it
+  fail, and load `himoa:domain-debugging`." The charter stays at its 84-line
+  ceiling; the untrusted-content pointer moved onto the line before it, and
+  the bound that keeps below-Low work out of the workflow is kept.
+
+### Changed — tests, diagnosis and review
+- **`standards/testing.md` §4** rejects an expected value derived the way the
+  code derives it, and a test of *how* rather than *what*. A new subsection
+  keeps three claims apart — a test exists, it passed, it was seen to fail —
+  and treats test-first slices as one way to get the third, not a required
+  process. `agents/tester.md` carries both rules and reports which new tests
+  were only ever seen passing; `gate-implement` now points at §4 as well as
+  §3.
+- **`domain-debugging` §2:** a reproduction must show the reported symptom,
+  is cut down to what the failure needs, and a cause off the failing line gets
+  two or three candidate mechanisms before one is tested.
+- **`templates/review-handoff.md`:** each acceptance criterion is traced to the
+  code that delivers it, including its own negative and edge cases; a
+  criterion delivered for its happy path only is partial.
+
+### Tooling
+- `validate-plugin.mjs` pins the new rules, and fails when the tester's copy of
+  the §4 rules drifts from the standard. `validate-charter.mjs` pins the
+  defect line.
+
+### Evals
+- New fixture `fixtures/review-surface`: a passing suite over a wrong invoice
+  total, a half-delivered criterion, a per-row query, single-implementation
+  layers and a receipt-date bug whose cause is a shared helper. Each defect is
+  pinned in `validate-fixtures.mjs`.
+- Five cases run against it, with two new graders (`test-quality`,
+  `review-substance`); `diagnosis-discipline` scores a reproduction of the
+  wrong failure and a single anchored hypothesis.
+- `evals/build-plugin-eval-suite.mjs` derives a suite `claude plugin eval` can
+  run, into a plugin copy outside the repository, so the corpus is not shipped.
+
 ## 3.12.1 — 2026-10-02
 
 **A deferred ticket question is held to one rule — correction, no consumer

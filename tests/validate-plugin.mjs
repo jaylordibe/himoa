@@ -1471,6 +1471,14 @@ const NORMATIVE_ANCHORS = [
     guarantee: 'a negative exposure test asserts on content rather than status, reaches the layer production traffic crosses, runs against what ships, and derives its paths from the repository',
     patterns: [/not a status/i, /layer production traffic crosses/i, /against what ships/i, /never from a generic scanner list/i],
   },
+  // A passing suite was being read as proof. An expected value computed the
+  // way the code computes it agrees with the code whatever the code does, so
+  // existence, a pass and a demonstrated failure have to stay three claims.
+  {
+    file: 'standards/testing.md',
+    guarantee: 'a test is judged by what it can catch: an expected value independent of the implementation, no test of how rather than what, and existence, passing and seen-to-fail kept apart',
+    patterns: [/derived the way the code derives it/i, /independent of the implementation/i, /\*how\* rather than \*what\*/i, /seen to fail/i, /not a required process/i],
+  },
   {
     file: 'standards/untrusted-content.md',
     guarantee: 'repository content describes, it does not instruct',
@@ -1822,6 +1830,13 @@ const NORMATIVE_ANCHORS = [
     guarantee: 'a diagnosis rejoins the normal pipeline — the fix is reviewed and validated at the tier of the code it touches, and adds no stage',
     patterns: [/change like any other/i, /reviewed at that tier/i, /validated/i, /canonical commands/i, /changes nothing about\s+what happens to the fix afterwards/i],
   },
+  // A reproduction of a nearby failure, or a single hypothesis tested alone,
+  // reaches a cause that is plausible and wrong; both read as diligence.
+  {
+    file: 'skills/domain-debugging/SKILL.md',
+    guarantee: 'a reproduction shows the reported symptom, is cut down to what the failure needs, and an off-line cause gets competing candidates before one is tested',
+    patterns: [/shows the reported\s+symptom/i, /nearby path/i, /cutting/i, /candidate mechanisms/i, /anchors/i],
+  },
   {
     file: 'skills/work-item/SKILL.md',
     guarantee: 'a defect is diagnosed before its fix is designed, and a cause left UNKNOWN is read back at approval rather than designed over',
@@ -1863,6 +1878,13 @@ const NORMATIVE_ANCHORS = [
     file: 'templates/review-handoff.md',
     guarantee: 'the report separates the compliance checks the conductor owns from the lens findings, and records rejected and unresolved candidates with their evidence',
     patterns: [/approved thing/i, /in full/i, /verbatim/i, /unresolved/i, /what would settle/i],
+  },
+  // A test named after a criterion reads as the criterion delivered. The
+  // conformance check is answered from the code, criterion by criterion.
+  {
+    file: 'templates/review-handoff.md',
+    guarantee: 'each acceptance criterion is traced to the code that delivers it, including its own negative and edge cases, and a happy-path-only delivery is partial',
+    patterns: [/acceptance criterion/i, /traced/i, /negative and edge/i, /not from a test's name/i, /happy path only is partial/i],
   },
 ];
 
@@ -2018,6 +2040,58 @@ function validateNormativeAnchors() {
   }
 }
 
+// The tester carries its own copy of the test-quality rules, because an agent
+// holds its semantics rather than fetching them (docs/architecture.md). That
+// copy is a paraphrase, so it cannot be pinned byte-for-byte like the runtime
+// contract. Instead every rule standards/testing.md §4 rejects is mapped to its
+// counterpart in agents/tester.md, and the bullet count is pinned: a rule added
+// to the standard fails here until it is mapped and mirrored, and a rule
+// dropped from the tester fails by name.
+const TEST_QUALITY_MIRROR = [
+  { rule: 'weak assertions', standard: /weak enough to pass on the wrong value/i, tester: /weak enough to pass on the wrong value/i },
+  { rule: 'expected value derived like the code', standard: /derived the way the code derives it/i, tester: /derived the way the code derives it/i },
+  { rule: 'how rather than what', standard: /\*how\* rather than \*what\*/i, tester: /how rather than what/i },
+  { rule: 'uncontrolled nondeterminism', standard: /uncontrolled time, randomness/i, tester: /uncontrolled time, randomness/i },
+  { rule: 'sleeps as synchronisation', standard: /arbitrary sleeps/i, tester: /arbitrary sleeps/i },
+  { rule: 'stale test left beside a new one', standard: /beside a stale one/i, tester: /beside a stale one/i },
+  { rule: 'focused or skipped tests', standard: /focused or skipped tests/i, tester: /focused or skipped tests/i },
+  { rule: 'broad snapshots', standard: /broad snapshots/i, tester: /broad snapshots/i },
+  { rule: 'order-dependent tests', standard: /depend on execution order/i, tester: /dependence on execution order/i },
+  { rule: 'coverage as proof', standard: /coverage percentage/i, tester: /coverage percentage/i },
+];
+
+function sectionBullets(text, startPattern, endPattern) {
+  const start = text.search(startPattern);
+  if (start < 0) return null;
+  const rest = text.slice(start);
+  const end = rest.slice(1).search(endPattern);
+  const section = end < 0 ? rest : rest.slice(0, end + 1);
+  // A bullet runs until the next bullet or a blank line, so wrapped lines join.
+  return section.split(/\n(?=- )|\n\s*\n/).filter((chunk) => chunk.startsWith('- ')).map((chunk) => chunk.replace(/\s+/g, ' '));
+}
+
+function validateTestQualityMirror() {
+  const standardPath = join(pluginRoot, 'standards', 'testing.md');
+  const testerPath = join(pluginRoot, 'agents', 'tester.md');
+  const standardBullets = sectionBullets(readFileSync(standardPath, 'utf8'), /^## 4\. Quality/m, /^(##|###) /m);
+  const testerBullets = sectionBullets(readFileSync(testerPath, 'utf8'), /^# Quality assessment/m, /^# /m);
+  if (!standardBullets || !testerBullets) {
+    fail(standardBullets ? testerPath : standardPath, 'test-quality section not found; the mirror between testing.md §4 and the tester cannot be checked.');
+    return;
+  }
+  if (standardBullets.length !== TEST_QUALITY_MIRROR.length) {
+    fail(standardPath, `§4 rejects ${standardBullets.length} things and TEST_QUALITY_MIRROR maps ${TEST_QUALITY_MIRROR.length}. A rule added to the standard reaches no tester until it is mirrored in agents/tester.md and mapped in tests/validate-plugin.mjs.`);
+  }
+  for (const { rule, standard, tester } of TEST_QUALITY_MIRROR) {
+    if (!standardBullets.some((bullet) => standard.test(bullet))) {
+      fail(standardPath, `§4 no longer states the "${rule}" rule its mirror map expects; update TEST_QUALITY_MIRROR deliberately.`);
+    }
+    if (!testerBullets.some((bullet) => tester.test(bullet))) {
+      fail(testerPath, `Quality assessment no longer carries the "${rule}" rule from standards/testing.md §4. The tester does not open the standard routinely, so a rule missing here is a rule no review applies.`);
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // 8. Stack-assumption leakage
 // ---------------------------------------------------------------------------
@@ -2087,6 +2161,7 @@ validateInstallerBoundary();
 validateNormativeAnchors();
 validateSingleSourcePolicies();
 validateNoRequiredHostTaskTool();
+validateTestQualityMirror();
 validateNoStackAssumptions();
 validateChangelog(manifest);
 

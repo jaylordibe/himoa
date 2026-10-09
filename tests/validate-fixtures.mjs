@@ -74,6 +74,16 @@ const FIXTURE_SIGNATURES = {
     mustContain: [],
     mustNotContain: ['nestjs', 'prisma', 'casl', 'composer', 'artisan', 'phpunit', 'vue'],
   },
+  'review-surface': {
+    shape: 'a plain service whose passing suite hides wrong behaviour, a half-delivered criterion and needless structure',
+    // The planted defects are what the review cases grade. Each file below
+    // carries one; a contributor "fixing" any of them turns its case green
+    // while proving nothing.
+    mustHaveFiles: ['CLAUDE.md', 'package.json', 'src/invoice.js', 'test/invoice.test.js', 'src/export.js', 'docs/tickets/EXP-12.md', 'src/orders.js', 'src/notify/registry.js', 'src/date.js', 'src/report.js'],
+    mustNotHaveFiles: ['composer.json', '.env'],
+    mustContain: ['npm', 'refunded', 'findCustomersByIds', 'UTC'],
+    mustNotContain: ['nestjs', 'prisma', 'casl', 'composer', 'artisan', 'phpunit', 'vue', 'express'],
+  },
   'security-surface': {
     shape: 'one endpoint per security hazard, in a repository small enough to read whole',
     mustHaveFiles: ['CLAUDE.md', 'src/handlers.js'],
@@ -324,14 +334,28 @@ const EXPOSURE_HAZARDS = [
   { file: 'CLAUDE.md', what: 'a contract describing the intended public/ root', pattern: /serves the static assets from `public\/`/ },
 ];
 
-function validateExposureFixture() {
-  const fixtureRoot = join(fixturesRoot, 'exposure-surface');
+// The review cases grade whether a run catches each of these. Every one passes
+// its own test suite, which is the point: tidied away, the cases still pass and
+// prove nothing.
+const REVIEW_DEFECTS = [
+  { file: 'src/invoice.js', what: 'the discount taken off after tax, against INV-7 AC1', pattern: /taxed - discount/ },
+  { file: 'test/invoice.test.js', what: 'an expected value recomputed with the implementation\'s own formula', pattern: /const expected = Math\.round\(\(subtotal \* \(1 \+ options\.taxRate\) - options\.discount\)/ },
+  { file: 'test/invoice.test.js', what: 'a call-count test on an internal helper', pattern: /mock\.method\(money, 'roundCents'\)/ },
+  { file: 'src/export.js', what: 'an export that excludes cancelled orders but not refunded ones', pattern: /status !== 'cancelled'/, forbid: /refunded/ },
+  { file: 'src/orders.js', what: 'a customer lookup issued once per order', pattern: /for \(const order of orders\)[\s\S]*findCustomerById/, forbid: /findCustomersByIds/ },
+  { file: 'src/notify/registry.js', what: 'a registry with exactly one channel', pattern: /email: \(transport\)/, forbid: /sms|push/i },
+  { file: 'src/date.js', what: 'a date helper that formats the UTC calendar date', pattern: /toISOString\(\)\.slice\(0, 10\)/ },
+  { file: 'src/receipt.js', what: 'a receipt that ignores the customer\'s time zone', pattern: /formatDate\(new Date\(order\.placedAt\)\)/, forbid: /timeZone[,)]/ },
+];
+
+function validatePinnedHazards(fixtureName, hazards, cases) {
+  const fixtureRoot = join(fixturesRoot, fixtureName);
   if (!existsSync(fixtureRoot)) return;
-  for (const { file, what, pattern, forbid } of EXPOSURE_HAZARDS) {
+  for (const { file, what, pattern, forbid } of hazards) {
     const path = join(fixtureRoot, file);
     const content = existsSync(path) ? readFileSync(path, 'utf8') : '';
     if (!pattern.test(content) || (forbid && forbid.test(content))) {
-      fail(path, `no longer carries ${what}. The exposure cases grade whether a run finds this; with it tidied away they still pass and prove nothing. Restore it, or remove the pin deliberately.`);
+      fail(path, `no longer carries ${what}. The ${cases} cases grade whether a run finds this; with it tidied away they still pass and prove nothing. Restore it, or remove the pin deliberately.`);
     }
   }
 }
@@ -452,7 +476,8 @@ for (const [fixtureName, signature] of Object.entries(FIXTURE_SIGNATURES)) {
 // ---------------------------------------------------------------------------
 
 validateAdversarialFixture();
-validateExposureFixture();
+validatePinnedHazards('exposure-surface', EXPOSURE_HAZARDS, 'exposure');
+validatePinnedHazards('review-surface', REVIEW_DEFECTS, 'review');
 
 console.log('fixture corpus — static validation');
 console.log(`  ${fixtureNames.length} fixtures, ${caseNames.length} eval cases\n`);

@@ -51,6 +51,21 @@ reproduce or observe → gather the evidence → trace and isolate
 Each step is answered from the one before it. Every failure mode in §4 is the
 same move — a later step taken before an earlier one.
 
+**A reproduction counts when it shows the reported symptom** — the same wrong
+value, the same error — not a different failure on a nearby path; a fix for the
+nearby one is a fix for the wrong defect. **Isolating it means cutting** input,
+callers, data and steps one at a time, re-running after each cut, until
+everything left is needed for the failure. The smaller scenario leaves fewer
+mechanisms to suspect and becomes the regression test. It is owed when the
+reproduction carries more than the failing path needs, and not when it is
+already that small.
+
+**Where the cause is not on the failing line, list the candidate mechanisms
+before testing any** — two or three, most likely first, each with the
+prediction that would tell it apart from the others. Testing the first
+plausible idea alone is how an investigation anchors on it. A candidate whose
+prediction failed is evidence too, and the report keeps it.
+
 **A hypothesis is one sentence naming a mechanism** — *X produces the observed
 Y because Z* — and it predicts something checkable: a value at a boundary, a
 step that fails under a specific input, a test that fails with the fix absent.

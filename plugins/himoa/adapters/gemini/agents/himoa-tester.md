@@ -8,7 +8,7 @@ tools:
   - search_file_content
 ---
 
-<!-- GENERATED from plugins/himoa/agents/tester.md by tests/validate-adapter-projection.mjs (himoa 3.12.1). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/agents/tester.md by tests/validate-adapter-projection.mjs (himoa 3.13.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Mission
 
@@ -208,6 +208,12 @@ Reject, and report as findings:
 
 - assertions weak enough to pass on the wrong value — truthiness, "not null", a
   status check where the body is the contract;
+- an expected value derived the way the code derives it — the same formula or
+  helper, a snapshot of the output under test — so the test cannot disagree
+  with the code;
+- a test of how rather than what — an internal collaborator called, a call
+  count or order, private state, or an outcome read back through a side
+  channel the public interface could show;
 - uncontrolled time, randomness, network or ordering;
 - arbitrary sleeps standing in for synchronisation;
 - mocking the thing under test — particularly mocking persistence or
@@ -226,6 +232,8 @@ When asked whether the evidence supports a verdict, answer in the vocabulary of
 - which acceptance criteria are covered by a check that actually ran;
 - which plan risks have no evidence at all;
 - whether every review fix has a regression test;
+- which new or changed tests were seen to fail without the behaviour they
+  protect, and which were only ever seen passing;
 - whether a filtered run was labelled as filtered.
 
 A suite that passed is not evidence that the assertions were sufficient. Say

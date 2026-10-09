@@ -16,23 +16,36 @@ evals/
     └── <grader>.md        # the rubric a judge model scores the run against
 ```
 
-This is the `prompt.md` + `graders/*.md` layout that `claude plugin eval`
-accepts. Each `prompt.md` names the fixture it runs against and the graders
-that apply to it.
+Each `prompt.md` names the fixture it runs against and the graders that apply
+to it.
 
 ## Running them
 
+This is **not** the layout `claude plugin eval` loads, and it is deliberately
+not changed to be. The runner wants its eval directory *inside* the plugin —
+which would ship this corpus and its fixtures to every consumer — a rubric per
+case, only its own frontmatter keys, and a run that starts in an empty
+directory. So the runner's suite is derived from this one rather than kept
+beside it by hand:
+
 ```bash
-claude plugin eval ./plugins/himoa
-claude plugin eval ./plugins/himoa --case no-stack-assumption
+node evals/build-plugin-eval-suite.mjs --out <dir> [--case <name>...]
+cd <dir> && claude plugin eval ./himoa --scaffold --trust-plugin --allow-tools Bash Edit Write
 ```
 
-`plugin eval` is in early access, and the command reports as much on accounts
-without it. Until it is available, every case here is **runnable by hand**:
-open a session in the named fixture with the plugin loaded, paste the prompt,
-and score the transcript against the named graders. The rubrics are written to
-be applied by a person as readily as by a judge model — that is deliberate, not
-a stopgap.
+The script copies the plugin into `<dir>`, writes one runner case per case
+here, copies each case's fixture into the run's workspace through a scaffold
+script, and gives each case its graders' rubrics with its own grading notes —
+which never reach the agent under test — appended for the judge. Confirmed on
+Claude Code 2.1.295: the suite loads, scaffolds and scores. Each case is a full
+agent session, and the default adds a no-plugin baseline arm, so filter with
+`--case` and set `--runs` rather than running the whole corpus.
+
+The judge sees a sample of the trace — the first and last twelve messages — so
+a case whose evidence sits in the middle of a long gate run is still worth
+scoring by hand: open a session in the named fixture with the plugin loaded,
+paste the prompt, and score the transcript against the named graders. The
+rubrics are written to be applied by a person as readily as by a judge model.
 
 ## Some cases type the command, and the rest do not
 
@@ -142,8 +155,23 @@ disabled and compare. It is the only honest way to tell guidance from decoration
 | `efficiency-discipline` | Was computation proportionate to the actual risk — **and did the quality floor hold while it was**? |
 | `design-minimality` | Was the smallest-scope design built, in the shape established practice uses rather than a shortcut that avoids a table — with the ticket's mechanism graded rather than satisfied, and the lenses read as constraints rather than as scope? |
 | `implementation-minimality` | Was the change the smallest coherent complete one for the scope — the reuse ladder walked, no complexity the evidence did not require — **without** shrinking past correctness or safety? |
+| `test-quality` | Were tests judged by what they can catch — a by-construction expected value or a call-count test named as unable to fail, and "exists", "passed" and "seen to fail" kept apart? |
+| `review-substance` | Did a review find what clean-looking code gets wrong — a criterion half delivered, a query per row, wrong money behind passing tests — with its trigger, at the severity the evidence supports in both directions? |
 | `diagnosis-discipline` | For a defect, was the cause demonstrated and labelled before the fix was designed — with the proof scaled to the defect's shape, and the fix still reviewed and validated? |
 | `ticket-discipline` | Asked for a ticket, did the run write a goal — a process flow of observable steps first when the order is part of the outcome and none when it is not, a story whose actor the code or the human grounds, cited current behaviour, criteria split by what can be verified apart, negatives where a boundary is real, non-goals, open questions — ask the blocking questions before presenting the ticket, keep every agreed requirement in each ticket it does present, leave out the empty sections, judge readiness on scope rather than effort, and keep every proposed mechanism and every guessed cause as a non-binding idea or a labelled hypothesis rather than a requirement? |
+
+## The review-surface cases grade what a passing suite hides
+
+Five cases run against `fixtures/review-surface`, whose whole suite passes.
+`review-tautological-tests-hide-wrong-total` and `review-criterion-half-delivered`
+are a pair: in the first the tests cannot fail, in the second a test's name
+claims a criterion the code only half delivers — score them together, because
+both reward a run that read the requirement rather than the test report.
+`review-n-plus-one-query` grades a per-row query against a stated workload, and
+`review-single-implementation-layers` grades severity in the other direction —
+needless structure is a `Low`, never a block. `defect-symptom-far-from-cause`
+is a defect whose symptom is one hop from its cause, with a second consumer of
+the same helper that must not move.
 
 ## The efficiency cases are graded in both directions
 

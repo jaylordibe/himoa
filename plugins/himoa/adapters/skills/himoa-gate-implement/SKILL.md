@@ -4,7 +4,7 @@ description: Implements an explicitly approved plan and nothing else, preserving
 disable-model-invocation: true
 ---
 
-<!-- GENERATED from plugins/himoa/skills/gate-implement/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.12.1). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/gate-implement/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.13.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Implement an approved plan
 
@@ -145,8 +145,9 @@ unrecoverable rather than merely wrong:
 Tests are implementation work, not a follow-up.
 
 Cover the scenarios in `@HIMOA_HOME@/standards/testing.md` §3 that
-this change makes reachable, plus a regression case for any defect fixed.
-Placement, harness and isolation rules come from the repository's own test
+this change makes reachable, plus a regression case for any defect fixed, and
+hold them to its §4 — an expected value independent of the code, and each new
+test seen to fail before it is reported as protecting anything. Placement, harness and isolation rules come from the repository's own test
 topology — discover it rather than assuming one.
 
 The one property worth restating: if the suite runs in parallel, a test must

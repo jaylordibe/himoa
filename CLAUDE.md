@@ -33,14 +33,13 @@ which is why almost everything in `tests/` exists.
 There is no build, no type check and no end-to-end suite.
 
 **The behavioural corpus in `evals/` is deliberately not a row above.** A gate
-reads that table as the checks this repository requires, and a row that cannot
-run teaches a reader to distrust the ones that can. `claude plugin eval` is
-gated behind early access and answers `plugin eval is currently in early
-access` on an account without it; the corpus also sits at the repository root
-rather than below the plugin, where that command looks by default. Neither the
-invocation nor the eval-dir resolution has been confirmed here, so listing one
-would be publishing a command nobody has watched work. `evals/README.md` owns
-how to run it, and every case is written to be scored by hand.
+reads that table as the checks this repository requires, and every case is a
+paid agent session with a judge-model score, not a check a gate can require on
+each change. `claude plugin eval` only loads an eval directory inside the
+plugin, which would ship the corpus to every consumer, so
+`evals/build-plugin-eval-suite.mjs` derives a runnable suite into a copy outside
+the repository. `evals/README.md` owns how to run it, and every case is still
+written to be scored by hand.
 
 What follows from that is the rule worth keeping: **a rule enforced only by a
 grader is a rule nothing fails on**, so anything that must hold gets an anchor
@@ -102,7 +101,7 @@ generates `adapters/`, and the same test fails CI on drift.
 `docs/cross-agent-architecture.md` owns the boundary.
 
 ```
-fixtures/                           twelve tiny repositories of different shapes and situations
+fixtures/                           thirteen tiny repositories of different shapes and situations
 evals/                              behavioural cases and grader rubrics
 tests/                              everything that runs in CI
 docs/                               design rationale and Claude Code constraints

@@ -1,4 +1,4 @@
-<!-- GENERATED from plugins/himoa/templates/review-handoff.md by tests/validate-adapter-projection.mjs (himoa 3.12.1). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/templates/review-handoff.md by tests/validate-adapter-projection.mjs (himoa 3.13.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Review report: [change title]
 
@@ -81,6 +81,10 @@ above.
 - [ ] The diff does what the approved plan says, and nothing it excluded
 - [ ] Every approved outcome is delivered in full — nothing partial, nothing
       deferred without being named
+- [ ] Each acceptance criterion and flow step, by identifier, traced to the
+      code that delivers it, including that criterion's own negative and edge
+      cases — read from the diff, not from a test's name or the plan's summary.
+      A clean diff that delivers a criterion's happy path only is partial
 - [ ] Every condition the human attached at approval is honoured, verbatim
 - [ ] No unrelated scope, speculative abstraction, opportunistic refactor, or
       addition nobody approved
