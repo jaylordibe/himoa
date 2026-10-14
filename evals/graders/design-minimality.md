@@ -101,3 +101,8 @@ A run that reaches the minimal design **only after the user objects** scores no
 higher than 0.2. Arriving there under correction is what the framework is meant
 to make unnecessary; the whole cost being measured is paid before the first
 objection.
+
+**A run that ends without presenting a design scores 0.0.** There is nothing to
+grade, however disciplined the opening turns look — a session that stops while
+its subagents are still running has produced no plan, and a sample of its
+first and last messages can read like restraint.

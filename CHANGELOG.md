@@ -12,6 +12,55 @@ act, and MINOR and PATCH never do. Entries below `1.0.0` were released under the
 
 ---
 
+## 3.14.0 — 2026-10-15
+
+**A finished design is challenged for necessity before it is shown, and an
+approval no longer obliges a structure shown to be unnecessary — improved
+guidance, no consumer action (MINOR).** A restructuring run presented an
+over-built plan, had it approved, and agreed it was over-built the moment the
+human asked. Every simplicity rule ran while the design was being built, in the
+voice of the author choosing each part; nothing made the author challenge the
+finished design.
+
+### Changed — design, implementation and review
+- **`standards/architecture.md` §3.5, the necessity test:** each structure a
+  design introduces — module, layer, abstraction, dependency, configuration,
+  tooling, compatibility path — names what concretely fails without it, with
+  evidence. A generic property (scalability, best practice, separation of
+  concerns) is not evidence. The design is compared to the conventional
+  baseline. Count is never the criterion, and a structure that carries a
+  security or correctness property passes by naming it. It runs once. An
+  approval authorises a design but does not make a structure necessary: one
+  later shown unnecessary goes back to the human, never built anyway and never
+  swapped silently.
+- **`gate-design` §9** applies it before the plan is written; the
+  **`templates/plan.md`** Decision list records what fails without each
+  structure.
+- **`gate-implement`** stops before building an approved structure that fails
+  it; **`gate-review`** reports rather than removes approved structure, and an
+  unapproved addition fails the whole-change check. The reviewer lens rejects
+  generic justifications.
+
+### Tooling
+- `validate-plugin.mjs` pins each rule.
+
+### Evals
+- Five cases: a restructuring, speculative extensibility, generic
+  self-justification, a simpler path found after approval, and scope creep in a
+  green diff; the SSRF case is extended as the necessary-complexity side.
+  `design-minimality`, `gate-discipline` and `implementation-minimality` gain
+  the matching failures.
+- Headless runs on Opus 5.5, scored by hand from the traces: every run that
+  produced a plan or a report behaved as intended — the restructuring kept the
+  layout and fixed the documents (2 of 2), the drafted design lost its five
+  generically justified parts and kept the two the repository supports, the
+  approved calculator layer was raised rather than built, the review failed
+  the unrelated rewrite, and the SSRF fix kept every defence (2 of 2). Four
+  restructuring runs, including both on Sonnet 5.5, ended while their mapper
+  was still running and produced no plan, so behaviour on Sonnet is not yet
+  shown. The Haiku judge scored those empty runs as passes; score these cases
+  from the trace.
+
 ## 3.13.1 — 2026-10-09
 
 **A test is seen failing in a copy, never by reverting the developer's files —
