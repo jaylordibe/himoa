@@ -84,6 +84,13 @@ owner cannot be extended, that the standard library or the platform does not
 already do it, that no installed dependency fits. Absent that evidence, the
 lower rung is the change.
 
+**The approved plan's own structures are not exempt from that threshold.** When
+evidence found while implementing shows one of them fails
+`@HIMOA_HOME@/standards/architecture.md` §3.5, stop before building the
+affected slice and return to the approval gate (Reconciliation below). That
+section's last paragraph owns what the return carries, and which
+simplifications need no approval at all.
+
 The depth of investigation that reached this slice never licenses a wider diff:
 `@HIMOA_HOME@/standards/execution-efficiency.md` §2.1. A slice that was
 mapped at Deep breadth is still built at the smallest rung its evidence allows.

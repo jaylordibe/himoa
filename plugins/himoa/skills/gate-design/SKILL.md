@@ -43,7 +43,7 @@ did not justify a document every other run had to keep in sync.
 6. Threat-model
 7. Plan exact changes
 8. Plan tests and verification
-9. Write the plan
+9. Challenge, then write the plan
 10. Stop at approval
 
 ---
@@ -277,10 +277,10 @@ whether the behaviour need exist, whether the repository already owns it,
 whether the standard library or the platform provides it, before any new
 component is proposed. Each new abstraction, layer, dependency, configuration
 surface or parallel path an approach carries is a rung it climbed, and §3
-requires a stated reason the rung below was insufficient. That reason is the
-`Decision` list in `${CLAUDE_PLUGIN_ROOT}/templates/plan.md` §5: every structure
-introduced against the outcome it serves, and a row with no such outcome cut
-here.
+requires a stated reason the rung below was insufficient — §3.5 there owns what
+counts as a reason. That reason is the `Decision` list in
+`${CLAUDE_PLUGIN_ROOT}/templates/plan.md` §5: every structure introduced against
+what fails without it, and a row naming nothing cut here.
 
 Prefer the smallest coherent complete end state within scope, in the
 established shape. Do not over-engineer, do not under-build into a shortcut,
@@ -349,7 +349,17 @@ Verification names the repository's **canonical commands** — from its
 `AGENTS.md` — with the scope each will run at. Do not invent a command. Do not plan to apply a migration to
 any live database.
 
-## 9. Write the plan
+## 9. Challenge, then write the plan
+
+**Before writing, challenge the finished design.** Apply
+`${CLAUDE_PLUGIN_ROOT}/standards/architecture.md` §3.5 once to the whole of it —
+after the threat model and the test plan, which add structure of their own.
+This is the question the human would otherwise have to ask, and a plan they
+must argue down has failed this gate even if they approve it. Where a structure
+fails, revise the design; where the cut changes its shape, re-derive it from the
+outcome rather than subtracting (`gate-approve` §4 is why). The result is the
+design and its `Decision` list — no separate write-up, and no extra question
+for the human unless a cut changes something they asked for.
 
 Structure it on `${CLAUDE_PLUGIN_ROOT}/templates/plan.md`, at the depth §4
 requires. Create no file in the repository.

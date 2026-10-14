@@ -161,6 +161,14 @@ gate adds only the discipline around it:
   a second caller is a defect the shorter diff introduced.
 - These are ordinarily **Note** or **Low** severity, since the code works; they
   do not block the gate, and they are never remediated ahead of a real defect.
+  An addition **outside** the approved scope — an unrelated refactor, an
+  unapproved layer — is also a failed whole-change check, whatever its
+  severity as complexity.
+- **Review does not remove a structure the approved plan introduced.** Where one
+  fails `${CLAUDE_PLUGIN_ROOT}/standards/architecture.md` §3.5 on the evidence,
+  report it and route it as that section's last paragraph says. A decision the
+  approval already examined is reopened only on evidence the design did not
+  have.
 
 ## 3. What to review against
 

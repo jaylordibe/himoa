@@ -220,6 +220,10 @@ is `@HIMOA_HOME@/standards/architecture.md` §3:
 - a parallel new path left beside the old one; flexibility, a branch or a
   parameter nothing reaches; architecture beyond the approved scope.
 
+A justification that names no concrete current requirement — "for later",
+"scalability", "best practice" — is not one
+(`@HIMOA_HOME@/standards/architecture.md` §3.5).
+
 Two constraints keep this from doing harm. **Correctness and security outrank
 it** — these are ordinarily `Note` or `Low`, they never block the gate, and a
 shorter form that drops a validation, an access check or an error path is a

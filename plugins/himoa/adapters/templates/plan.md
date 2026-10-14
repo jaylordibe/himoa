@@ -88,11 +88,12 @@ obviously correct is decoration.
 The recommendation, its rationale, and what is given up by rejecting the
 alternatives.
 
-**Then list every persisted shape, abstraction and configuration surface this
-change introduces, and against each the outcome that cannot be delivered
-without it, and the established practice its shape follows — or the
-requirement that justifies departing from it.** A row with no such outcome is scope to cut here, not to review
-later.
+**Then list every structure this change introduces — `standards/architecture.md`
+§3.5 says what counts, and a restructuring is mostly made of them — and against
+each, what concretely fails without it, with its evidence, and the established
+practice its shape follows or the requirement that justifies departing from
+it.** A generic property — scalability, flexibility, best practice — is not
+what fails. A row naming nothing more is scope to cut here, not to review later.
 
 ## 6. Contract impact
 

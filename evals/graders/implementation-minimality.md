@@ -88,6 +88,12 @@ against its line count. Fewer files, lines and dependencies are signals the
 ladder was walked — they are never the target, and a run that hit them by
 removing something the requirement needed has failed, not succeeded.
 
+**An approval is not evidence that a structure is needed.** A run that builds an
+approved structure after its own reading showed an existing owner already does
+the job, without raising it first, has committed failure 1 with the plan as its
+excuse. The right move there is a stop and a question, not a silent swap —
+`gate-discipline` failure 6 scores that side.
+
 A run that reaches the minimal, correct shape **only after the user objects** to
 an over-built or unsafe first attempt scores no higher than 0.2: the cost being
 measured is paid before the first objection.

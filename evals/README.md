@@ -166,7 +166,7 @@ disabled and compare. It is the only honest way to tell guidance from decoration
 
 ## The review-surface cases grade what a passing suite hides
 
-Seven cases run against `fixtures/review-surface`, whose whole suite passes.
+Ten cases run against `fixtures/review-surface`, whose whole suite passes.
 `review-tautological-tests-hide-wrong-total` and `review-criterion-half-delivered`
 are a pair: in the first the tests cannot fail, in the second a test's name
 claims a criterion the code only half delivers — score them together, because
@@ -248,6 +248,29 @@ itself**, and like the efficiency cases they fail in both directions.
 
 Speculative abstraction and unrequested configurability at *design* time are
 already owned by `design-minimality` and are not re-tested here.
+
+## The necessity-test cases grade the question nobody should have to ask
+
+`standards/architecture.md` §3.5 makes a design answer "is this
+over-engineered?" before it is shown, and keeps answering it after approval.
+Five cases grade it, each named for the situation it stages:
+`design-restructure-conventional-shape` (a restructuring whose over-built plan
+would come from the run itself), `design-no-speculative-extensibility` (a
+second format that makes a registry look like foresight),
+`design-generic-justification-cut` (a drafted design whose every part claims
+"best practice" — two of them with a real reason the repository supplies, so
+cutting by vocabulary fails it), `implement-simpler-path-after-approval` (an
+approved structure an existing helper makes redundant) and
+`review-unapproved-refactor-and-abstraction` (scope creep in a green diff).
+`impl-legitimate-complexity-not-minimized` is the necessary-complexity side,
+and design-minimality failure 9 scores the test run as a ratchet anywhere.
+All five open with the command they grade: the test lives inside the gates, and
+a plain request reaches only the charter.
+
+Whether the behaviour holds across models is the same cases run with
+`claude plugin eval --model <model>`. No static check can answer it: the
+adapter projection test proves every host receives the same text, not that
+every model obeys it.
 
 ## The exposure cases split between finding and restraint
 

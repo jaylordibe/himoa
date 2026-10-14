@@ -1415,6 +1415,45 @@ const NORMATIVE_ANCHORS = [
     guarantee: 'unnecessary complexity is reviewed only after correctness and security, a simplification is a claim verified against evidence and scope, and the quality floor is never traded for fewer lines',
     patterns: [/Unnecessary complexity/i, /simplification pass[\s\S]{0,40}only after/i, /simplification proposal is a claim/i, /never traded/i],
   },
+  // The necessity test. Every rule above is applied while a design is BUILT, by
+  // the author who chose each part — and a real restructuring run produced an
+  // over-built plan, had it approved, then agreed it was over-built the moment
+  // the human asked. The author could see it; nothing made the author look. The
+  // anchors pin the four things that make the test more than a declaration:
+  // it runs on the finished design, a removal must name what fails with
+  // evidence, a generic property is not evidence, and count is not the
+  // criterion (the guard against under-building). The approval half is pinned
+  // because "it was approved" is the obvious reason to keep building.
+  {
+    file: 'standards/architecture.md',
+    guarantee: 'the finished design is tested structure by structure for what concretely fails without each one, with evidence; generic properties are not evidence; count is never the criterion and safety-bearing structure passes; it runs once',
+    patterns: [/### 3\.5 The necessity test/, /what concretely fails/i, /generic property is not evidence/i, /conventional baseline/i, /Count is never the criterion/i, /runs \*\*once\*\*/i],
+  },
+  {
+    file: 'standards/architecture.md',
+    guarantee: 'an approval does not make a structure necessary: an approved structure shown unnecessary goes back to the human, never built anyway and never swapped silently; a simplification inside the approved architecture needs no approval',
+    patterns: [/approval authorises a design;\s+it does not make a structure\s+necessary/i, /stop before building the\s+affected\s+part/i, /do not swap\s+it silently/i, /needs no\s+approval/i],
+  },
+  {
+    file: 'skills/gate-design/SKILL.md',
+    guarantee: 'the design gate applies the necessity test to the finished design before writing the plan',
+    patterns: [/Challenge, then write the plan/i, /challenge the finished design/i, /architecture\.md` §3\.5/],
+  },
+  {
+    file: 'templates/plan.md',
+    guarantee: 'the Decision list records every structure against what fails without it, and a generic property is not what fails',
+    patterns: [/every structure this change introduces/i, /what concretely fails without it/i, /generic property/i],
+  },
+  {
+    file: 'skills/gate-implement/SKILL.md',
+    guarantee: 'the approved plan\'s own structures are not exempt from the necessity threshold during implementation',
+    patterns: [/approved plan's own structures are not exempt/i, /architecture\.md` §3\.5/],
+  },
+  {
+    file: 'skills/gate-review/SKILL.md',
+    guarantee: 'review routes an approved structure that fails the necessity test to the human instead of removing it, and does not reopen approved decisions without new evidence',
+    patterns: [/does not remove a structure the approved plan introduced/i, /reopened only on\s+evidence/i],
+  },
   // The framework's own fan-out is a scope source if nothing says otherwise.
   // Several lenses over one small request name, between them, every gap the
   // repository has; each is real, each is cited, and the union of them arrives

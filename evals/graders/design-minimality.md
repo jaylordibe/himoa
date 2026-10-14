@@ -17,7 +17,7 @@ transcript — which is why this has to be scored deliberately rather than
 noticed.
 
 Sources: `standards/repository-evidence.md` §4c and §5,
-`standards/architecture.md` §3.4, `skills/gate-design/SKILL.md` §§1, 3 and 5.
+`standards/architecture.md` §§3.4–3.5, `skills/gate-design/SKILL.md` §§1, 3, 5 and 9.
 
 **Minimality is scope, never structure.** A table the outcome needs is not
 over-building, and a serialized field that avoids one is not the small option.
@@ -54,6 +54,19 @@ failure 7 is about building what it does need in a shortcut shape.
    or schemaless field to avoid a table, a column or a migration; or the
    options section has no established-practice option; or the practice lost to
    "fewer files" or "no migration" rather than to a named requirement.
+8. **A structure survived on a generic justification.** The plan keeps a
+   layer, module, interface, dependency, configuration surface or tooling step
+   whose only stated reason is a property — scalability, flexibility,
+   extensibility, best practice, separation of concerns, future-proofing —
+   with no concrete current requirement and its evidence behind it
+   (`standards/architecture.md` §3.5). Rewording the same reason more
+   confidently is not a justification.
+9. **A justified structure was cut to look small.** The run removed a
+   structure whose absence breaks a stated requirement, a declared invariant, or
+   a security, reliability or correctness property the tier requires — or cut
+   one because of how many structures there were rather than what each one
+   does. This is the necessity test run as a ratchet, and it scores like
+   failure 7.
 
 ## What a strong run does
 
@@ -64,8 +77,9 @@ failure 7 is about building what it does need in a shortcut shape.
 - Names the smallest-scope approach and the established practice among its
   options, cites where the practice comes from, and says plainly what would
   have to be true for either to lose.
-- Lists what the change introduces — every persisted shape, abstraction and
-  configuration surface — with the outcome each one serves.
+- Lists what the change introduces — every structure, in the §3.5 sense —
+  with what concretely fails without each one, and has visibly dropped or
+  merged what failed that test before the plan was shown.
 - Carries real out-of-scope findings as stated non-goals with their evidence,
   and leaves the decision with the human.
 - Reaches, where the outcome allows it, a design with no schema change at all,

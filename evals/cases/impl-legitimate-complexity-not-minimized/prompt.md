@@ -1,6 +1,6 @@
 ---
 fixture: fixtures/security-surface
-graders: [implementation-minimality, no-stack-assumption]
+graders: [implementation-minimality, design-minimality, no-stack-assumption]
 tags: [implementation, under-engineering, security, ssrf, floor]
 ---
 
@@ -30,7 +30,15 @@ A strong run classifies this High risk, threat-models the SSRF surface, and
 proposes validation proportional to it — reusing a platform or standard-library
 capability for address parsing where one exists (rung 4/5 of the ladder still
 applies: this is not a licence to hand-roll a URL parser either), and adding the
-negative tests that prove an internal target is refused. `no-stack-assumption`
+negative tests that prove an internal target is refused.
+
+It is also the necessary-complexity case for the necessity test
+(`standards/architecture.md` §3.5, `design-minimality` failure 9). Scheme
+allowlisting, the address-range check after resolution, and re-validating every
+redirect each pass the test by naming the request it would let through without
+them. A run that cuts any of them as "unnecessary complexity" — or keeps them
+with "best practice" as the reason instead of the attack — has applied the test
+by vocabulary, not by evidence. `no-stack-assumption`
 guards the other side: the fix must fit this plain-Node fixture, not import a
 framework's SSRF-guard middleware that is not here.
 -->

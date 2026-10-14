@@ -165,6 +165,65 @@ enforces one row per locale", "the text is indexable") is a reason; a bare
 outcome does not need — a best-practice audit trail nobody asked for is still
 §3.2's defect. The smallest scope never licenses a non-standard shape.
 
+### 3.5 The necessity test
+
+§§3.1–3.4 are applied while a design is built. This test is applied to the
+design once it is **finished**, by its author, before anyone else reads it —
+the question a reviewer would ask, "is this over-engineered?", answered before
+the human has to ask it. Its author is the reader least able to see what a
+design does not need, because every part of it was chosen for a reason that
+seemed sufficient at the time; the test exists to make that reason show itself.
+
+A **structure** is anything a design introduces beyond the behaviour itself: a
+module, package, directory or layer; an abstraction, interface, wrapper or
+indirection; a service or process; a dependency; a configuration surface; a
+build, generation or tooling step; a persisted shape; a compatibility,
+migration or parallel path. A restructuring is made almost entirely of them.
+
+For each one, remove it in thought and state **what concretely fails** — a
+requirement the human stated, an invariant or contract the repository declares,
+a test, a security, reliability or performance property the risk tier requires,
+or a constraint the codebase imposes — with its evidence: a `path:line`, the
+requester's words, or an established practice and the property it buys, per
+§3.4. If nothing evidenced fails, the structure is cut and the design revised,
+not annotated.
+
+**A generic property is not evidence, however it is phrased** — scalability,
+flexibility, extensibility, future-proofing, best practice, separation of
+concerns, clean architecture, consistency. Each becomes a reason only when it
+names the concrete current requirement it serves and where that requirement is
+stated: "both applications import this, so it is one module" is a reason; "it
+keeps things decoupled" is not. A prediction about a requirement nobody has
+stated is never one.
+
+Then compare the whole design against the **conventional baseline**: what an
+experienced maintainer of this repository would do by default, in the
+established shape §3.4 determines. Every way the design differs from that
+baseline traces to a named requirement, or the design moves back to it.
+
+**The test cuts what fails it and nothing else.** Count is never the criterion:
+five structures that each name what breaks without them pass, and one that
+names nothing does not. A structure whose removal would drop an access check, a
+validation, an error path, an idempotency or retry guarantee, a declared
+boundary or a test passes by naming that failure — §3.3 holds, and this test
+never reorders §1.
+
+It runs **once**, on the finished design, as reasoning rather than a report: its
+result is the design itself and the `Decision` list in `templates/plan.md` §5.
+A decision it has passed is reopened only by evidence the design did not have,
+never by running the test again. A Low-risk change walks it silently, like the
+ladder, and below Low nothing here applies.
+
+**An approval authorises a design; it does not make a structure necessary.**
+When evidence found after approval — an existing owner the design missed, a
+platform capability, a constraint — shows that an approved structure fails this
+test, changing it is the human's decision: stop before building the affected
+part, and return with the simpler alternative, what it changes, and what is
+already built. Do not build it anyway because it was approved, and do not swap
+it silently because it is smaller. A simplification inside the approved
+architecture, scope and contracts — a reused helper, an inlined single-use
+function — is ordinary implementation and needs no approval.
+
 ## 4. Contracts
 
 Treat as **externally observable**, whatever the transport:
