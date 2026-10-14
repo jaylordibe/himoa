@@ -121,7 +121,7 @@ record stay yours. Unless you ask for that exact operation, it does not:
 A Critical change additionally requires a **human** security review — automated
 review is never sufficient there.
 
-If you pass `work-item` a real issue key and an issue-tracker MCP server is
+If you pass `work-item` a real issue key or URL and an issue-tracker MCP server is
 connected, the final stage posts one comment on that item, and one on each
 same-tracker item linked as depending on or blocked by it whose visibility is
 no wider than the item's own. It never transitions an issue or edits a field.
@@ -177,8 +177,9 @@ run `/reload-plugins` or restart Claude Code.
 `framework-install` scaffolds `AGENTS.md`, a thin `CLAUDE.md` that imports it,
 and the plugin declaration in `.claude/settings.json`. `framework-doctor` checks
 the files exist, the declared commands resolve and the documentation still
-matches the code; both need `jq` on `PATH`, and without it say so rather
-than guess. Fill `AGENTS.md` in (below), then commit. A teammate who
+matches the code. Both need `jq` on `PATH`: without it, `framework-install`
+writes nothing and prints the block to add by hand, and `framework-doctor`
+skips its settings checks. Fill `AGENTS.md` in (below), then commit. A teammate who
 pulls the repository runs only `/plugin install himoa@jaylordibe`.
 
 **3. Run a change**
