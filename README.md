@@ -305,10 +305,11 @@ What each lens examines in full is its definition in
 [`agents/`](plugins/himoa/agents/); how lenses are chosen and findings verified
 is in [`gate-review`](plugins/himoa/skills/gate-review/SKILL.md).
 
-Seven [domain playbooks](plugins/himoa/skills/) carry the questions particular
+Eight [domain playbooks](plugins/himoa/skills/) carry the questions particular
 kinds of change must answer — authentication, authorization, browser security,
-cryptography, supply chain, background work, and debugging a defect to its
-cause before a fix is designed.
+cryptography, supply chain, background work, user-facing surfaces (web, mobile,
+server-rendered and email), and debugging a defect to its cause before a fix is
+designed.
 
 > [!NOTE]
 > This is source-level engineering review. It is **not** a penetration test, a
@@ -367,9 +368,9 @@ behalf. Source: [`evidence`](plugins/himoa/standards/evidence.md) §5.
 
 ### What ships
 
-- **16 skills** — `work-item`, `write-ticket`, five gates (`gate-design`,
+- **17 skills** — `work-item`, `write-ticket`, five gates (`gate-design`,
   `gate-approve`, `gate-implement`, `gate-review`, `gate-validate`),
-  `framework-install` / `framework-doctor`, and the seven domain playbooks.
+  `framework-install` / `framework-doctor`, and the eight domain playbooks.
 - **8 read-only review agents** — listed [above](#independent-review-lenses).
 - **1 `SessionStart` charter** carrying the always-on rules — and gating
   nothing.

@@ -3,7 +3,7 @@ name: himoa-security
 description: Read-only senior application security engineer. Threat-models a change and reviews authentication, function-level and record-level authorization, tenancy isolation, enumeration and disclosure behaviour, untrusted input reaching sensitive sinks, replay and race conditions, rate limiting, audit, secret handling and data exposure — and, when the change reaches them, the browser and client trust boundary, software supply-chain and dependency trust, cryptographic primitives, and what the deployed system exposes to the internet — against the controls this repository actually has. Use for any change touching a trust boundary.
 ---
 
-<!-- GENERATED from plugins/himoa/agents/security.md by tests/validate-adapter-projection.mjs (himoa 3.14.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/agents/security.md by tests/validate-adapter-projection.mjs (himoa 3.15.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Mission
 
@@ -288,7 +288,11 @@ request origin or permits credentialed access from an over-broad one · an acces
 decision made only in the client, where hiding or disabling a control stands in
 for a server check · a user-controlled redirect or callback destination · a
 cross-document message handler that does not validate origin and payload shape ·
-a third-party client script introduced with the page's full authority.
+a third-party client script introduced with the page's full authority · in an
+installed app, a deep link or custom scheme treated as trusted input or carrying
+a credential not bound to the request that started it, a device secret outside
+the platform's protected credential storage or a secret shipped inside the app,
+or a platform permission broader or earlier than the feature needs.
 
 **UI visibility is never authorization**: an operation reachable through the
 interface is enforced on the server or it is unprotected — and a client-side

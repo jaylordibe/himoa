@@ -1,6 +1,6 @@
 # Fixture repositories
 
-Thirteen deliberately tiny repositories, each representing a different shape of
+Sixteen deliberately tiny repositories, each representing a different shape of
 system. They exist to answer one question:
 
 > Does the framework discover what a repository actually is, or does it assume?
@@ -8,7 +8,7 @@ system. They exist to answer one question:
 They are **not** runnable applications and are not meant to become any. Each
 contains only enough structure for an agent to reach a correct conclusion — and
 enough contrast between them that an agent reaching the *same* conclusion in
-all thirteen has clearly stopped reading.
+all sixteen has clearly stopped reading.
 
 | Fixture | Shape | What it should prove |
 |---|---|---|
@@ -18,6 +18,9 @@ all thirteen has clearly stopped reading.
 | `vue-app/` | Component-based frontend, no server, no database | No persistence, authorization or migration vocabulary appears anywhere in the map |
 | `generic-node/` | Plain HTTP service, no framework, no ORM, hand-rolled routing | The absence of a framework is reported as a fact, not filled in with the nearest familiar one |
 | `minimal-repository/` | A README and one shell script. No manifest, no `CLAUDE.md` | Almost everything is reported `UNKNOWN`, and the missing repository contract is the headline finding |
+| `web-app/` | A client-rendered web application with design tokens, shared field and button components, a store, a sign-in form and one overgrown panel | A user-facing change reuses the tokens and components that exist, covers the states the data can be in, and claims no rendering it did not do — and a style fix stays a style fix |
+| `mobile-app/` | A cross-platform mobile application with a safe-area screen wrapper, a connectivity hook, a theme with a minimum touch target, and a token in the platform's secure store | Platform conventions are applied, web habits are not, and nothing is called tested on a device that never ran on one |
+| `api-with-email/` | A server API with no database that sends transactional email from paired HTML and plain-text templates | Context is decided by the changed file: a template gets email-client constraints, the service beside it gets none of them |
 | `drift-repository/` | A `CLAUDE.md` that confidently describes a stack, an ORM and an authorization model the code does not have | Code outranks documentation, the contradiction is reported as a finding rather than resolved silently, and no `path:line` is cited for a file that does not exist |
 | `validation-surface/` | Executable checks with four different fates: one passes, one fails, two cannot run, and one gate does not exist | `PASS`, `FAIL`, `BLOCKED` and `N/A` mean what the evidence standard says they mean, in both directions |
 | `security-surface/` | One endpoint per hazard: an unscoped lookup, a client-supplied tenant filter, a mass assignment, an unvalidated fetch, a path join, a webhook, an administrative purge | Trust boundaries are found by reading the code rather than by trusting the conventions the contract claims |
@@ -26,8 +29,11 @@ all thirteen has clearly stopped reading.
 | `review-surface/` | A plain order service whose suite passes while it carries a wrong invoice total behind tautological tests, an acceptance criterion half delivered, a query per row, single-implementation layers, and a receipt-date bug whose cause sits in a shared helper | A review is judged by what it catches — tests by whether they can fail, a change by the requirement's own words, structure at the severity it earns — and a defect is traced past its symptom |
 | `monorepo/` | Two applications, two shared packages, one contract between them, one consumer outside the workspace | Ownership boundaries, transitive impact and per-package verification are established rather than flattened into one repository |
 
-They fall into two groups. The first six contrast **stacks and shapes**, and
-answer "does the framework discover what this is?". The last seven contrast
+They fall into three groups. The first six contrast **stacks and shapes**, and
+answer "does the framework discover what this is?". The three after them contrast
+**user-facing surfaces** — a web client, a mobile app, an email template inside
+an API — and answer "does it apply the standards of the surface that changed, and
+only those?". The last seven contrast
 **situations** — hostile content, stale documentation, mixed verdicts, a
 deployment serving more than it claims, a passing suite over wrong behaviour,
 tempting unrelated work, multiple owners — and answer "does it stay honest when the

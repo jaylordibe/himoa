@@ -174,6 +174,19 @@ const STACK_TERM_DENYLIST = [
   'phpunit',
   'yarn ', 'npm run', 'pnpm ', 'composer ', 'bundler',
   '.env.test', 'docker compose', 'docker-compose',
+  // User-facing surfaces — web, mobile, server-rendered templates, email — and
+  // the tooling that builds and verifies them, because guidance about what a
+  // person sees or operates is where a product name slips in most easily.
+  // Product names that are also ordinary English words ("bootstrap", "remix",
+  // "electron", "detox", "sass") are deliberately absent: matching them would
+  // fail the build over prose, and the first fix anyone reached for would be to
+  // weaken this check.
+  'next.js', 'nuxt', 'astro', 'react native', 'expo', 'swiftui',
+  'jetpack compose', 'kotlin', 'xcode', 'gradle', 'tailwind', 'shadcn',
+  'jquery', 'framer motion', 'gsap', 'lottie', 'reanimated', 'sonner',
+  'storybook', 'playwright', 'cypress', 'puppeteer', 'selenium', 'appium',
+  'browserstack', '@testing-library', 'axe-core', 'webpack', 'vite',
+  'turborepo', 'lerna', 'jinja', 'handlebars', 'mjml',
 ];
 
 // Only these directories are scanned. Everything else — docs/, evals/,
@@ -1505,6 +1518,99 @@ const NORMATIVE_ANCHORS = [
     guarantee: 'confirmed exposure of a secret is a compromise: rotation, session invalidation and exposure-window evidence are owed, and rotation stays human-owned',
     patterns: [/compromise, not a\s+misconfiguration/i, /rotation or revocation/i, /exposure window/i, /human-owned/i],
   },
+  // The client trust boundary is the rule a user-facing change is most likely
+  // to rewrite around, so it is pinned in all three files that state it — the
+  // standard, the playbook and the lens — and deleting it from any one fails.
+  {
+    file: 'standards/security.md',
+    guarantee: 'UI visibility is not authorization, and client storage is not protected storage',
+    patterns: [/UI visibility is not authorization/i, /enforced on the server/i, /Client storage is not protected storage/i],
+  },
+  {
+    file: 'skills/domain-browser-security/SKILL.md',
+    guarantee: 'an operation the UI hides is still authorized on the server, and that refusal has a negative test',
+    patterns: [/UI visibility is\s+not authorization/i, /client storage is not protected/i, /still refused when called directly/i],
+  },
+  // A deep-link test asserted against the client's own navigation passes on a
+  // route guard while another actor's record is served — the substitution §8
+  // forbids — so the row pins the server as the source of the refusal.
+  {
+    file: 'skills/domain-browser-security/SKILL.md',
+    guarantee: 'an installed app\'s deep link is untrusted input refused by the server, a credential never travels through a claimable scheme, and the negative test asserts the server\'s refusal',
+    patterns: [/installed native client/i, /refused by the server/i, /claimed by another\s+installed app/i, /bound to the\s+request that started it/i, /asserted\s+from the server's response, not from a client navigation guard/i, /client-facing change whose server-side access decision/i],
+  },
+  {
+    file: 'agents/security.md',
+    guarantee: 'the security lens treats UI visibility as never authorization',
+    patterns: [/UI visibility is never authorization/i, /deep link or custom scheme treated as trusted input/i, /protected credential\s+storage/i],
+  },
+  {
+    file: 'standards/security.md',
+    guarantee: 'an installed native client is a client runtime: deep links are untrusted input, device secrets go in protected storage, permissions are least-privilege',
+    patterns: [/native client is a client runtime/i, /deep link/i, /protected credential\s+storage/i, /only the\s+platform permissions/i, /another app can claim is bound to the request that started it/i, /shipped inside the app is public/i],
+  },
+  // User-facing surfaces, added 3.15.0. Each anchor is a way the playbook
+  // fails silently: without the scoping rule a backend change is told to
+  // think about layout and a template inside an API is treated as server code;
+  // without the tier line "it is only UI" becomes a route below the line for a
+  // sign-in form; without the claim rule a read of the template is reported as
+  // having seen it; without the email line an email gets browser styling;
+  // without the restraint and no-dependency lines the playbook becomes a house
+  // aesthetic and a dependency on an external design skill.
+  {
+    file: 'skills/domain-user-interface/SKILL.md',
+    guarantee: 'the surface is decided by the changed file, not the repository, and a change reaching no surface gets none of this',
+    patterns: [/changed file or component/i, /not by the\s+repository's headline stack/i, /reaches no surface/i, /\bUNKNOWN\b/],
+  },
+  {
+    file: 'skills/domain-user-interface/SKILL.md',
+    guarantee: 'a surface reaching a sensitive area keeps that tier, and a Direct-band surface edit holds the floor by inspection',
+    patterns: [/execution-efficiency\.md/, /keeps the tier of what it reaches/i, /held by inspection/i, /never the control/i, /no changed path is a\s+declared high-risk\s+path/i],
+  },
+  {
+    file: 'skills/domain-user-interface/SKILL.md',
+    guarantee: 'only what was rendered is claimed — reading rendering code is static review, and rendering is never required for every change',
+    patterns: [/Claim only what was rendered/i, /static review/i, /never required\s+for every change/i, /baseline/i],
+  },
+  {
+    file: 'skills/domain-user-interface/SKILL.md',
+    guarantee: 'email-client compatibility outranks browser styling',
+    patterns: [/Email-client compatibility outranks browser styling/i, /plain-text part/i, /images may be blocked/i, /configured base address, never from the incoming request's host/i, /no line breaks from user input/i],
+  },
+  {
+    file: 'skills/domain-user-interface/SKILL.md',
+    guarantee: 'the repository\'s design system is authoritative, no unrequested decoration or redesign, and no external design skill is required',
+    patterns: [/never licenses a redesign/i, /no decoration the requirement did not ask for/i, /Nothing here requires one/i, /\bASSUMPTION\b/],
+  },
+  {
+    file: 'standards/evidence.md',
+    guarantee: 'a user-facing check that did not run is not claimed, and each kind of rendering proves only its own renderer, size and state',
+    patterns: [/user-facing check that did not run is not claimed/i, /static review, not a visual/i, /automated accessibility check/i, /email rendered/i],
+  },
+  {
+    file: 'skills/gate-validate/SKILL.md',
+    guarantee: 'an unrendered user-facing surface is residual risk and N/A where the repository has no such check — never PASS, and BLOCKED only when the plan required it',
+    patterns: [/user-facing surface/i, /residual risk, never `PASS`/i, /approved plan's verification names it/i, /never the source/i, /this gate fixes nothing/i, /`N\/A` with its\s+evidence when the repository has no such check/i],
+    // Validation is read-only, and a rendering loop is where that slips: a
+    // fix-and-re-render loop belongs to implementation, so fix-round wording in
+    // this gate contradicts it.
+    forbid: [/round of fixes/i],
+  },
+  {
+    file: 'agents/context-mapper.md',
+    guarantee: 'the mapper records user-facing surfaces per package or path and maps a presentation surface decided by the changed files',
+    patterns: [/User-facing surfaces — per package or path/, /\*\*Presentation surface\*\* — what a person sees/, /\*\*Presentation surface\*\* — from Stage 6/, /decided by the changed files/i],
+  },
+  {
+    file: 'standards/testing.md',
+    guarantee: 'a user-facing surface owes tests of its reachable states and its keyboard or assistive-input operation',
+    patterns: [/user-facing surface makes reachable/i, /keyboard or the platform's\s+assistive input/i],
+  },
+  {
+    file: 'agents/tester.md',
+    guarantee: 'the tester maps a user-facing surface\'s states and assistive operation to tests',
+    patterns: [/user-facing surface/i, /loading, empty and error states/i, /platform's\s+assistive input/i],
+  },
   {
     file: 'standards/testing.md',
     guarantee: 'a negative exposure test asserts on content rather than status, reaches the layer production traffic crosses, runs against what ships, and derives its paths from the repository',
@@ -2079,7 +2185,7 @@ function validateSingleSourcePolicies() {
 }
 
 function validateNormativeAnchors() {
-  for (const { file, guarantee, patterns } of NORMATIVE_ANCHORS) {
+  for (const { file, guarantee, patterns, forbid = [] } of NORMATIVE_ANCHORS) {
     const filePath = join(pluginRoot, file);
     if (!existsSync(filePath)) {
       fail(filePath, `is missing, so the guarantee it carried (${guarantee}) is stated nowhere.`);
@@ -2087,6 +2193,11 @@ function validateNormativeAnchors() {
     }
 
     const content = readFileSync(filePath, 'utf8');
+    for (const pattern of forbid) {
+      if (pattern.test(content)) {
+        fail(filePath, `states something that contradicts: ${guarantee} (matched ${pattern}).`);
+      }
+    }
     const missing = patterns.filter((pattern) => !pattern.test(content));
     if (missing.length > 0) {
       fail(filePath, `no longer states: ${guarantee}. This file is the single source of that rule, so deleting it deletes the rule everywhere at once — and nothing else in this suite would have noticed. Rewrite freely; if the guarantee genuinely no longer applies, remove its anchor in tests/validate-plugin.mjs deliberately.`);

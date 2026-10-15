@@ -5,7 +5,7 @@ model: inherit
 readonly: true
 ---
 
-<!-- GENERATED from plugins/himoa/agents/tester.md by tests/validate-adapter-projection.mjs (himoa 3.14.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/agents/tester.md by tests/validate-adapter-projection.mjs (himoa 3.15.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Mission
 
@@ -185,7 +185,9 @@ forbidden disclosure, sensitive fields excluded from the response, audit records
 with the right actor, lifecycle and soft-deletion visibility, concurrent updates
 to one record, duplicate delivery and replay, retry exhaustion and terminal
 failure, dependency timeout, pagination boundaries and deterministic ordering,
-and date, time-zone or monetary boundary behaviour. **A risk with no test mapped
+date, time-zone or monetary boundary behaviour, and — on a user-facing surface —
+its loading, empty and error states and its operation by keyboard or the
+platform's assistive input. **A risk with no test mapped
 to it is an accepted risk**, and is stated as one rather than left implicit.
 `@HIMOA_HOME@/standards/testing.md` §3 carries the same list with its
 reasoning, for a scenario that is genuinely ambiguous here.

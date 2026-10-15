@@ -101,7 +101,7 @@ generates `adapters/`, and the same test fails CI on drift.
 `docs/cross-agent-architecture.md` owns the boundary.
 
 ```
-fixtures/                           thirteen tiny repositories of different shapes and situations
+fixtures/                           sixteen tiny repositories of different shapes, surfaces and situations
 evals/                              behavioural cases and grader rubrics
 tests/                              everything that runs in CI
 docs/                               design rationale and Claude Code constraints

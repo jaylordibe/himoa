@@ -134,6 +134,7 @@ the authoritative text and satisfy it.
 | Configuration, dependencies, timeouts, retries, idempotency | The repository's configuration contract; `standards/architecture.md` §5 |
 | Naming, responsibility placement, completion hygiene | `standards/coding.md` §§1–2, §7 |
 | Comments, documentation and `AGENTS.md` edits — current truth, no history | `standards/coding.md` §9; `standards/repository-evidence.md` §7 |
+| User-facing surface — states, accessibility, layout or platform conventions, reuse of the existing design system | The repository's own design system and component conventions; `${CLAUDE_PLUGIN_ROOT}/skills/domain-user-interface/SKILL.md` |
 
 Two rules are repeated here rather than referenced, because violating either is
 unrecoverable rather than merely wrong:

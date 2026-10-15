@@ -163,6 +163,20 @@ redacted · rollout and rollback prerequisites present.
 Ask `himoa:performance` for asynchronous, integration or
 load-sensitive changes.
 
+**Where the change reaches a user-facing surface**, the repository's own checks
+for it — component, end-to-end, accessibility or visual — are gates like any
+other. Rendering the surface with a tool the session has — browser automation,
+an emulator, an email preview — is done when it materially changes confidence,
+in bounded passes: one inspection, and at most one re-render after changing
+only the rendering setup — size, state or data — never the source. A defect it
+shows is `FAIL` and goes back to implementation; this gate fixes nothing.
+Where nothing rendered it, the report's user-facing row says so — `N/A` with its
+evidence when the repository has no such check — and the unrendered surface is
+residual risk, never `PASS`. It is required, and its absence `BLOCKED`, only
+when the approved plan's verification names it.
+`${CLAUDE_PLUGIN_ROOT}/standards/evidence.md` §3 says what each rendering
+proves.
+
 ## 9. Verdict
 
 Return exactly one:

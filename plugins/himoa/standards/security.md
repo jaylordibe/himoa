@@ -142,6 +142,16 @@ backend-only, worker-only or command-line change does not pull this section.
   enforced on the server (§2), or it is unprotected.
 - **A user-controlled redirect or callback destination** is validated against an
   allowlist or constrained to a safe relative target.
+- **An installed native client is a client runtime too.** A deep link or custom
+  URL scheme is untrusted input that can open any screen with any parameters,
+  and a credential or authorization callback that arrives through a scheme
+  another app can claim is bound to the request that started it — a link the
+  platform verifies as this app's is preferred wherever the platform offers
+  one; a per-user secret kept on the device belongs in the platform's
+  protected credential storage, never in ordinary app storage — and a secret
+  shipped inside the app is public whatever stores it (§7); and the app
+  requests only the platform permissions the feature needs, when it needs
+  them.
 - **Cross-document messaging** validates the origin and the shape of what it
   receives, and does not post sensitive data to an unrestricted target origin.
 - **Third-party client code runs with the page's full authority.** Introducing

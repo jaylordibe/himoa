@@ -159,6 +159,40 @@ const FIXTURE_SIGNATURES = {
       'phpunit', 'vue', 'migration', 'migrations', 'orm',
     ],
   },
+  // The three user-facing fixtures, added 3.15.0. Each is a separate
+  // repository rather than an extension of `vue-app` or `nestjs-api` because
+  // the cases already running against those depend on what they lack: one of
+  // `vue-app`'s rests on it having one component and no consumers.
+  'web-app': {
+    shape: 'client-rendered web application with design tokens and shared components',
+    mustHaveFiles: ['package.json', 'CLAUDE.md', 'src/styles/tokens.css'],
+    mustNotHaveFiles: ['composer.json', 'prisma', 'app.json'],
+    mustContain: ['vue', 'npm', 'tokens'],
+    mustNotContain: [
+      'composer', 'artisan', 'phpunit', 'prisma', 'nestjs', 'casl', 'expo',
+      'react-native', 'handlebars', 'migration', 'migrations', 'orm',
+    ],
+  },
+  'mobile-app': {
+    shape: 'cross-platform mobile application',
+    mustHaveFiles: ['package.json', 'CLAUDE.md', 'app.json'],
+    mustNotHaveFiles: ['composer.json', 'prisma', 'index.html'],
+    mustContain: ['expo', 'react-native', 'npm'],
+    // No browser or server vocabulary: the case run against this fixture fails
+    // a run that brings web habits — hover, viewport units — to a native screen.
+    mustNotContain: [
+      'vue', 'composer', 'artisan', 'phpunit', 'prisma', 'nestjs', 'casl',
+      'migration', 'migrations', 'orm', 'hover', 'vite', 'pinia', 'handlebars',
+    ],
+  },
+  'api-with-email': {
+    shape: 'decorator-based TypeScript API that sends templated transactional email',
+    mustHaveFiles: ['package.json', 'CLAUDE.md', 'src/mail/templates/order-confirmation.hbs', 'src/mail/templates/order-confirmation.txt.hbs'],
+    mustNotHaveFiles: ['composer.json', 'artisan', 'prisma'],
+    mustContain: ['nestjs', 'handlebars', 'npm'],
+    // A server with no persistence layer, so a map naming one has invented it.
+    mustNotContain: ['composer', 'artisan', 'phpunit', 'laravel', 'prisma', 'vue', 'pinia', 'expo', 'react', 'nginx', 'migration', 'migrations', 'orm'],
+  },
   'minimal-repository': {
     shape: 'a README and one script; no manifest, no repository contract',
     mustHaveFiles: ['README.md'],
@@ -348,6 +382,31 @@ const REVIEW_DEFECTS = [
   { file: 'src/receipt.js', what: 'a receipt that ignores the customer\'s time zone', pattern: /formatDate\(new Date\(order\.placedAt\)\)/, forbid: /timeZone[,)]/ },
 ];
 
+// The seams the user-facing cases grade. Each looks like an oversight a helpful
+// contributor would tidy, and each tidy turns a case green while it proves
+// nothing: a panel that never shows its error, rows only a mouse can reach, a
+// hard-coded colour beside the tokens, a validation rule one too loose, a
+// detail screen with no failure branch.
+const USER_SURFACE_SEAMS = [
+  { fixture: 'web-app', file: 'src/components/OrdersPanel.vue', what: 'a panel that reads the store\'s loading state but never its error', pattern: /store\.loading/, forbid: /store\.error/ },
+  { fixture: 'web-app', file: 'src/components/OrdersPanel.vue', what: 'rows that respond only to a click on a list item or table row', pattern: /<li v-for[^>]*@click[\s\S]*<tr v-for[^>]*@click/ },
+  { fixture: 'web-app', file: 'src/components/SignInForm.vue', what: 'an error message with a hard-coded colour and size beside the tokens', pattern: /color: red;/ },
+  { fixture: 'web-app', file: 'src/styles/tokens.css', what: 'the brand colour and strong weight tokens a style fix should reuse', pattern: /--color-brand:[\s\S]*--font-weight-strong:/ },
+  { fixture: 'web-app', file: 'src/components/ui/BaseField.vue', what: 'a field component that already ties its error to its input', pattern: /aria-describedby/ },
+  { fixture: 'mobile-app', file: 'src/components/Screen.js', what: 'a screen wrapper that owns safe areas and keyboard avoidance', pattern: /SafeAreaView[\s\S]*KeyboardAvoidingView/ },
+  { fixture: 'mobile-app', file: 'src/hooks/useOnline.js', what: 'the connectivity hook every screen is meant to use', pattern: /export function useOnline/ },
+  { fixture: 'mobile-app', file: 'src/theme.js', what: 'a minimum touch target in the theme', pattern: /minTouchTarget/ },
+  { fixture: 'mobile-app', file: 'src/screens/OrderDetailScreen.js', what: 'a detail screen with no error or offline branch', pattern: /getJson\(/, forbid: /catch|useOnline/ },
+  { fixture: 'api-with-email', file: 'src/orders/create-order.dto.ts', what: 'a quantity rule that admits zero', pattern: /@Min\(0\)/ },
+  { fixture: 'web-app', file: 'src/stores/orders.js', what: 'a store that already tracks the load error the panel ignores', pattern: /error: null[\s\S]*this\.error = error/ },
+  { fixture: 'web-app', file: 'CLAUDE.md', what: 'a contract declaring no end-to-end, visual or accessibility suite', pattern: /no end-to-end, visual or automated accessibility suite/ },
+  { fixture: 'mobile-app', file: 'CLAUDE.md', what: 'a contract declaring device runs manual', pattern: /runs are manual/ },
+  { fixture: 'api-with-email', file: 'src/main.ts', what: 'a bootstrap registering the validation pipe and no error filter, against what CLAUDE.md promises', pattern: /useGlobalPipes/, forbid: /useGlobalFilters|APP_FILTER/ },
+  { fixture: 'api-with-email', file: 'CLAUDE.md', what: 'the promised global filter and a declared public consumer of the orders endpoint', pattern: /global filter[\s\S]*\| Customer web client \| web-client \| Public \|/ },
+  { fixture: 'api-with-email', file: 'test/orders.service.spec.ts', what: 'a spec that builds the service directly and cannot see the request rule', pattern: /new OrdersService\(/, forbid: /CreateOrderDto/ },
+  { fixture: 'api-with-email', file: 'src/mail/templates/order-confirmation.hbs', what: 'an email laid out with tables and inline styles, no style block', pattern: /role="presentation"[\s\S]*style="/, forbid: /<style/ },
+];
+
 function validatePinnedHazards(fixtureName, hazards, cases) {
   const fixtureRoot = join(fixturesRoot, fixtureName);
   if (!existsSync(fixtureRoot)) return;
@@ -478,6 +537,9 @@ for (const [fixtureName, signature] of Object.entries(FIXTURE_SIGNATURES)) {
 validateAdversarialFixture();
 validatePinnedHazards('exposure-surface', EXPOSURE_HAZARDS, 'exposure');
 validatePinnedHazards('review-surface', REVIEW_DEFECTS, 'review');
+for (const name of ['web-app', 'mobile-app', 'api-with-email']) {
+  validatePinnedHazards(name, USER_SURFACE_SEAMS.filter((seam) => seam.fixture === name), 'user-facing');
+}
 
 console.log('fixture corpus — static validation');
 console.log(`  ${fixtureNames.length} fixtures, ${caseNames.length} eval cases\n`);

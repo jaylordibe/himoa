@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "Orders",
+    "slug": "orders",
+    "scheme": "orders",
+    "orientation": "default",
+    "ios": { "supportsTablet": true },
+    "android": { "permissions": [] }
+  }
+}

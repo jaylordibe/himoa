@@ -1,4 +1,4 @@
-# GENERATED from plugins/himoa/skills/domain-browser-security/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.14.0).
+# GENERATED from plugins/himoa/skills/domain-browser-security/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.15.0).
 # DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write
 description = "The decisions and failure modes that govern code running in a browser or other client runtime. Carries the questions a change must answer, and none of the answers."
 prompt = '''
@@ -118,6 +118,18 @@ and in-flight credentials. Introducing or materially changing such a script or
 SDK is a trust decision — its necessity, the data it can reach, and its
 integrity and provenance — not a dependency detail.
 
+### An installed native client trusted like a server
+
+A deep link or custom URL scheme can be invoked by any other app or page, with
+any parameters, so it is untrusted input that can open any screen — and the
+record that screen shows is still refused by the server unless this actor may
+see it. A custom scheme can also be claimed by another installed app, so a
+credential or authorization callback arriving through one is bound to the
+request that started it (`@HIMOA_HOME@/standards/security.md` §8). A
+secret kept in ordinary app storage is readable on a compromised or backed-up
+device; the platform's protected credential storage exists for it. A permission requested up front,
+or for more than the feature uses, is exposure with no benefit.
+
 ## 4. Tests that must exist
 
 Write every one this client can actually express. Skip a row only when the
@@ -131,8 +143,11 @@ surface it tests is `ABSENT`, and say so.
 - an operation the UI hides or disables is still refused when called directly on
   the server;
 - a redirect or callback to an off-allowlist destination is rejected;
-- a cross-document message from an unexpected origin is ignored.
+- a cross-document message from an unexpected origin is ignored;
+- a deep link carrying an identifier the signed-in actor may not access, or a
+  malformed parameter, shows none of that record — and the refusal is asserted
+  from the server's response, not from a client navigation guard.
 
-A browser-facing change whose server-side access decision has no negative test
+A client-facing change whose server-side access decision has no negative test
 has not been tested. UI-only behaviour is not that test.
 '''

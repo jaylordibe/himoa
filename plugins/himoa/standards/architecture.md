@@ -236,7 +236,9 @@ Treat as **externally observable**, whatever the transport:
 - pagination, filtering, sorting and ordering behaviour;
 - event, message and webhook payloads;
 - idempotency and retry semantics;
-- published schemas and generated client artefacts.
+- published schemas and generated client artefacts;
+- links, routes and deep links already in people's hands — in a sent email, a
+  notification, a bookmark or an installed app that has not updated.
 
 Every change to one of these must identify:
 

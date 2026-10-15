@@ -72,6 +72,15 @@ when all three passed.
 | Manual runtime exercise | That path worked once, in that environment | Reproducibility, load behaviour, or other paths |
 | A dependency scanner is quiet | No *known* advisory matched | That the code is not vulnerable |
 | A request for a sensitive resource returns nothing sensitive | That layer, for that path, did not serve it | That the deployed path — proxy, edge, production artifact — does not |
+| A rendered surface was looked at, or captured | That state, at that size, in that renderer, once | Other states, sizes, renderers or content; that it is usable or accessible |
+| An automated accessibility check passes | The rules that tool checks, on the states it reached | Usability with assistive technology, or conformance to any standard |
+| It ran in one browser, emulator or device | That runtime, at that version | Other engines, real hardware, other operating-system versions |
+| An email rendered correctly in one client or preview | That client | Every other client, images blocked, or a dark-mode rendering |
+
+**A user-facing check that did not run is not claimed.** Reading the code that
+renders a surface is static review, not a visual, browser, device or
+accessibility check, and a report says which of the rows above actually ran and
+at what scope — or that none did.
 
 Never claim **secure**, **battle-tested**, **production-ready**, **works** or
 **done** more broadly than the row above supports.

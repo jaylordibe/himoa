@@ -266,7 +266,7 @@ is a first-class design constraint.
 | Loaded | When | Cost |
 |---|---|---|
 | Session charter | Every session, via a `SessionStart` hook | ~75 lines, capped at 80 |
-| Skill listing entries | Always | Four model-invoked descriptions |
+| Skill listing entries | Always | Eight model-invoked descriptions — the `domain-*` playbooks |
 | A gate `SKILL.md` | When the human invokes that gate | One file |
 | A standard | When a gate or agent cites it | One file |
 | A template | When a gate reaches the section that uses it | One file |

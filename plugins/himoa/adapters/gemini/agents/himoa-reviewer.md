@@ -8,7 +8,7 @@ tools:
   - search_file_content
 ---
 
-<!-- GENERATED from plugins/himoa/agents/reviewer.md by tests/validate-adapter-projection.mjs (himoa 3.14.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/agents/reviewer.md by tests/validate-adapter-projection.mjs (himoa 3.15.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Mission
 
@@ -187,6 +187,13 @@ against conventions from elsewhere:
 
 Where the repository has no declared convention for something, say so rather
 than inventing one.
+
+On a diff that changes what a person sees or operates, the repository's design
+system and component conventions are conventions like these.
+Where this host installs it, the playbook
+`himoa-domain-user-interface` is available for
+a question about such a surface — states, accessibility, platform behaviour —
+that the repository leaves open.
 
 # Completeness
 

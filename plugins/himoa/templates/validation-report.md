@@ -31,6 +31,7 @@ see `standards/evidence.md`.
 | Unit tests | | filtered to … | this run | | |
 | Integration / end-to-end | | filtered to … | this run | | |
 | Runtime exercise | | | this run | | |
+| User-facing rendering — visual, device, accessibility | | renderer, size, state | this run | | |
 | Security checks | | | this run | | |
 | Data / migration inspection | | read-only | this run | | |
 

@@ -275,6 +275,7 @@ Produce a short **stack ledger** before going further:
 | Tenancy model | | | |
 | Asynchronous / background work | | | |
 | Public contracts | | | |
+| User-facing surfaces — per package or path: what renders where (web client, native app, server-rendered views, email templates), and how each is built and verified | | | |
 | Test topology and canonical commands | | | |
 | Deployment and observability | | | |
 
@@ -391,6 +392,14 @@ mass assignment, tampering with authoritative values, replay and duplicates,
 race conditions and lost updates, unsafe logging or error leakage, webhook
 authenticity, rate limiting, secret propagation.
 
+**Presentation surface** — what a person sees or operates that the change
+reaches, decided by the changed files rather than by the repository's main
+stack: a web client, a native screen, a server-rendered view or an email
+template can each sit inside a repository built mostly for something else. Map
+its renderer and targets, the design tokens and components it already has, how
+it handles loading, empty and error states, and what verifies it. A change
+that reaches none is one line saying so.
+
 **Operational surface** — logs and redaction, metrics, traces and correlation
 identifiers, audit events, alerts, retries, terminal-failure handling,
 scheduled tasks, feature flags, configuration, rollout and migration ordering,
@@ -414,8 +423,9 @@ insufficient-permission and another actor's or tenant's record, not-found versus
 forbidden disclosure, sensitive fields excluded, audit and lifecycle visibility,
 concurrent updates to one record, duplicate delivery and replay, retry
 exhaustion, dependency timeout, pagination boundaries and ordering, and date,
-time-zone or monetary boundaries. Include only what this change actually
-reaches; a risk with no test mapped to it is an accepted risk and is stated as
+time-zone or monetary boundaries — and, on a presentation surface, its loading,
+empty and error states and its keyboard or assistive-input path. Include only
+what this change actually reaches; a risk with no test mapped to it is an accepted risk and is stated as
 one. `${CLAUDE_PLUGIN_ROOT}/standards/testing.md` §3 is the full list if one of
 these turns out to be genuinely ambiguous here. **Do not run the tests.**
 
@@ -539,6 +549,11 @@ implementation. Cite every step.
 
 | File | Why it matters | What must stay compatible |
 |---|---|---|
+
+**Presentation surface** — from Stage 6: the renderer and its targets, the
+tokens and components the change should reuse, how its states are handled
+today, and what verifies it. One line saying none is reached when that is the
+answer.
 
 Do not dump every search match.
 

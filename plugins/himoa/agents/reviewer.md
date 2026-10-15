@@ -186,6 +186,13 @@ against conventions from elsewhere:
 Where the repository has no declared convention for something, say so rather
 than inventing one.
 
+On a diff that changes what a person sees or operates, the repository's design
+system and component conventions are conventions like these.
+Where this host installs it, the playbook
+`${CLAUDE_PLUGIN_ROOT}/skills/domain-user-interface/SKILL.md` is available for
+a question about such a surface — states, accessibility, platform behaviour —
+that the repository leaves open.
+
 # Completeness
 
 - Every in-scope call site of a changed pattern migrated — not just the first.

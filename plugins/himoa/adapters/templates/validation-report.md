@@ -1,4 +1,4 @@
-<!-- GENERATED from plugins/himoa/templates/validation-report.md by tests/validate-adapter-projection.mjs (himoa 3.14.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/templates/validation-report.md by tests/validate-adapter-projection.mjs (himoa 3.15.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Validation report: [change title]
 
@@ -33,6 +33,7 @@ see `standards/evidence.md`.
 | Unit tests | | filtered to … | this run | | |
 | Integration / end-to-end | | filtered to … | this run | | |
 | Runtime exercise | | | this run | | |
+| User-facing rendering — visual, device, accessibility | | renderer, size, state | this run | | |
 | Security checks | | | this run | | |
 | Data / migration inspection | | read-only | this run | | |
 

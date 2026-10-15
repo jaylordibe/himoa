@@ -1,4 +1,4 @@
-<!-- GENERATED from plugins/himoa/standards/testing.md by tests/validate-adapter-projection.mjs (himoa 3.14.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/standards/testing.md by tests/validate-adapter-projection.mjs (himoa 3.15.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Testing standard
 
@@ -34,6 +34,7 @@ Choose the cheapest layer that can actually prove the thing:
 |---|---|---|
 | **Unit** | A pure rule, transform or calculation | The logic is decidable without I/O |
 | **Integration** | That real components agree — validation, serialisation, persistence, authorization, transactions | The contract *between* layers is what can break |
+| **Component / screen** | That a rendered unit shows the right state and responds to input the way a person operates it | The behaviour is what someone sees or operates |
 | **End-to-end / contract** | The externally observable behaviour a consumer depends on | The change touches a public contract |
 | **Property or fuzz** | Invariants across generated input | The input space is large and the invariant is crisp |
 
@@ -65,6 +66,9 @@ to it is an accepted risk, and must be stated as one rather than left implicit.
 - backward compatibility of a changed contract;
 - sensitive resources not retrievable through the deployed public surface, when
   the change reaches it (`security.md` §11);
+- the states and interactions a user-facing surface makes reachable — loading,
+  empty, error and success, and operation by keyboard or the platform's
+  assistive input — when the change reaches one (`domain-user-interface` §3 and §6);
 - a regression case reproducing any defect that was fixed.
 
 ## 4. Quality

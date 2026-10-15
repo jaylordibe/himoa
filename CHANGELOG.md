@@ -12,6 +12,76 @@ act, and MINOR and PATCH never do. Entries below `1.0.0` were released under the
 
 ---
 
+## 3.15.0 — 2026-10-15
+
+**User-facing surfaces — web, mobile, server-rendered views and email — get
+their own playbook, the evidence rows to report them honestly, and a mapper
+that decides context by the changed file — improved guidance, no Claude Code
+consumer action (MINOR).** Until now the only user-facing guidance was browser security.
+A change to a screen, a form, an app or an email template got backend-shaped
+mapping, backend-shaped test scenarios, and no way to say that a surface was
+never rendered.
+
+### Added
+- **`domain-user-interface`**, a model-invoked playbook in the existing shape:
+  the surface is decided by the changed file, not the repository; how a surface
+  maps onto the existing bands and tiers (a style fix stays a style fix, a
+  shared token widens, a surface reaching a sensitive area keeps that tier);
+  states, semantics, keyboard and assistive operation, worst-case content,
+  reuse of the repository's own design system, restraint, motion with a
+  purpose; web, native-app, server-rendered and email specifics; and "claim
+  only what was rendered". It names no framework and requires no external
+  design skill.
+
+### Changed — mapping, testing, evidence, validation
+- **`context-mapper`:** a stack-ledger row for user-facing surfaces per package
+  or path, a Presentation surface in Stage 6, and surface states in the tests
+  implied.
+- **`standards/evidence.md` §3:** what looking at a rendered surface, an
+  automated accessibility check, one browser or device, and one email client
+  each prove and do not — and a user-facing check that did not run is not
+  claimed.
+- **`gate-validate` §8 and `templates/validation-report.md`:** a user-facing
+  rendering row. An unrendered surface is residual risk and `N/A` where the
+  repository has no such check — never `PASS` — and `BLOCKED` only when the
+  approved plan required rendering.
+- **`standards/testing.md`:** a component/screen layer, and surface states and
+  assistive operation in the required scenarios; `tester` carries the same.
+- **`standards/architecture.md` §4:** links, routes and deep links already in
+  people's hands are a contract.
+- **`standards/security.md` §8 and `domain-browser-security`:** an installed
+  native client is a client runtime — deep links are untrusted input, device
+  secrets go in protected storage, permissions are least-privilege.
+- **`gate-implement`** gains a user-facing lens row; **`reviewer`** treats the
+  repository's design system as a declared convention.
+- **`reference/AGENTS.md.template`:** an optional placeholder for a
+  repository's user-facing truth — targets, design system, accessibility bar,
+  localisation.
+
+Codex, Cursor and Gemini installs pick up the new playbook and the changed
+standards when `himoa-<host>-install` is re-run; their doctors report the
+version difference until then. Copilot repositories re-run
+`himoa-copilot-install` and commit the regenerated `.github/agents/`;
+`himoa-copilot-doctor` counts those agents and does not compare versions, so it
+does not report a stale set.
+
+### Tooling
+- The stack-term denylist names user-facing, mobile, template and UI-test
+  tooling; it named five UI frameworks and nothing else here before.
+- `validate-plugin.mjs` pins the new rules, and now also pins "UI visibility is
+  not authorization" and "client storage is not protected storage" in the
+  standard, the playbook and the security lens — deleting them from all three
+  used to leave CI green.
+
+### Evals
+- Three fixtures — `web-app`, `mobile-app`, `api-with-email` — and eight cases:
+  a style fix that stays Direct, a panel's missing states, a restructure that
+  stops for approval, an accessible responsive form, a platform-aware mobile
+  screen, a full-stack change across a workspace, an email template inside an
+  API, and a validation change in that same API that must pull no surface
+  guidance. New grader `user-surface-quality`: checkable rows only, no credit
+  for taste or volume, and any rendering claim without a tool call scores 0.0.
+
 ## 3.14.0 — 2026-10-15
 
 **A finished design is challenged for necessity before it is shown, and an

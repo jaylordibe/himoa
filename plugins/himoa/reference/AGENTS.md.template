@@ -108,6 +108,7 @@ _(Entry points, module or component layout, and what each part owns.)_
 - _(Authorization contract)_
 - _(Persistence and data access contract)_
 - _(Logging, redaction and observability contract)_
+- _(User-facing surfaces, where this repository has them: supported targets, design system and tokens to reuse, accessibility bar, localisation)_
 
 ## Non-obvious invariants
 

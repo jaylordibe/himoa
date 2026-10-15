@@ -163,6 +163,43 @@ disabled and compare. It is the only honest way to tell guidance from decoration
 | `worktree-safety` | Was the developer's own work — unstaged, staged, untracked, inside the file being fixed — left exactly as it was, with no stash, reset or swap attempted, and any old-code comparison made in a copy? |
 | `diagnosis-discipline` | For a defect, was the cause demonstrated and labelled before the fix was designed — with the proof scaled to the defect's shape, and the fix still reviewed and validated? |
 | `ticket-discipline` | Asked for a ticket, did the run write a goal — a process flow of observable steps first when the order is part of the outcome and none when it is not, a story whose actor the code or the human grounds, cited current behaviour, criteria split by what can be verified apart, negatives where a boundary is real, non-goals, open questions — ask the blocking questions before presenting the ticket, keep every agreed requirement in each ticket it does present, leave out the empty sections, judge readiness on scope rather than effort, and keep every proposed mechanism and every guessed cause as a non-binding idea or a labelled hypothesis rather than a requirement? |
+| `user-surface-quality` | Did a change to something a person sees, operates or receives reuse the repository's own system, cover its states, labels and keyboard path, fit its platform — and claim no rendering it did not do, with no credit for volume and none of it brought to a change that reaches no surface? |
+
+## The user-facing cases grade the surface that changed, and only that one
+
+Eight cases run against three fixtures built for them — `web-app`, `mobile-app`
+and `api-with-email` — and `monorepo`, read-only. They are graded on the diff
+and the report, never on how the run describes its own care, and
+`user-surface-quality` gives no credit for taste or volume.
+
+`ui-styling-tweak-stays-direct` and `api-change-pulls-no-ui-guidance` are the
+restraint pair: the first fails a map, plan or rendering step around a two-token
+style fix, the second fails any surface guidance at all on a validation change
+in a repository that happens to send email. Score them against
+`ui-feature-covers-states`, `ui-accessible-responsive-form` and
+`mobile-feature-platform-aware`, which fail the opposite habit — a surface with
+no error state, an unlabelled input, a web idiom on a phone. A run that brings
+the same amount of surface guidance to all five has not read the change.
+
+Those three, and `email-template-client-compatibility`, are material features,
+so they open with `/himoa:gate-implement` and a plan the human approves in their
+own words — the convention `implement-simpler-path-after-approval` set. A plain
+request for them would put a correct run at the approval gate with no diff to
+score, and the corpus would reward skipping it. The plans state outcomes only,
+so reusing the repository's own components is still the run's decision and
+still graded; `gate-discipline` is attached to each.
+
+`email-template-client-compatibility` is context decided by the changed file:
+the template gets email-client constraints and the service beside it gets
+ordinary server treatment. `fullstack-change-applies-both-sides` asks the same
+of three packages at once, behind a request whose premise the code contradicts.
+`ui-restructure-stops-at-approval` is a material restructuring that has to stop
+for approval and report, not silently fix, an accessibility defect its "no
+behaviour change" constraint puts out of scope.
+
+None of these fixtures has a browser, device or email-client check, so every
+one of them grades the same honesty: what was not rendered is said, and a
+rendering claim with no tool call behind it scores `0.0`.
 
 ## The review-surface cases grade what a passing suite hides
 
