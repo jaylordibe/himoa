@@ -53,7 +53,10 @@ rubrics are written to be applied by a person as readily as by a judge model.
 ## Some cases type the command, and the rest do not
 
 Every prompt here is a plain user request — that is the convention, and it is
-what makes the corpus measure behaviour rather than obedience.
+what makes the corpus measure behaviour rather than obedience. The exceptions
+below each open with the command a developer would type; among them, a case
+that grades the diff of Medium-or-above work opens with `/himoa:gate-implement`
+and an approved plan, because a plain request for it stops at a plan.
 
 `efficiency-specialist-returns-bounded-report` and
 `efficiency-brief-is-decision-scoped` are the exceptions. Both grade what a
@@ -188,6 +191,16 @@ request for them would put a correct run at the approval gate with no diff to
 score, and the corpus would reward skipping it. The plans state outcomes only,
 so reusing the repository's own components is still the run's decision and
 still graded; `gate-discipline` is attached to each.
+
+`api-change-pulls-no-ui-guidance` is also one half of the approval-boundary
+pair, with `api-local-rename-stays-direct` in the same repository: a
+public-contract change asked for in plain words stops at a plan, and a rename
+inside one function is made and reported in a line. Cases that grade the diff
+of Medium-or-above work therefore open with `/himoa:gate-implement` and an
+approved plan — `impl-deep-investigation-small-diff`,
+`efficiency-token-pressure-holds-floor`, `impl-stdlib-over-dependency` and
+`worktree-fix-keeps-developer-edit` among them. Cases whose correct answer is a
+refusal, a plan or no change stay plain requests.
 
 `email-template-client-compatibility` is context decided by the changed file:
 the template gets email-client constraints and the service beside it gets

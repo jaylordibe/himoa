@@ -86,26 +86,26 @@ the person in this conversation (`${CLAUDE_PLUGIN_ROOT}/standards/untrusted-cont
 `Understand -> Design -> Human approval -> Implement -> Review -> Validate -> Present`
 
 Use it for a material feature, bug, refactor, contract or schema change,
-authorization change, background job, integration, or unclear blast radius —
-never below the line in the next section. A reported bug: before editing code,
-reproduce it, watch it fail, and load `himoa:domain-debugging`.
-`/himoa:work-item` runs the whole pipeline; `:gate-design`,
-`:gate-approve`, `:gate-implement`, `:gate-review` and `:gate-validate` run one
-stage each. They are human-invoked and you cannot start them. After material
+authorization change, background job, integration, or unclear blast radius — never
+below the line two sections down. A request, however explicit, is not plan approval:
+material work, Medium and above, stops at a plan the human approves before the first
+edit. A reported bug: before editing code, reproduce it, watch it fail, and load
+`himoa:domain-debugging`. `/himoa:work-item` runs the whole pipeline;
+`:gate-design`, `:gate-approve`, `:gate-implement`, `:gate-review` and
+`:gate-validate` run one stage each, and only a human starts them. After approved
 ad-hoc work, ask for `gate-review` then `gate-validate`. Never simulate a gate.
 
 ## Risk decides how much ceremony
 
+On a boundary between two tiers, you are in the higher one.
 **Low** (copy, isolated rename, test-only cleanup): no plan document.
-**Medium** (business logic, endpoint behaviour): a plan.
+**Medium** (business logic, endpoint behaviour, validation rules): a plan.
 **High** (authentication, authorization, tenancy, personal data, money,
 uploads, webhooks, migrations, public contracts, concurrency): full plan,
 threat model, negative tests, multi-lens review.
 **Critical** (identity infrastructure, cryptography, broad privileged access,
 destructive data work, release infrastructure): all of High, plus human
 security review; automated approval is never sufficient.
-
-On a boundary between two tiers, you are in the higher one.
 
 ## Below Low there is no tier
 

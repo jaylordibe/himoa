@@ -12,6 +12,49 @@ act, and MINOR and PATCH never do. Entries below `1.0.0` were released under the
 
 ---
 
+## 3.16.0 — 2026-10-15
+
+**An explicit request is not plan approval: material work, Medium and above,
+asked for in plain words stops at a plan before the first edit — and rendering
+a user-facing surface is scoped to the change rather than capped at a count. A
+session now stops where it used to edit; no consumer action (MINOR —
+`docs/versioning.md`: a change that stops something previously allowed is at
+least MINOR).**
+
+### Changed
+- **Charter, Workflow:** "A request, however explicit, is not plan approval:
+  material work, Medium and above, stops at a plan the human approves before the
+  first edit." The old sentence — "after material ad-hoc work, ask for
+  `gate-review`" — read as licence to edit first: Opus edited a
+  public-contract endpoint asked for in plain words, unplanned, in 3 of 3 runs
+  of `api-change-pulls-no-ui-guidance`, then offered the review. "Asked for
+  plainly, it still stops" did not move it (3 of 3 again). With this wording,
+  1 of 3 runs stopped at a plan and 2 of 3 still edited first: the gap is
+  narrowed, not closed, and this release does not claim more. Medium now names
+  validation rules beside endpoint behaviour. The Direct exit is unchanged; a
+  rename inside one function in the same repository stayed Direct in every run.
+  "On a boundary between two tiers" now opens the risk section, and the
+  Workflow's pointer to "the line" names the right section.
+- **`domain-user-interface` §6 and `gate-validate` §8:** rendering covers the
+  states, sizes and targets the change makes reachable and the approved
+  verification names; it is repeated only for a concrete failure or an open
+  material question, and stops when those are answered (`execution-efficiency`
+  §8.1). A state left unrendered at validation is residual risk, never `PASS`.
+  Replaces "one inspection, one round of fixes, at most one confirmation",
+  which could not cover a change with two states or two targets. Validation
+  still changes only the setup, never the source, and fixes nothing.
+
+### Tooling and evals
+- `validate-charter.mjs` pins the stop; `validate-plugin.mjs` pins the
+  rendering scope, the stopping rule and the residual-risk line.
+- New case `api-local-rename-stays-direct`, the harmless contrast to
+  `api-change-pulls-no-ui-guidance`.
+- `impl-deep-investigation-small-diff`, `efficiency-token-pressure-holds-floor`,
+  `impl-stdlib-over-dependency` and `worktree-fix-keeps-developer-edit` now open
+  with `/himoa:gate-implement` and an approved, outcome-only plan: each grades a
+  diff of Medium-or-above work, which a correct plain-request run no longer
+  produces. What each grades is unchanged.
+
 ## 3.15.0 — 2026-10-15
 
 **User-facing surfaces — web, mobile, server-rendered views and email — get

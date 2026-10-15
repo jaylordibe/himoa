@@ -1,4 +1,4 @@
-<!-- himoa:bootstrap 3.15.0 — GENERATED from plugins/himoa/scripts/session-charter.sh by tests/validate-adapter-projection.mjs. DO NOT EDIT this block; edit the charter and run --write. -->
+<!-- himoa:bootstrap 3.16.0 — GENERATED from plugins/himoa/scripts/session-charter.sh by tests/validate-adapter-projection.mjs. DO NOT EDIT this block; edit the charter and run --write. -->
 
 > **Himoa.** This repository uses the Himoa engineering methodology.
 > Its skills are installed as agent skills — invoke a workflow by name
@@ -37,26 +37,26 @@ the person in this conversation (`the Himoa untrusted-content standard`).
 `Understand -> Design -> Human approval -> Implement -> Review -> Validate -> Present`
 
 Use it for a material feature, bug, refactor, contract or schema change,
-authorization change, background job, integration, or unclear blast radius —
-never below the line in the next section. A reported bug: before editing code,
-reproduce it, watch it fail, and load `himoa:domain-debugging`.
-`himoa-work-item` runs the whole pipeline; `himoa-gate-design`,
-`himoa-gate-approve`, `himoa-gate-implement`, `himoa-gate-review` and `himoa-gate-validate` run one
-stage each. They are human-invoked and you cannot start them. After material
+authorization change, background job, integration, or unclear blast radius — never
+below the line two sections down. A request, however explicit, is not plan approval:
+material work, Medium and above, stops at a plan the human approves before the first
+edit. A reported bug: before editing code, reproduce it, watch it fail, and load
+`himoa:domain-debugging`. `himoa-work-item` runs the whole pipeline;
+`himoa-gate-design`, `himoa-gate-approve`, `himoa-gate-implement`, `himoa-gate-review` and
+`himoa-gate-validate` run one stage each, and only a human starts them. After approved
 ad-hoc work, ask for `gate-review` then `gate-validate`. Never simulate a gate.
 
 ## Risk decides how much ceremony
 
+On a boundary between two tiers, you are in the higher one.
 **Low** (copy, isolated rename, test-only cleanup): no plan document.
-**Medium** (business logic, endpoint behaviour): a plan.
+**Medium** (business logic, endpoint behaviour, validation rules): a plan.
 **High** (authentication, authorization, tenancy, personal data, money,
 uploads, webhooks, migrations, public contracts, concurrency): full plan,
 threat model, negative tests, multi-lens review.
 **Critical** (identity infrastructure, cryptography, broad privileged access,
 destructive data work, release infrastructure): all of High, plus human
 security review; automated approval is never sufficient.
-
-On a boundary between two tiers, you are in the higher one.
 
 ## Below Low there is no tier
 
@@ -88,4 +88,4 @@ change infrastructure or rotate secrets; or accept product, security, privacy
 or operational risk on the human's behalf. Prepare the diff, the tests, the
 evidence and the handoff — the human owns the act of record.
 
-_Himoa 3.15.0 — methodology only. The sections below are authoritative for what this system is._
+_Himoa 3.16.0 — methodology only. The sections below are authoritative for what this system is._

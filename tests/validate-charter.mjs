@@ -99,6 +99,20 @@ const REQUIRED_GUARANTEES = [
   // from 0 of 3 to 3 of 3. The behaviour is what has to survive a rewrite.
   { concept: 'a reported bug is reproduced, and seen failing, before code is edited', patterns: [/reported bug/i, /before editing code/i, /reproduce/i, /watch it fail|see it fail|seen fail/i, /domain-debugging/] },
   { concept: 'the exit below the lowest tier, and the bound on it', patterns: [/below Low|below the line/i, /no map|no plan/i, /authorization/i, /tenancy/i] },
+  // The gates are human-invoked by construction (disable-model-invocation), and
+  // the charter is what tells a session so in ad-hoc work. Without this anchor
+  // the sentence could be reworded away with every suite green.
+  { concept: 'the gates are started only by a human, and never simulated', patterns: [/only a human starts them|human-invoked/i, /never simulate/i] },
+  // A plain request is not an approved plan. When the charter said only "after
+  // material ad-hoc work, ask for gate-review", Opus edited a public-contract
+  // endpoint asked for in plain words, unplanned, in 3 of 3 runs of
+  // evals/cases/api-change-pulls-no-ui-guidance — then offered the review that
+  // sentence prescribed. "Asked for plainly, it still stops" did not move it
+  // (3 of 3 again). Naming the request as not being the approval stopped 1 of
+  // 3 — narrowed, not closed; the case is the measure, this anchor only keeps
+  // the sentence from being deleted. Its contrast, api-local-rename-stays-direct, is what
+  // keeps this from routing a one-line rename through a plan.
+  { concept: 'an explicit request is not plan approval — material work, Medium and above, stops at an approved plan before the first edit', patterns: [/however explicit, is not plan approval/i, /Medium and above/i, /stops at a plan the human\s+approves before the first\s+edit/i, /after approved/i] },
   // Stated in the always-on text rather than only in gate-design for the same
   // reason as the quality floor: a ticket is read, and its shape adopted, in
   // sessions that never invoke a gate. By the time gate-design's stage 5 could

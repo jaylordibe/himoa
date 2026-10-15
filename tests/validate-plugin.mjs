@@ -1569,8 +1569,8 @@ const NORMATIVE_ANCHORS = [
   },
   {
     file: 'skills/domain-user-interface/SKILL.md',
-    guarantee: 'only what was rendered is claimed — reading rendering code is static review, and rendering is never required for every change',
-    patterns: [/Claim only what was rendered/i, /static review/i, /never required\s+for every change/i, /baseline/i],
+    guarantee: 'only what was rendered is claimed — reading rendering code is static review, rendering is never required for every change, and its scope is the change\'s own: re-rendered only for a failure or an open question, stopped once answered',
+    patterns: [/Claim only what was rendered/i, /static review/i, /never required\s+for every change/i, /baseline/i, /one\s+rendering proves only its own/i, /Render\s+again only for a concrete failure/i, /stop when the questions are answered/i],
   },
   {
     file: 'skills/domain-user-interface/SKILL.md',
@@ -1590,7 +1590,7 @@ const NORMATIVE_ANCHORS = [
   {
     file: 'skills/gate-validate/SKILL.md',
     guarantee: 'an unrendered user-facing surface is residual risk and N/A where the repository has no such check — never PASS, and BLOCKED only when the plan required it',
-    patterns: [/user-facing surface/i, /residual risk, never `PASS`/i, /approved plan's verification names it/i, /never the source/i, /this gate fixes nothing/i, /`N\/A` with its\s+evidence when the repository has no such check/i],
+    patterns: [/user-facing surface/i, /residual risk, never `PASS`/i, /approved plan's verification names it/i, /never the source/i, /this gate\s+fixes nothing/i, /`N\/A` with its\s+evidence when the repository has no such check/i, /further render is owed only for a concrete failure/i, /one left unrendered is residual risk, never `PASS`/i, /rendering stops when those are answered/i],
     // Validation is read-only, and a rendering loop is where that slips: a
     // fix-and-re-render loop belongs to implementation, so fix-round wording in
     // this gate contradicts it.

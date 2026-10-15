@@ -27,7 +27,7 @@ which is why almost everything in `tests/` exists.
 | Adapter projection drift | `node tests/validate-adapter-projection.mjs` |
 | Adapter installers and bootstrap | `node tests/validate-adapter-install.mjs` |
 | Regenerate the adapter projection | `node tests/validate-adapter-projection.mjs --write` |
-| Lint | `shellcheck plugins/himoa/scripts/*.sh plugins/himoa/bin/himoa-* plugins/himoa/bin/lib/*.sh` |
+| Lint (the CI form) | `find plugins -type f \( -name '*.sh' -o -path '*/bin/*' \) -print0 \| xargs -0 shellcheck --severity=warning --external-sources` |
 | Official validator | `claude plugin validate ./plugins/himoa --strict` |
 
 There is no build, no type check and no end-to-end suite.

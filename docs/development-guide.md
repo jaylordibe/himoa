@@ -35,12 +35,12 @@ that was never loaded.
 node tests/validate-plugin.mjs --strict     # structure, contracts, normative anchors
 node tests/validate-fixtures.mjs           # the fixture corpus stays disjoint and hostile
 node tests/validate-charter.mjs            # the always-on context stays within budget
-node tests/run-doctor-fixtures.mjs         # himoa-doctor diagnoses 17 repository shapes
+node tests/run-doctor-fixtures.mjs         # himoa-doctor diagnoses 20 repository shapes
 node tests/validate-install-settings.mjs   # the settings merge, across 26 repository shapes
 node tests/validate-adapter-projection.mjs # the Codex/Cursor adapters have not drifted from canonical
 node tests/validate-adapter-install.mjs    # the installers/bootstrap, against an isolated fake HOME
 claude plugin validate ./plugins/himoa --strict
-shellcheck plugins/himoa/scripts/*.sh plugins/himoa/bin/*
+find plugins -type f \( -name '*.sh' -o -path '*/bin/*' \) -print0 | xargs -0 shellcheck --severity=warning --external-sources
 ```
 
 All of them run in CI. Run them locally before pushing; the whole suite is a

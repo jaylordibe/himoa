@@ -166,10 +166,15 @@ load-sensitive changes.
 **Where the change reaches a user-facing surface**, the repository's own checks
 for it — component, end-to-end, accessibility or visual — are gates like any
 other. Rendering the surface with a tool the session has — browser automation,
-an emulator, an email preview — is done when it materially changes confidence,
-in bounded passes: one inspection, and at most one re-render after changing
-only the rendering setup — size, state or data — never the source. A defect it
-shows is `FAIL` and goes back to implementation; this gate fixes nothing.
+an emulator, an email preview — is done when it materially changes confidence.
+It covers the states, sizes and targets the approved verification names and the
+change makes reachable, and one left unrendered is residual risk, never `PASS`.
+A further render is owed only for a concrete failure or a material question
+still open, and rendering stops when those are answered
+(`${CLAUDE_PLUGIN_ROOT}/standards/execution-efficiency.md` §8.1). Between
+renders only the setup changes — size, state, data or target —
+never the source. A defect it shows is `FAIL` and goes back to implementation;
+this gate fixes nothing.
 Where nothing rendered it, the report's user-facing row says so — `N/A` with its
 evidence when the repository has no such check — and the unrendered surface is
 residual risk, never `PASS`. It is required, and its absence `BLOCKED`, only

@@ -215,8 +215,13 @@ pass unless the visual change was the requirement —
 
 **Claim only what was rendered.** Rendering a surface with a tool the session
 has is worth doing when it materially changes confidence, and is never required
-for every change. While implementing, keep it bounded: one inspection, one
-round of fixes, at most one confirmation — never an open-ended loop of looking
-and adjusting. At validation it only inspects (`gate-validate` §8). When it is
-done, report which renderer, size and state; when it is not, say so. `${CLAUDE_PLUGIN_ROOT}/standards/evidence.md` §3 says what
+for every change. Its scope is the change's own: the states, sizes and targets
+the change makes reachable, and any the approved verification names — one
+rendering proves only its own state, size and renderer, never the rest. Render
+again only for a concrete failure or a material
+question still open, and stop when the questions are answered
+(`${CLAUDE_PLUGIN_ROOT}/standards/execution-efficiency.md` §8.1) — never an
+open-ended loop of looking and adjusting. At validation it only inspects
+(`gate-validate` §8). Report which renderer, size and state each rendering
+covered; where something was not rendered, say so. `${CLAUDE_PLUGIN_ROOT}/standards/evidence.md` §3 says what
 each kind of rendering proves and what it does not.

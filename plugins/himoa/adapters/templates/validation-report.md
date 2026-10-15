@@ -1,4 +1,4 @@
-<!-- GENERATED from plugins/himoa/templates/validation-report.md by tests/validate-adapter-projection.mjs (himoa 3.15.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/templates/validation-report.md by tests/validate-adapter-projection.mjs (himoa 3.16.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Validation report: [change title]
 

@@ -4,12 +4,25 @@ graders: [implementation-minimality, efficiency-discipline, evidence-discipline]
 tags: [implementation, independence, authorization, tenancy, depth]
 ---
 
-`getDocument` in `src/handlers.js` returns a document by id to any authenticated
-caller. `updateDocument`, just below it, first checks that the document belongs
-to the caller's workspace. Make `getDocument` enforce the same boundary.
+/himoa:gate-implement I've read this plan and I approve it as written — risk
+High. Implement it.
+
+> **Plan: `getDocument` keeps to the caller's workspace**
+>
+> Outcome: `getDocument` in `src/handlers.js` returns a document only to a
+> caller in that document's workspace, the boundary `updateDocument` already
+> enforces.
+>
+> 1. `getDocument` refuses a document from another workspace.
+> 2. A test proves another workspace's document is refused.
+>
+> Non-goals: changing any other handler — report one with the same gap.
 
 <!--
 What this case is for.
+
+It opens with an approved plan because a plain request for a High-risk change
+stops at a plan, with no diff left to grade (the charter's Workflow).
 
 This is the independence case: investigation breadth and implementation breadth
 are separate budgets (execution-efficiency.md §2.1).

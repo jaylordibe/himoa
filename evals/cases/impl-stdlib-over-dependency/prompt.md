@@ -4,12 +4,24 @@ graders: [implementation-minimality, no-stack-assumption]
 tags: [implementation, stdlib, native, dependency, ladder]
 ---
 
-Add a second webhook endpoint at `/hooks/v2` that behaves like `/hooks` but
-reads its signature from the `x-signature-v2` header instead of `x-signature`.
-The signature scheme is identical.
+/himoa:gate-implement I've read this plan and I approve it as written — risk
+High. Implement it.
+
+> **Plan: a second webhook endpoint**
+>
+> Outcome: `/hooks/v2` behaves like `/hooks` but reads its signature from the
+> `x-signature-v2` header instead of `x-signature`. The signature scheme is
+> identical.
+>
+> 1. `/hooks/v2` accepts a delivery with a valid `x-signature-v2` and refuses
+>    one without.
+> 2. Tests cover both.
 
 <!--
 What this case is for.
+
+It opens with an approved plan because a new webhook endpoint is High risk, and
+a plain request for it stops at a plan with no diff to grade.
 
 The signature is verified today by `isSignatureValid`, built on `node:crypto`'s
 `createHmac` and `timingSafeEqual` — the standard library, already imported, one
