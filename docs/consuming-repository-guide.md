@@ -388,7 +388,11 @@ in short:
 - **How it reads the code.** A fresh clone, outside your project, checked out
   at the request's exact head commit and diffed from the merge base — every
   commit in the request, cumulatively. Your working tree and branch are never
-  touched, and the clone is deleted afterwards. The tier comes from the
+  touched, and the clone is deleted afterwards. Above the size limit the
+  standard sets (§4) it stops and asks: raise the limit, or name the paths to
+  review. With no size reported it asks too: name paths, or accept an unbounded
+  fetch. Named paths are the only ones fetched; the review is then partial, and
+  history and blame are not available. The tier comes from the
   repository's declarations at the merge base, so a request cannot shrink its
   own review by editing them.
 - **It is read-only.** No fix, commit or push, and no `gate-validate` after it.
@@ -396,9 +400,7 @@ in short:
   name runs only in a copy of the request with no version-control directory,
   and only if the run can show, by a probe, that the environment keeps
   credentials, your home directory and project, and the network out of reach;
-  otherwise it is `BLOCKED`, even with your permission. A repository above
-  1 GiB, or one whose size the host does not report, is fetched only once you
-  raise the limit or name the paths to review. On Claude Code that means turning on the Bash sandbox
+  otherwise it is `BLOCKED`, even with your permission. On Claude Code that means turning on the Bash sandbox
   yourself ([what it covers](platform-capabilities.md)).
 - **What is enforced.** The report says which restrictions the runtime enforced
   and which are instructions to the agents. Instructions are not a sandbox —
@@ -407,14 +409,18 @@ in short:
   or `--pr [n]` — anywhere later it is focus text, and on its own it stops: one review,
   inline comments on the reviewed head, unanchorable findings in its body, with
   the host's comment event — never approve, request changes, merge, close or
-  resolve. Where the host makes unresolved threads block merging, or will not
-  say, findings go in the review body instead. The review appears under the account the
+  resolve. Inline comes first: like any reviewer's, an inline comment opens a
+  thread the author may have to resolve before merging, and the report says so.
+  Only where the host says it requires that are findings put in the review
+  body instead. The review appears under the account the
   integration posts as — usually yours. Security findings are posted as one
   line in the body, without their mechanism or their location.
   Re-running posts only what is new; a reviewer's existing comment counts. If
   the request moved since it was reviewed, nothing is posted and you are told to
   re-review. A write that timed out is never re-sent blindly: if the host still
-  does not show it, it is reported *unconfirmed* for you to check.
+  does not show it, it is reported *unconfirmed* for you to check. A request
+  first reviewed under 3.17.0 may get its findings posted once more after
+  updating, because the duplicate marker's inputs were fixed in 3.18.0.
 - **What it does not establish.** The head was reviewed against its merge base,
   not merged into the latest target branch — the report says how far the target
   has moved.

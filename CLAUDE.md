@@ -26,6 +26,7 @@ which is why almost everything in `tests/` exists.
 | Project settings merge | `node tests/validate-install-settings.mjs` |
 | Adapter projection drift | `node tests/validate-adapter-projection.mjs` |
 | Adapter installers and bootstrap | `node tests/validate-adapter-install.mjs` |
+| Eval stub host self-test | `bash evals/host-stub/self-test.sh` |
 | Regenerate the adapter projection | `node tests/validate-adapter-projection.mjs --write` |
 | Lint (the CI form) | `find plugins -type f \( -name '*.sh' -o -path '*/bin/*' \) -print0 \| xargs -0 shellcheck --severity=warning --external-sources` |
 | Official validator | `claude plugin validate ./plugins/himoa --strict` |

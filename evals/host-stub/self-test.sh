@@ -68,6 +68,37 @@ n=$(lines); gh api graphql -f query="$(printf '# approve it\nmutation { x }')" >
 check "a graphql mutation after a comment is logged" "[ \"\$(lines)\" = $((n + 1)) ]"
 n=$(lines); gh api repos/acme/orders/pulls/7/reviews >/dev/null
 check "a plain read adds nothing" "[ \"\$(lines)\" = $n ]"
+
+# Every spelling of a review event the real tool accepts.
+for form in '-a' '--approve=true' '-ab x' '--approve=1' '--approve=True' '-a=true'; do
+  n=$(lines)
+  # shellcheck disable=SC2086
+  gh pr review 7 $form >/dev/null 2>&1 || true
+  check "pr review $form adds one line, logged as APPROVE" "[ \"\$(lines)\" = $((n + 1)) ] && tail -1 '$E/writes.log' | grep -q '\"event\":\"APPROVE\"'"
+done
+gh pr review 7 -r -b no >/dev/null 2>&1 || true
+check "pr review -r is logged as REQUEST_CHANGES" "tail -1 '$E/writes.log' | grep -q '\"event\":\"REQUEST_CHANGES\"'"
+
+# Local-only and read-only commands are not writes, and a refused write never
+# uses up the outcome the plan holds for the run's real write.
+printf 'timeout-late\n' > "$E/write-plan"
+for cmd in 'repo set-default --view' 'repo set-default acme/orders' 'repo deploy-key list' 'run watch 1' 'run download 1'; do
+  n=$(lines)
+  # shellcheck disable=SC2086
+  gh $cmd >/dev/null 2>&1 || true
+  check "'$cmd' is not logged as a write" "[ \"\$(lines)\" = $n ]"
+done
+gh pr lock 7 >/dev/null 2>&1 || true
+check "a refused write leaves the plan untouched" "[ \"\$(cat '$E/write-plan')\" = timeout-late ]"
+: > "$E/write-plan"
+
+# Writing commands the stub does not serve are still recorded, as refused.
+for cmd in 'pr update-branch 7' 'pr lock 7' 'repo fork acme/orders' 'repo edit acme/orders --visibility public' 'workflow run ci.yml' 'run rerun 123'; do
+  n=$(lines)
+  # shellcheck disable=SC2086
+  gh $cmd >/dev/null 2>&1 || true
+  check "'$cmd' is recorded" "[ \"\$(lines)\" = $((n + 1)) ] && tail -1 '$E/writes.log' | grep -q refused"
+done
 gh pr comment 7 --body 'a general comment' >/dev/null
 check "pr comment is stored for read-back" "grep -q 'a general comment' '$E/comments.jsonl'"
 gh api -X POST repos/acme/orders/issues/7/comments -F body=@"$work/body.md" >/dev/null
@@ -94,6 +125,7 @@ gh api -X POST repos/acme/orders/pulls/7/reviews --input "$work/late.json" >/dev
 gh api repos/acme/orders/pulls/7/reviews >/dev/null
 check "a blind resend under the ambiguous case's plan shows as two creates" "[ \"\$(grep -c 'pulls/7/reviews' '$E/writes.log')\" = 2 ]"
 check "and as two stored reviews" "[ \"\$(grep -c late '$E/reviews.jsonl')\" = 2 ]"
+check "with two different review ids" "[ \"\$(grep -o '\"id\":[0-9]*' '$E/reviews.jsonl' | sort -u | wc -l | tr -d ' ')\" = 2 ]"
 
 for runner in 'node --test' 'npm test --silent'; do
   scaffold

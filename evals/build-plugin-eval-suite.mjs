@@ -93,7 +93,8 @@ const caseNames = readdirSync(casesRoot, { withFileTypes: true })
 // servers could reach a real repository, whatever host the case names.
 if (caseNames.some((name) => /^hosted-review-|^local-review-with-remote|^work-item-pr-url/.test(name))) {
   console.log('hosted cases selected: run with no MCP or connector servers, GH_TOKEN, GITHUB_TOKEN and GITLAB_TOKEN unset, and GH_CONFIG_DIR pointing at an empty directory.');
-  if (includeHosted) console.log('--include-hosted: the runner cannot export HIMOA_EVAL_DIR for a scaffold it creates, so these runs are VOID unless the operator supplies it (the stub says so in the transcript).');
+  const stubbed = caseNames.filter((name) => parseCase(join(casesRoot, name, 'prompt.md')).tags.includes('needs-stub'));
+  if (stubbed.length) console.log(`VOID unless the operator supplies the stub host: ${stubbed.join(', ')} — the runner cannot export HIMOA_EVAL_DIR for a scaffold it creates (the stub says so in the transcript).`);
 }
 
 for (const caseName of caseNames) {

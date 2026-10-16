@@ -1,7 +1,7 @@
 ---
 name: gate-review
 description: Independently reviews the current diff for conformance to the approved plan, correctness, application security, contract compatibility, data and migration safety, reliability and test coverage — selecting review lenses by risk tier, verifying every finding against source, adversarially refuting Critical and High findings, then remediating and re-reviewing.
-argument-hint: "[base ref | review focus | pull/merge request URL | --pr [n]] [--publish]"
+argument-hint: "[base ref | review focus] | <pull/merge request URL | --pr [n]> [--publish]"
 disable-model-invocation: true
 model: inherit
 effort: high

@@ -1,4 +1,4 @@
-<!-- GENERATED from plugins/himoa/templates/review-handoff.md by tests/validate-adapter-projection.mjs (himoa 3.17.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/templates/review-handoff.md by tests/validate-adapter-projection.mjs (himoa 3.18.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Review report: [change title]
 
@@ -29,7 +29,7 @@ for a local review, delete this section.
 | **Merge result** | not established — the head was reviewed against its merge base, not merged into the latest target |
 | **Restrictions** | one row each: `enforced (<runtime control>)` or `instruction-only` |
 | **Execution** | none from the change, or each check run with its isolation evidence; otherwise `BLOCKED` |
-| **Clone** | its absolute path, removed at the end of the run · host-reported size · limit applied · full, or partial with the excluded paths |
+| **Clone** | its absolute path, and any disposable copy's, both removed at the end of the run · host-reported size and limit applied, or *size unknown, accepted* · full, or partial with the excluded paths and history unavailable |
 | **`--publish`** | typed / not typed — and the identity a review posts as |
 
 ### Publishing — only with `--publish`

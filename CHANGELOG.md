@@ -12,6 +12,91 @@ act, and MINOR and PATCH never do. Entries below `1.0.0` were released under the
 
 ---
 
+## 3.18.0 — 2026-10-16
+
+**Hosted review closes the gaps its 3.17.0 review left open. A review agent now
+passes the request's file names to version control only as literal arguments
+after `--`, never through a shell; naming paths for an oversized repository
+narrows what is fetched, not only what is reviewed, and nothing can fetch lazily
+afterwards on any version of the tool. Inline comments come first again: 3.17.0
+moved every finding into the review body whenever a host's "resolve before
+merging" setting could not be read, which in practice meant always. The duplicate
+marker moves to `v2`, so a request first published under 3.17.0 may get its
+findings once more. No consumer action (MINOR — materially improved guidance in
+an existing component).**
+
+### Changed
+- **`standards/hosted-review.md`:**
+  - **Paths:** a lens passes paths only from a list it did not type — the
+    NUL-separated changed-path list version control writes
+    (`diff -z --name-only --no-renames`), or in a partial review the conducting
+    session's list file — as arguments with no shell, after `--`, with literal
+    pathspecs (`xargs -0`; `-n 1` for one-path commands). The pathspec-file
+    option 3.17.0 named is not accepted by `diff`, `log` or `blame`, and a lens
+    has no file-writing tool to make a list of its own.
+  - **Size:** the host's size is converted by its documented unit, and an
+    unknown unit counts as no size. Above the limit (1 GiB unless the human sets
+    one) the run asks to raise it or name paths; with no size, to name paths or
+    accept an unbounded fetch, recorded as *size unknown, accepted*.
+  - **Named paths:** first the host must advertise filtering — one that ignores
+    the filter would send every blob — or the run stops. The conducting session
+    writes the named paths, plus the merge base's declaration and
+    agent-instruction files, to a list file; fetches the commit graph; takes
+    those paths' blob ids at the merge base and the head with `ls-tree` in the
+    literal form, printing ids only so no file name can add one, and fetches
+    them; and checks out a non-cone sparse checkout fed the same list on
+    standard input, pattern characters and trailing spaces escaped. Version
+    control never prompts for a credential (`GIT_TERMINAL_PROMPT=0`). Lazy fetching
+    is then off — by `GIT_NO_LAZY_FETCH=1` on every later call and by an
+    unusable fetch destination after the last fetch. The review is partial, its
+    *Excluded* list is taken without rename detection, history and blame are
+    recorded as unavailable, its whole-range diff is the named paths', and a
+    declaration that still cannot be read puts it in the higher tier.
+  - **Security notes** name the first 12 hex digits of the reviewed head, so a
+    new security finding at a new head is never suppressed by an older note.
+  - **Markers:** `v2`, with the project spelled as the host reports it,
+    lower-cased and without the host, and a bundled skill's finding under the
+    lens that verified it; a `v1` marker is matched only by exact text, its
+    marker line excluded, and anchor.
+  - **The disposable copy** a named check runs in follows the clone's location
+    rule, is reported and is removed with it.
+  - **Inline first:** findings move to the review body only where the host
+    reports that discussions must be resolved before merging, not when the
+    setting cannot be read; the report always says an inline thread may need
+    the author to resolve it, and never calls the review non-blocking.
+  - **Three rules added during this review:** the local branch's name counts as
+    text the request's author chose (checking a request out names the branch
+    after theirs), so `--pr` reads the upstream through version control's own
+    reference and never puts the name in a command; a fork's location is used
+    only when its path matches the host's project-name pattern, with the fetch
+    location built from the tuple's host over https; and a named path
+    containing a line break or carriage return stops the review rather than
+    being listed.
+  - The local checkout's one use is stated, and §2 names its exceptions to the
+    splice rule.
+  - Recorded here because 3.17.0 shipped them without saying so: the size stop,
+    `--pr` stopping to ask when the tracked project is a fork, the disposable
+    copy, and one wait-and-resend after a rate-limit answer.
+- **`gate-review`:** the argument hint offers `--publish` only with a request
+  URL or `--pr`. **`review-handoff.md`:** the Clone row carries the disposable
+  copy, *size unknown, accepted* and a partial review's unavailable history.
+
+### Tests
+- The hosted rules a loosening would hurt most are pinned through their closing
+  punctuation; the rest through their load-bearing clause. `validate-plugin`
+  applies 37 listed rescopes — mid-sentence and at a sentence's end — to the
+  standard in memory on every run, and each must break an anchor. A rescope not
+  on that list, or a contradicting sentence appended beside an intact rule, is
+  still left to review and the evals.
+- `validate-fixtures` rejects variable-built and quote-split hosts, the
+  `host:path` form, a repository selector (`GH_REPO`, `--repo`, `-R` in any
+  spelling) without a written-out `.invalid` host, and a case that builds the stub
+  host without saying how it runs.
+- The eval stub records every spelling of an approve and every writing command
+  it does not serve, without spending the write plan on a refused one; its
+  self-test (54 checks) now runs in CI, and no longer depends on git's default
+  branch name.
+
 ## 3.17.0 — 2026-10-16
 
 **`gate-review` reviews a pull or merge request: give it the URL, or `--pr

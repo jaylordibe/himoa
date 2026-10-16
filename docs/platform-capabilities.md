@@ -97,13 +97,20 @@ Claude Code documentation:
   the hosted standard establishes execution isolation by a probe from inside the
   environment, never from configuration — and why, with no probe passing, a
   check is `BLOCKED`.
-- **Whether a subagent's Bash calls are sandboxed is not stated.** Until it is,
-  the rules hosted review gives its lenses stay labelled `instruction-only`.
+- **A subagent's Bash calls are sandboxed** — not stated in the documentation,
+  but measured on 2.1.301 (2026-10-16): with the sandbox on, a write to the home
+  directory was denied for the main session and for a general-purpose subagent
+  alike. The default writable set still includes the working directory and the
+  temporary directories, so the hosted probe, which requires writes outside the
+  check's own directory to fail, does not pass under default settings: a named
+  check stays `BLOCKED` until the human also denies those writes.
 - **A project's `CLAUDE.md` and `.mcp.json` load from the session's own project
   root.** Subdirectory `CLAUDE.md` files load on demand under the working
-  directory; whether any instruction or configuration file loads from a
-  directory outside it — where the hosted clone lives — is not stated. The
-  clone is kept outside the project for that reason, and no session is ever
+  directory. A directory outside it — where the hosted clone lives — loaded
+  nothing in a measured run on 2.1.301 (2026-10-16): reading a file there and
+  changing into it loaded neither its `CLAUDE.md`, its `.claude/settings.json`
+  hooks nor its `.mcp.json`. The documentation does not promise this, so the
+  clone is still kept outside the project, and no session is ever
   started inside it.
 
 Himoa enables none of this. It is the human's setting to turn on, and the

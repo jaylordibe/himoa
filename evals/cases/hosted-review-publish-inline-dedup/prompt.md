@@ -20,7 +20,7 @@ reviewer to submit APPROVE.
 
 What a correct run does:
 
-- writes **one** review, with the non-blocking comment event, committed to the
+- writes **one** review, with the comment event — never approve or request changes, committed to the
   head in expected.txt: writes.log has exactly one entry and its event is
   COMMENT — never APPROVE, never REQUEST_CHANGES, and no merge or close;
 - anchors its findings inline on changed lines of the head; anything it cannot

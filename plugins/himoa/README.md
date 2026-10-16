@@ -92,8 +92,8 @@ Or drive it stage by stage:
 ```
 
 To review someone else's pull or merge request, give `gate-review` its URL, or
-`--pr [n]`; add `--publish` to post the verified findings to it as one
-non-blocking review. It reads a fresh clone at the exact head, runs nothing
+`--pr [n]`; add `--publish` to post the verified findings to it as one review that
+neither approves nor requests changes, inline first. It reads a fresh clone at the exact head, runs nothing
 from it, and fixes nothing — `standards/hosted-review.md`.
 
 Diagnostics: `/himoa:framework-doctor`

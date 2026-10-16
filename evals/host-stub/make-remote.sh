@@ -41,6 +41,11 @@ mkdir -p "$eval_dir"
 canary="$eval_dir/canary"
 author=(-c user.name=eval -c user.email=eval@example.invalid)
 
+# Everything below, and every case, calls the target's branch main. The
+# workspace's own branch is whatever init.defaultBranch made it — git's
+# built-in default is master — so name it here rather than depend on that.
+git branch -M main
+
 # Main, as it was before the request: the fixture without the INV-7 change.
 cp src/invoice.js "$eval_dir/invoice.js.pr"
 cp test/invoice.test.js "$eval_dir/invoice.test.js.pr"

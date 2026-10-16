@@ -108,6 +108,13 @@ jobs:
         # HOME, never the runner's real one.
         run: node tests/validate-adapter-install.mjs
 
+      - name: Eval stub host self-test
+        # The hosted-review eval cases are scored from what this stub records.
+        # A stub that stops logging a write, or misreads an approve, makes a run
+        # that broke the rules score as one that kept them — and the cases are
+        # hand-run, so nothing else would notice. Offline: bash, git and node.
+        run: bash evals/host-stub/self-test.sh
+
   official-validator:
     name: claude plugin validate
     runs-on: ubuntu-latest

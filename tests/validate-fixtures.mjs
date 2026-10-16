@@ -485,14 +485,29 @@ for (const caseName of caseNames) {
       /\b(?!file:)[a-z][a-z0-9+.-]*:\/\/(?:[^/\s@#?]+@)?([^/\s:)>`'"$#?]+)/gi,
       /\b[\w.-]+@([\w-]+(?:\.[\w-]+)+):/g,
       /(?<![\w./@-])((?:[\w-]+\.)+[a-z][\w-]*)\/[\w.-]+\/[\w./-]*(?:pull|merge_requests|pull-requests)\//gi,
-      /(?<![\w/@.-])((?:[\w-]+\.)+[a-z][\w-]*):[\w.-]+\/[\w.-]+\.git\b/gi,
+      /(?<![\w/@.-])((?:[\w-]+\.)+[a-z][\w-]*):[\w.-]+\/[\w./-]+/gi,
       /\b(?:GH_HOST|GITLAB_HOST|GL_HOST)=["']?([^\s"']+)/g,
       /--hostname[ =]["']?([^\s"']+)/g,
     ];
-    for (const [source, text] of sources) {
+    // The host tool's repository selector takes HOST/OWNER/REPO, or OWNER/REPO
+    // on its default host — a real one — so a value without a host fails too.
+    // `-R` counts only on a host-tool line; `cp -R` is not one.
+    const repoForms = [/\bGH_REPO=(\S+)/g, /\bgh\b[^\n|;&]*?(?:--repo[ =]|(?<![\w-])-R[ =]?)(\S+)/g];
+    for (const [source, raw] of sources) {
+      // Quotes split a host across tokens (`git@"example.com":o/r`), so they
+      // are removed before any form is matched.
+      const text = raw.replace(/["']/g, '');
       // A host built from a variable cannot be checked, so it is not allowed.
-      if (/\b(?!file:)[a-z][a-z0-9+.-]*:\/\/(?:[^/\s@]+@)?[^/\s]*\$/i.test(text)) {
-        fail(source, 'a hosted-review case builds a URL host from a variable, which this check cannot verify is under .invalid. Write the host out.');
+      if (/\b(?!file:)[a-z][a-z0-9+.-]*:\/\/(?:[^/\s@]+@)?[^/\s]*\$/i.test(text) || /[\w.-]@\$/.test(text) || /\b[a-z][a-z0-9+.-]*:\/\/["']/i.test(raw)) {
+        fail(source, 'a hosted-review case builds a host from a variable or splits it with a quote, which this check cannot verify is under .invalid. Write the host out.');
+      }
+      for (const form of repoForms) {
+        for (const [, value] of text.matchAll(form)) {
+          const parts = value.split('/');
+          if (value.includes('$') || parts.length < 3 || !/\.invalid$/i.test(parts[0])) {
+            fail(source, `a hosted-review case selects the repository "${value}". Name it as HOST/OWNER/REPO with the host written out under .invalid; without a host the tool uses its default, which is a real one.`);
+          }
+        }
       }
       for (const form of hostForms) {
         for (const [, host] of text.matchAll(form)) {
@@ -501,6 +516,16 @@ for (const caseName of caseNames) {
           }
         }
       }
+    }
+  }
+
+  // A case that builds the stub host must say how it runs: `needs-stub` keeps
+  // it out of the derived suite, where it would end VOID and score as a
+  // correct stop; `hosted-stop` marks the one case meant to run without it.
+  if (usesHostStub) {
+    const tags = toList(frontmatter.tags);
+    if (!tags.includes('needs-stub') && !tags.includes('hosted-stop')) {
+      fail(promptPath, 'builds the stub host in its setup but is tagged neither `needs-stub` nor `hosted-stop`. Untagged, the derived suite runs it without the stub, and a VOID stop scores as a correct one.');
     }
   }
 

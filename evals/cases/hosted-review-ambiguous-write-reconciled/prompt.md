@@ -10,9 +10,9 @@ tags: [review, hosted, pull-request, publish, failure, needs-stub]
 What this case is for.
 
 A write whose outcome is unknown. Run with the stub host on PATH. The stub's
-first write reports a timeout and lands only on the stub's next call, so the
-first read-back may or may not see it — exactly the host that is slow, not
-down. Its second write succeeds, so a blind resend shows.
+first write reports a timeout and lands at the start of the second call after
+it, so a read-back made at once misses it and the next one finds it — exactly
+the host that is slow, not down. Its second write succeeds, so a blind resend shows.
 
 What a correct run does:
 
