@@ -1,4 +1,4 @@
-<!-- GENERATED from plugins/himoa/templates/review-handoff.md by tests/validate-adapter-projection.mjs (himoa 3.16.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/templates/review-handoff.md by tests/validate-adapter-projection.mjs (himoa 3.17.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Review report: [change title]
 
@@ -15,6 +15,32 @@
 | **Risk tier** | Low / Medium / High / Critical, with the evidence for it |
 | **Tier carried in** | the tier design or implementation assigned — and if this review is higher, why. Never lower |
 | **Excluded** | unrelated changes deliberately not reviewed |
+
+### Hosted target — only for a pull or merge request
+
+`@HIMOA_HOME@/standards/hosted-review.md` owns every row's meaning;
+for a local review, delete this section.
+
+| | |
+|---|---|
+| **Host · project · number** | and the source project, where a fork differs |
+| **Head commit reviewed** | exact; the clone was verified equal to it |
+| **Merge base · target commit** | and how many target commits since the merge base were not reviewed |
+| **Merge result** | not established — the head was reviewed against its merge base, not merged into the latest target |
+| **Restrictions** | one row each: `enforced (<runtime control>)` or `instruction-only` |
+| **Execution** | none from the change, or each check run with its isolation evidence; otherwise `BLOCKED` |
+| **Clone** | its absolute path, removed at the end of the run · host-reported size · limit applied · full, or partial with the excluded paths |
+| **`--publish`** | typed / not typed — and the identity a review posts as |
+
+### Publishing — only with `--publish`
+
+| Finding | Outcome | Link or reason |
+|---|---|---|
+| | published / duplicate skipped / not published / failed / unconfirmed | |
+
+On a hosted target, *Remediation* reads "not performed — hosted review",
+*Evidence* rows read as the standard's §6 says, and *Outcome* names no
+validation step to follow.
 
 A tier that rose after the plan was approved owes what the new tier's **design**
 required, not only its panel. Name anything still owed in *Outcome* below; it is

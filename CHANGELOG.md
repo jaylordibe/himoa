@@ -12,6 +12,68 @@ act, and MINOR and PATCH never do. Entries below `1.0.0` were released under the
 
 ---
 
+## 3.17.0 — 2026-10-16
+
+**`gate-review` reviews a pull or merge request: give it the URL, or `--pr
+[n]`, as its first argument, and the same review — tiers, lenses,
+verification, refutation — runs read-only on a fresh clone at the request's
+exact head, and posts its verified findings back as one review that neither
+approves nor requests changes, only when `--publish` is typed. A local review,
+and `work-item`'s use of the gate, are unchanged — an argument that does not
+start with a request URL or `--pr` means what it meant before. One invocation
+that used to run now stops: `--publish` with no request named, where the word
+was read as review focus. No consumer action (MINOR — a new capability).**
+
+### Added
+- **`standards/hosted-review.md`**, the one owner of the mode. Targets are
+  recognised by path shape, so GitHub, GitLab (nested groups) and Bitbucket
+  work on their public hosts and self-hosted; the URL names the target, forks
+  included, and `--pr` looks only in the project the current branch tracks.
+  The panel reads a hardened clone outside every working tree, fetched to the
+  merge base before any lens starts, detached at the head and diffed from the
+  merge base. Each lens is briefed with the clone, the commit range and the
+  no-execution scope, and the tier and every convention file come from the
+  merge base, never the head the author wrote. Nothing from the request
+  executes; a check the human names runs only where a probe shows credentials,
+  home, network and the project root out of reach, and is otherwise `BLOCKED`
+  whatever was authorised. Source isolation and execution isolation are kept
+  apart, and every restriction is reported as enforced or instruction-only.
+  `--publish`, typed directly after the target, writes one review bound to the reviewed head — never approve,
+  request changes, merge, close or resolve — re-reads the target first and
+  posts nothing if it moved, reconciles a failed write and reports an
+  unconfirmed one rather than re-sending it, skips findings already raised by a
+  fixed, verified marker or a human, and posts a security finding as one line
+  without its mechanism or location. Every report states that the head was not
+  reviewed as merged into the latest target.
+- **`gate-review`:** the argument grammar, and one citing line each where the
+  mode differs (§1, §2, §5, §6, §7). A bare number keeps meaning a base reference;
+  under `work-item` the review is always local.
+- **`gate-handoff.md`:** a hosted review ends at its report — no
+  `gate-validate`, which would execute the request — and continuing never
+  authorises posting to a host. **`review-handoff.md`:** hosted-target and
+  publishing sections. **`untrusted-content.md`:** request titles, descriptions
+  and discussion are input.
+- **Tests:** normative anchors on every hosted rule, written so that deleting
+  *or rescoping* a guarantee fails (checked during development by a one-off
+  20-mutation pass, all caught; the harness is not committed), a
+  single-source policy for the mode's vocabulary, and the three host names
+  added to the stack denylist. `validate-fixtures` fails a hosted eval case
+  whose prompt or setup names any host outside `.invalid`, in any spelling.
+- **Evals:** eight cases on an offline stub host (`evals/host-stub/`), scored
+  from what the stub recorded, its own `self-test.sh`, and the
+  `hosted-review-safety` grader. The suite builder leaves the stub-dependent
+  cases out unless `--include-hosted` is given.
+
+### Not established
+- No publish against a live host has been run, and no eval case has been run as
+  an agent session. The GitLab and Bitbucket shapes are pinned statically, not
+  exercised. Whether Codex, Cursor and Gemini can clone and reach a host is
+  unknown, and stated per host in `docs/platform-capabilities.md`. Whether Claude Code sandboxes a
+  subagent's Bash, and whether it loads instruction files from outside the
+  project, is not documented (`docs/platform-capabilities.md`).
+- This is a Critical-tier change by its own classification; the human security
+  review it owes is not replaced by the automated one.
+
 ## 3.16.0 — 2026-10-15
 
 **An explicit request is not plan approval: material work, Medium and above,

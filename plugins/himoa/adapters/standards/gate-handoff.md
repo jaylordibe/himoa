@@ -1,4 +1,4 @@
-<!-- GENERATED from plugins/himoa/standards/gate-handoff.md by tests/validate-adapter-projection.mjs (himoa 3.16.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/standards/gate-handoff.md by tests/validate-adapter-projection.mjs (himoa 3.17.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Gate handoff contract
 
@@ -57,6 +57,7 @@ handoff is for doing.
 | `gate-approve` | `gate-implement` | the decision was Rejected |
 | `gate-implement` | `gate-review` | never |
 | `gate-review` | `gate-validate` | a Critical or High finding is unresolved |
+| `gate-review` of a hosted pull or merge request | nothing — the report, and the publish when `--publish` was typed | always: it remediates nothing, and validation would execute the request's code (`@HIMOA_HOME@/standards/hosted-review.md` §7) |
 | `gate-validate` | human commit / pull request | the verdict is `FAIL` or `BLOCKED` |
 
 ## 3. Offer to continue — standalone only
@@ -98,6 +99,9 @@ never authorises:
 
 - skipping a gate in the sequence;
 - committing, pushing, opening a pull request, tagging, releasing or deploying;
+- posting a review or comment on a pull or merge request —
+  `@HIMOA_HOME@/standards/hosted-review.md` §1 owns what authorises
+  it;
 - applying a migration or mutating a database;
 - approving a design the user has not explicitly decided on;
 - reporting a check as passed when it did not run.

@@ -17,7 +17,7 @@
 // the suite into that copy. Nothing it writes is committed or shipped.
 //
 // Usage:
-//   node evals/build-plugin-eval-suite.mjs [--out <dir>] [--case <name>...]
+//   node evals/build-plugin-eval-suite.mjs [--out <dir>] [--case <name>...] [--include-hosted]
 // then run the command it prints. `--scaffold` is required at run time
 // because the fixture arrives through the scaffold script, and the gate
 // cases need `--allow-tools` for the tools a gate uses.
@@ -71,11 +71,30 @@ cpSync(pluginSource, pluginCopy, { recursive: true });
 const suiteRoot = join(pluginCopy, 'evals');
 mkdirSync(suiteRoot, { recursive: true });
 
+// Cases tagged `needs-stub` need the stub host on the agent session's path, which
+// the runner's scaffold cannot arrange — a run without it ends BLOCKED for want
+// of an integration and scores as a correct stop while exercising nothing. So
+// they are left out unless asked for by name or with --include-hosted, and then
+// the operator owns the environment evals/README.md describes.
+const includeHosted = argv.includes('--include-hosted');
 const caseNames = readdirSync(casesRoot, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name)
   .filter((name) => selectedCases.length === 0 || selectedCases.includes(name))
+  .filter((name) => {
+    if (includeHosted || selectedCases.includes(name)) return true;
+    const needsStub = parseCase(join(casesRoot, name, 'prompt.md')).tags.includes('needs-stub');
+    if (needsStub) console.log(`skipped ${name}: tagged needs-stub (evals/README.md); pass --include-hosted`);
+    return !needsStub;
+  })
   .sort();
+
+// A hosted case run with the operator's own signed-in host tools or connected
+// servers could reach a real repository, whatever host the case names.
+if (caseNames.some((name) => /^hosted-review-|^local-review-with-remote|^work-item-pr-url/.test(name))) {
+  console.log('hosted cases selected: run with no MCP or connector servers, GH_TOKEN, GITHUB_TOKEN and GITLAB_TOKEN unset, and GH_CONFIG_DIR pointing at an empty directory.');
+  if (includeHosted) console.log('--include-hosted: the runner cannot export HIMOA_EVAL_DIR for a scaffold it creates, so these runs are VOID unless the operator supplies it (the stub says so in the transcript).');
+}
 
 for (const caseName of caseNames) {
   const parsed = parseCase(join(casesRoot, caseName, 'prompt.md'));

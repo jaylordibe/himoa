@@ -91,6 +91,11 @@ Or drive it stage by stage:
 /himoa:gate-validate
 ```
 
+To review someone else's pull or merge request, give `gate-review` its URL, or
+`--pr [n]`; add `--publish` to post the verified findings to it as one
+non-blocking review. It reads a fresh clone at the exact head, runs nothing
+from it, and fixes nothing — `standards/hosted-review.md`.
+
 Diagnostics: `/himoa:framework-doctor`
 
 Every one of these must be typed by a human — each sets

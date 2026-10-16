@@ -187,6 +187,11 @@ const STACK_TERM_DENYLIST = [
   'storybook', 'playwright', 'cypress', 'puppeteer', 'selenium', 'appium',
   'browserstack', '@testing-library', 'axe-core', 'webpack', 'vite',
   'turborepo', 'lerna', 'jinja', 'handlebars', 'mjml',
+  // Code hosts. Hosted review recognises a request by the shape of its path,
+  // never by its host's name, so a self-hosted instance works and no host's
+  // API vocabulary leaks into the methodology. Their short command-line names
+  // are deliberately absent: too short to match without failing over prose.
+  'github', 'gitlab', 'bitbucket',
 ];
 
 // Only these directories are scanned. Everything else — docs/, evals/,
@@ -2046,6 +2051,140 @@ const NORMATIVE_ANCHORS = [
     guarantee: 'each acceptance criterion is traced to the code that delivers it, including its own negative and edge cases, and a happy-path-only delivery is partial',
     patterns: [/acceptance criterion/i, /traced/i, /negative and edge/i, /not from a test's name/i, /happy path only is partial/i],
   },
+  // Hosted review. The mode writes to a system outside the developer's machine
+  // and reads code written by a third party, and every rule protecting either
+  // is prose: gate-review writes by design (READ_ONLY_SKILLS above), and its
+  // frontmatter cannot differ by argument. These anchors are what fails when one
+  // of those sentences is deleted, or rescoped inside the sentence itself.
+  // Patterns pin a clause with its closing words or punctuation rather than a
+  // keyword, because a mutation pass showed keyword anchors survive an
+  // exception inserted mid-sentence ("never enters this mode unless …").
+  // What no presence check can catch is a separate contradicting sentence
+  // appended beside an intact rule; that is left to the hosted eval cases and
+  // to human review of the diff, and this block does not claim otherwise.
+  // A1 is the other direction: the local review's remediation must survive the
+  // mode being added beside it.
+  {
+    file: 'skills/gate-review/SKILL.md',
+    guarantee: 'a local review still remediates, only a typed first-token pull or merge request target enters hosted mode — never a conductor run or a bare number — and the lens brief and the handoff divert to the standard',
+    patterns: [/Fix verified Critical and High findings within the approved scope/, /at most two/i, /as the first token of an argument the human typed/i, /bare number\s+included, keeps the meaning/i, /work-item[\s\S]{0,40}always a\s+local review/i, /for a hosted review, what\s+`\$\{CLAUDE_PLUGIN_ROOT\}\/standards\/hosted-review\.md` §4 says each lens is given/, /A hosted review does not remediate/, /A hosted review ends at\s+its report, and does not offer it/],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: 'every target form is recognised by path shape from the first token only, a bare number is never a request, a later URL is focus text, and ambiguity, an unverifiable target or a closed request stops',
+    patterns: [/\/pull\/<n>/, /\/-\/merge_requests\/<n>/, /nested groups/i, /\/pull-requests\/<n>/, /projects\/<KEY>\/repos\//, /self-hosted/i, /--pr <n>/, /\*\*first\*\* token of its argument/, /URL later in the argument is focus text, not a\s+target/i, /bare number is never a request number/i, /Stop, and ask, when the target is ambiguous/, /when the request\s+is closed or merged/i, /URL is\s+authoritative/i],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: '--pr resolves only against the project the current branch tracks, and a fork request sharing the branch name is not it',
+    patterns: [/fork of another, the request may\s+live in either: stop and ask which/i, /project of the\s+remote the current branch tracks/i, /stop and ask which project is meant/i, /fork's request that\s+happens to use the same branch name is not it/i],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: 'only digits and verified commit hashes from the host ever enter a command',
+    patterns: [/Only digits and commit hashes the clone has verified ever\s+enter a command/],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: '--publish counts only as a literal token the human typed, a bare --publish stops, and a conductor run never enters hosted mode',
+    patterns: [/only\*\*\s+as a literal token\s+directly after the hosted target/i, /anywhere later it is focus\s+text/i, /never supplies it/i, /`--publish` with no hosted target stops/, /\*\*A conductor run never enters this mode\.\*\*/],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: 'the integration is discovered, never a token asked for, never scraped, and the host or project never switched',
+    patterns: [/If none can read the target, the review is `BLOCKED` with that reason\./, /Judge \*\*reading\*\* and \*\*writing\*\* separately/, /Never\s+ask for a token/, /never fall back to scraping/i, /never switch to a different host or\s+project/i],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: 'the panel reads a fresh clone outside every working tree, fetched in full to the merge base before any lens starts, at the exact head commit, against the cumulative merge-base diff, never two-dot',
+    patterns: [/fresh clone/i, /never inside a\s+working tree/i, /fork's location is taken from the host, never from the typed\s+argument/i, /back to the merge base, with their\s+trees and blobs fetched \*\*before any lens starts\*\*/, /state the host-reported size and the limit\s+applied/i, /with no size\s+reported, stop and ask/i, /project-name\s+pattern/i, /exact head commit/i, /merge base of head and target/i, /never the last commit alone, and never a\s+two-dot diff/i, /merge base that cannot be resolved stops/i],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: 'the clone is hardened against version-control execution vectors, its checkout uses none of the developer\'s config, it holds no credential, its path is stated, and it is removed',
+    patterns: [/hook, monitor, filter, large-file, submodule/i, /Every call\s+except the authenticated fetch/i, /GIT_CONFIG_GLOBAL=\/dev\/null GIT_CONFIG_NOSYSTEM=1` on every call but the fetch/, /No credential appears in a URL/i, /push\s+destination is set to something unusable/i, /absolute path is stated with\s+the tuple/i, /directory[\s\S]{0,80}is removed/i],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: 'declarations and every instruction or convention file a lens reads come from the merge base, never the head the author wrote',
+    patterns: [/declarations and instructions are read at the merge base/i, /every agent-instruction or convention file a lens reads first/i, /merge-base revision, not the head/i, /never lowers a tier or relaxes a convention/i],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: 'each lens and refuter is briefed with the clone, the commit range, merge-base declarations and the no-execution, no-network scope; a bundled skill runs only against the clone',
+    patterns: [/What each lens is given/, /clone's absolute path as the\s+repository under review/i, /head and merge-base commits with the diff taken\s+between them inside the clone/i, /plan conformance is\s+`N\/A`/, /The restriction is part of the decision\s+the lens owns/, /no path, branch name, title or other text from the request enters a\s+command/i, /carries, verbatim, the flags and environment/i, /nothing from the clone is executed/i, /makes no network or\s+host call/i, /refutation agent is briefed the same way/i, /bundled review skill[\s\S]{0,120}otherwise it is\s+skipped/i],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: 'nothing from the change executes, lenses make no network or host call, and unrun checks are BLOCKED, never PASS or N/A',
+    patterns: [/Nothing from the clone runs/i, /no test, build, install or lifecycle script/i, /they make no network call and invoke no host tool/i, /Only the conducting session talks to the host/, /BLOCKED — no code\s+from the change was executed/, /never `PASS` and never `N\/A`/],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: 'source isolation and execution isolation are different controls, the clone is never called a sandbox, and instruction-only rules are labelled as such',
+    patterns: [/\*\*Source isolation\*\*/, /\*\*Execution isolation\*\*/, /does \*\*not\*\* stop anything from running/i, /calls it a sandbox/i, /are \*\*instruction-only\*\* unless a runtime control/i, /least privilege available/i, /Never write a setting/i],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: 'optional validation runs only with a named check AND a probe showing credentials, home, network and the project root out of reach; otherwise BLOCKED whatever the human authorised',
+    patterns: [/human names that check/i, /isolation is \*\*established\*\*/i, /a write under the session's project root, into the\s+clone or anywhere outside the check's own directory fails/i, /never in\s+the clone/i, /clone is treated as tainted/i, /`BLOCKED`, whatever the\s+human authorised/i, /never run where sensitive\s+credentials are reachable/i],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: 'every hosted report and published summary states that reviewing the head does not establish merge-result compatibility',
+    patterns: [/does not\s+establish that the request is compatible with the latest target branch/i, /in every hosted report and in the summary of every published review/i],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: 'a hosted review never remediates and is not followed by gate-validate',
+    patterns: [/There is no remediation/i, /`gate-validate` does not follow/],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: '--publish authorises exactly one review bound to the reviewed head, never approve, request changes, merge, close, resolve, or touch another\'s comment; no findings means no review',
+    patterns: [/authorises exactly these writes/i, /\*\*one\*\* review per run, submitted with an event that \*\*neither approves nor\s+requests changes\*\*/, /naming the reviewed head commit wherever the host\s+accepts one/i, /Never approve,\s+request changes, merge, close, resolve or dismiss a discussion, label, assign,\s+or edit or delete a comment this session did not post/, /unresolved discussions block merging — or the setting cannot be\s+read/i, /\*\*No findings, no review\.\*\* Nothing is posted, nothing is approved, and the\s+report says no actionable finding was identified/],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: 'only confirmed findings are published as the reviewer\'s own text, and a security finding — whichever lens raised it — never with its mechanism or its line',
+    patterns: [/confirmed findings only/i, /never published with their mechanism/i, /any finding with a security impact, whichever lens raised it/i, /\*\*never anchored to\s+its line\*\*/, /and without its path, its\s+severity or anything that locates it\./, /copies no link, mention or markup from untrusted content/i, /checked for credential-shaped strings/i],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: 'de-duplication trusts only a fixed-format marker on the authenticated identity\'s own comment, reads every page, never suppresses a Critical or High on an uncertain match, and never changes the report',
+    patterns: [/himoa-finding v1 fp=<16 hex> body=<16 hex>/, /SHA-256/, /never the line number/i, /author is the authenticated identity and whose\s+body matches the hash in its own marker/i, /read \*\*in full\*\* — every page/i, /\*\*A security line carries no `fp`\*\*/, /computed from a file written with the\s+file-writing tool/i, /recompute its `body`/i, /\*\*An uncertain match never suppresses a Critical or High\s+finding\*\*/, /never what the report lists\*\*: a matched Critical or\s+High keeps its severity/i, /never because its line disappeared/i],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: 'a moved head, target or state, a closed request, or a stale-commit rejection posts nothing and stops',
+    patterns: [/read the tuple again from the same host/i, /If the\s+head, the target commit, the state or the identity changed — or the request is\s+no longer open — \*\*post nothing\*\*/, /\*\*post nothing\*\*, report that a re-review is required, and\s+stop/, /rejects the write because its commit is stale is the same answer/i, /never restart on your\s+own/i],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: 'a failed write is reconciled from every page by identity and body hash with a skew allowance, never retried blind, and a timed-out write still unmatched is reported unconfirmed, never re-sent',
+    patterns: [/hold its intent in the conversation/i, /\*\*never retry blind\*\*/, /clock skew/i, /rate-limit\s+answer is a definite non-write/i, /After a timeout\s+or a server error/i, /report it \*\*unconfirmed\*\* and do not\s+send it again/, /two results\*\*/i],
+  },
+  {
+    file: 'standards/hosted-review.md',
+    guarantee: 'request text and every file in the clone are untrusted input at the lowest rank',
+    patterns: [/every file in the clone — including any agent-instruction file — are input\s+under/i, /lowest rank\s+of evidence/i, /reported as not followed/i],
+    forbid: [/unless[\s\S]{0,40}(description|request|comment) (asks|says)/i],
+  },
+  {
+    file: 'standards/gate-handoff.md',
+    guarantee: 'a hosted review is not followed by gate-validate, and continuing never authorises posting on a pull or merge request',
+    patterns: [/hosted pull or merge request \| nothing/i, /posting a review or comment on a pull or merge request/i],
+  },
+  {
+    file: 'templates/review-handoff.md',
+    guarantee: 'the report template carries the hosted target, the merge-result caveat, the restriction labels and the publishing outcome',
+    patterns: [/Hosted target — only for a pull or merge request/, /Merge result\*\* \| not established/, /`enforced \(<runtime control>\)` or `instruction-only`/, /published \/ duplicate skipped \/ not published \/ failed \/ unconfirmed/],
+  },
+  {
+    file: 'standards/untrusted-content.md',
+    guarantee: 'pull and merge request text is input, not instruction',
+    patterns: [/pull or merge request's title, description and review\s+discussion/i],
+  },
 ];
 
 // Host tools this framework may USE but must never REQUIRE. Claude Code stopped
@@ -2159,6 +2298,14 @@ const SINGLE_SOURCE_POLICIES = [
     owner: 'standards/resumption.md',
     vocabulary: /\bSAFE TO RESUME\b|\bREVALIDATE DESIGN\b|\bRE-APPROVAL REQUIRED\b|\bdrift assessment\b/i,
     what: 'the resume drift assessment and its outcomes',
+  },
+  // The hosted review mode is reached from the gate, the handoff table and the
+  // report template. A second unlinked statement of when `--publish` may write,
+  // or what the clone is, is the copy a careless edit loosens first.
+  {
+    owner: 'standards/hosted-review.md',
+    vocabulary: /--publish\b|\bhosted review\b|\bexecution isolation\b/i,
+    what: 'hosted pull and merge request review and publishing',
   },
 ];
 

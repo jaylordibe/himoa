@@ -460,6 +460,50 @@ for (const caseName of caseNames) {
     }
   }
 
+  // A case that may publish must not be able to reach a real host. Every host
+  // it names is under the reserved `.invalid` domain, so a run whose host tool
+  // is the real one — the stub not on PATH — fails to resolve instead of
+  // posting a review to somebody's repository from a test.
+  //
+  // A hosted case's target can also come from the remote its setup script
+  // gives the workspace (`--pr`), so the scripts are scanned too, and every
+  // spelling a host can take: a URL with any scheme (port stripped), the
+  // scp-like `git@host:` form, and a scheme-less request path.
+  const promptText = readFileSync(promptPath, 'utf8');
+  const caseDir = join(evalCasesRoot, caseName);
+  const scripts = ['setup.sh', 'extra.sh'].map((n) => join(caseDir, n)).filter(existsSync);
+  const scriptText = scripts.map((s) => readFileSync(s, 'utf8')).join('\n');
+  const usesHostStub = /host-stub\//.test(scriptText);
+  const namesARequest = /(?:pull|merge_requests|pull-requests)\/\d+/.test(promptText);
+  if (/--publish\b|--pr\b/.test(promptText) || usesHostStub || namesARequest) {
+    const sources = [[promptPath, promptText], ...scripts.map((s) => [s, readFileSync(s, 'utf8')])];
+    if (usesHostStub) {
+      const shared = join(repositoryRoot, 'evals', 'host-stub', 'make-remote.sh');
+      if (existsSync(shared)) sources.push([shared, readFileSync(shared, 'utf8')]);
+    }
+    const hostForms = [
+      /\b(?!file:)[a-z][a-z0-9+.-]*:\/\/(?:[^/\s@#?]+@)?([^/\s:)>`'"$#?]+)/gi,
+      /\b[\w.-]+@([\w-]+(?:\.[\w-]+)+):/g,
+      /(?<![\w./@-])((?:[\w-]+\.)+[a-z][\w-]*)\/[\w.-]+\/[\w./-]*(?:pull|merge_requests|pull-requests)\//gi,
+      /(?<![\w/@.-])((?:[\w-]+\.)+[a-z][\w-]*):[\w.-]+\/[\w.-]+\.git\b/gi,
+      /\b(?:GH_HOST|GITLAB_HOST|GL_HOST)=["']?([^\s"']+)/g,
+      /--hostname[ =]["']?([^\s"']+)/g,
+    ];
+    for (const [source, text] of sources) {
+      // A host built from a variable cannot be checked, so it is not allowed.
+      if (/\b(?!file:)[a-z][a-z0-9+.-]*:\/\/(?:[^/\s@]+@)?[^/\s]*\$/i.test(text)) {
+        fail(source, 'a hosted-review case builds a URL host from a variable, which this check cannot verify is under .invalid. Write the host out.');
+      }
+      for (const form of hostForms) {
+        for (const [, host] of text.matchAll(form)) {
+          if (!/\.invalid$/i.test(host)) {
+            fail(source, `a hosted-review case names the host "${host}". A case that can reach a host tool names only hosts under .invalid, so nothing it does can reach a real repository.`);
+          }
+        }
+      }
+    }
+  }
+
   const graders = toList(frontmatter.graders);
   if (graders.length === 0) {
     fail(promptPath, 'no `graders:` field. An ungraded case produces a transcript nobody scores.');

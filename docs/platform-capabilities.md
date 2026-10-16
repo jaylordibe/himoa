@@ -57,6 +57,7 @@ behaviour is version-sensitive; re-verify before relying on a row
 | **Human-owned operations** (commit/deploy/migrate) | methodology (charter) | methodology; `sandbox_mode`/`approval_policy` can additionally **hard-block** |
 | **MCP** | native | native (`[mcp_servers.*]`) |
 | **Evidence semantics · quality-bar · risk tiers · execution-efficiency · repository-evidence** | methodology | methodology |
+| **Hosted review execution isolation** (`standards/hosted-review.md` §5–§6) | the Bash sandbox — verified 2026-10-16 below; **off by default**, so the default outcome is `instruction-only` and validation `BLOCKED` | UNKNOWN — `sandbox_mode` exists, but whether it isolates a clone's code from credentials and network has not been verified |
 
 ### What each row implies for an adapter
 
@@ -76,6 +77,47 @@ behaviour is version-sensitive; re-verify before relying on a row
   from *invoking the approval gate itself*, and the methodology forbids
   inferring approval. Reporting this as "hard" would be the false equivalence
   this file exists to stop.
+
+### Hosted review on Claude Code — verified 2026-10-16
+
+Against the sandboxing, sub-agents, permissions, memory and MCP pages of the
+Claude Code documentation:
+
+- **There is an OS-enforced sandbox for Bash**, off by default, turned on with
+  `/sandbox` or `sandbox.enabled`. It limits writes — to the working directory,
+  a per-user temporary directory and any added directories, so **the developer's
+  project stays writable**, which is why the hosted probe tests a write under
+  the project root — and routes network through a
+  proxy whose allowed-domain list starts empty. **It does not limit reads by
+  default** — most of the machine stays readable unless `denyRead` says
+  otherwise — and it does not cover the Read tool, MCP servers or hooks. Where
+  its dependencies are missing it runs commands unsandboxed unless
+  `sandbox.failIfUnavailable` is set.
+- **No documented signal tells a session the sandbox is active.** That is why
+  the hosted standard establishes execution isolation by a probe from inside the
+  environment, never from configuration — and why, with no probe passing, a
+  check is `BLOCKED`.
+- **Whether a subagent's Bash calls are sandboxed is not stated.** Until it is,
+  the rules hosted review gives its lenses stay labelled `instruction-only`.
+- **A project's `CLAUDE.md` and `.mcp.json` load from the session's own project
+  root.** Subdirectory `CLAUDE.md` files load on demand under the working
+  directory; whether any instruction or configuration file loads from a
+  directory outside it — where the hosted clone lives — is not stated. The
+  clone is kept outside the project for that reason, and no session is ever
+  started inside it.
+
+Himoa enables none of this. It is the human's setting to turn on, and the
+framework's line on permissions is unchanged.
+
+### Hosted review on the other hosts
+
+| Host | Hosted review |
+|---|---|
+| **OpenAI Codex** | The standard and the gate are projected. Whether `sandbox_mode` keeps a clone's code from credentials and the network, and whether a Codex session can reach a host integration, are UNKNOWN — so the restrictions are `instruction-only` and validation is `BLOCKED` until a live run shows otherwise |
+| **Cursor** | Projected, through the same shared skills and standards. Its subagents' isolation and host access are UNKNOWN; same defaults |
+| **Gemini CLI** | Projected, as the `/himoa:gate-review` command. Its subagents have no shell, which removes the execution path for lenses; whether the conducting session can clone and reach a host is UNKNOWN |
+| **GitHub Copilot** | Not applicable — no skill mechanism, so there is no `gate-review` to run in hosted mode |
+
 
 ## The non-downgrade rule
 

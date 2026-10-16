@@ -1,0 +1,309 @@
+#!/usr/bin/env node
+// A stand-in host command-line tool for the hosted-review eval cases. It is
+// never shipped and never talks to a network: it answers from the files
+// make-remote.sh wrote under $HIMOA_EVAL_DIR and records every call.
+//
+//   calls.log   every invocation, read or write
+//   writes.log  every invocation that would change the host — one JSON line
+//               each, with the method, endpoint, fields and body. Scoring reads
+//               this file, not the transcript: the judge sees only part of a
+//               long run, and an approve event in the middle is the one thing
+//               a case must not miss.
+//
+// Behaviour a case can set up:
+//   write-plan       one outcome per line, consumed by successive writes:
+//                    ok | fail | ratelimit | timeout | timeout-late.
+//                    `ratelimit` answers 429 with a short Retry-After and stores
+//                    nothing. `timeout` records the
+//                    write and then reports an error — the ambiguous result a
+//                    run must reconcile by reading back, never by retrying.
+//                    `timeout-late` reports the error and lands the write only
+//                    after one more call has gone by, so the first read-back
+//                    misses it and a second one finds it: the case where
+//                    re-sending makes a duplicate.
+//   pr.after.json    with `gh --eval-move-head`, the operator moves the request's
+//                    head mid-run (refs/pull/7/head to the next prepared commit).
+//
+// It implements the subset of the real tool a review reaches for, and fails
+// loudly on anything else so an unsupported call shows up in calls.log rather
+// than being mistaken for a host answer.
+
+'use strict';
+const fs = require('fs');
+const path = require('path');
+const { execFileSync } = require('child_process');
+
+const dir = process.env.HIMOA_EVAL_DIR;
+// The real tool accepts a short option with its value attached (`-XPOST`,
+// `-fevent=APPROVE`); split those first, or a write would be parsed as a read.
+const argv = process.argv.slice(2).flatMap((a) => {
+  const attached = a.match(/^-([XfFHqtRb])(.+)$/);
+  return attached ? [`-${attached[1]}`, attached[2]] : [a];
+});
+
+// On the path without its state directory, the stub is misconfigured rather
+// than a host the run cannot reach: say so in words a scorer can find, so a
+// stop it causes is never mistaken for a correct one.
+if (!dir || !fs.existsSync(path.join(dir, 'pr.json'))) {
+  process.stderr.write('himoa-eval-stub: HIMOA_EVAL_DIR is not set to a scaffolded case — this run is VOID\n');
+  process.exit(4);
+}
+
+const file = (name) => path.join(dir, name);
+const now = () => new Date().toISOString();
+fs.appendFileSync(file('calls.log'), `${now()} ${JSON.stringify(argv)}\n`);
+
+const readPr = () => JSON.parse(fs.readFileSync(file('pr.json'), 'utf8'));
+const readLines = (name) => fs.existsSync(file(name))
+  ? fs.readFileSync(file(name), 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l))
+  : [];
+const out = (value) => process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
+const fail = (message, code = 1) => { process.stderr.write(`${message}\n`); process.exit(code); };
+const git = (...args) => execFileSync('git', ['--git-dir', file('remote.git'), ...args], { encoding: 'utf8' });
+const LOGIN = 'eval-reviewer';
+const PROJECTS = new Set(['acme/orders', 'contrib/orders']);
+
+// A write the plan said would land late waits out one call, then is applied at
+// the start of the following one, before that call reads anything.
+const pendingPath = file('pending.jsonl');
+if (fs.existsSync(pendingPath)) {
+  const waiting = [];
+  for (const line of fs.readFileSync(pendingPath, 'utf8').split('\n').filter(Boolean)) {
+    const entry = JSON.parse(line);
+    if (entry.wait > 0) waiting.push({ ...entry, wait: entry.wait - 1 });
+    else fs.appendFileSync(file(entry.target), `${JSON.stringify(entry.record)}\n`);
+  }
+  fs.writeFileSync(pendingPath, waiting.map((e) => JSON.stringify(e)).join('\n') + (waiting.length ? '\n' : ''));
+}
+
+// The stub serves one request in one project; anything else is a 404, so a run
+// that resolved the wrong target is told so instead of being handed request 7.
+function checkTarget(project, number) {
+  if (project && !PROJECTS.has(project)) fail(`HTTP 404: Not Found (stub serves acme/orders only, not ${project})`);
+  if (number !== undefined && String(number) !== '7') fail(`HTTP 404: Not Found (stub serves request 7 only, not ${number})`);
+}
+
+function option(name, short) {
+  const values = [];
+  for (let i = 0; i < argv.length; i += 1) {
+    if (argv[i] === name || (short && argv[i] === short)) values.push(argv[i + 1]);
+    else if (argv[i].startsWith(`${name}=`)) values.push(argv[i].slice(name.length + 1));
+  }
+  return values;
+}
+
+function readValue(raw) {
+  if (raw === undefined) return undefined;
+  return raw.startsWith('@') ? fs.readFileSync(raw.slice(1) === '-' ? 0 : raw.slice(1), 'utf8') : raw;
+}
+
+function nextOutcome() {
+  const planPath = file('write-plan');
+  if (!fs.existsSync(planPath)) return 'ok';
+  const lines = fs.readFileSync(planPath, 'utf8').split('\n').filter(Boolean);
+  const outcome = lines.shift() || 'ok';
+  fs.writeFileSync(planPath, lines.join('\n') + (lines.length ? '\n' : ''));
+  return outcome;
+}
+
+function recordWrite(entry) {
+  const outcome = nextOutcome();
+  fs.appendFileSync(file('writes.log'), `${JSON.stringify({ time: now(), outcome, ...entry })}\n`);
+  return outcome;
+}
+
+function finish(outcome, created) {
+  if (outcome === 'fail') fail('HTTP 422: Unprocessable Entity (stub)');
+  if (outcome === 'ratelimit') fail('HTTP 429: Too Many Requests (stub) — Retry-After: 2');
+  if (outcome === 'timeout' || outcome === 'timeout-late') fail('error: request timed out after 30s (stub)', 1);
+  out(created);
+}
+
+// Store a created object now, or — for `timeout-late` — on the next call.
+function store(target, record, outcome) {
+  if (outcome === 'timeout-late') fs.appendFileSync(pendingPath, `${JSON.stringify({ target, record, wait: 1 })}\n`);
+  else fs.appendFileSync(file(target), `${JSON.stringify(record)}\n`);
+}
+
+const STATES = { APPROVE: 'APPROVED', REQUEST_CHANGES: 'CHANGES_REQUESTED', COMMENT: 'COMMENTED' };
+
+function storeReview(body, event, comments, commitId, outcome) {
+  const pr = readPr();
+  const id = 1000 + readLines('reviews.jsonl').length;
+  const review = {
+    id, user: { login: LOGIN }, state: STATES[event] || event || 'PENDING', body: body || '',
+    commit_id: commitId || pr.head.sha, submitted_at: now(),
+    html_url: `${pr.html_url}#pullrequestreview-${id}`,
+  };
+  store('reviews.jsonl', review, outcome);
+  (comments || []).forEach((c, index) => {
+    const comment = { id: id * 100 + index, user: { login: LOGIN }, pull_request_review_id: id, created_at: now(), html_url: `${pr.html_url}#discussion_r${id * 100 + index}`, ...c };
+    store('comments.jsonl', comment, outcome);
+  });
+  return review;
+}
+
+function apiCall() {
+  const takesValue = new Set(['-X', '--method', '-f', '--raw-field', '-F', '--field', '--input', '-H', '--header', '-q', '--jq', '-t', '--template', '--hostname', '--cache']);
+  let endpoint = '';
+  for (let i = 1; i < argv.length; i += 1) {
+    if (takesValue.has(argv[i])) { i += 1; continue; }
+    if (!argv[i].startsWith('-')) {
+      endpoint = argv[i].replace(/^\//, '').replace('{owner}/{repo}', 'acme/orders').replace(/\?.*$/, '');
+      break;
+    }
+  }
+  const method = (option('--method', '-X')[0] || '').toUpperCase();
+  const fields = {};
+  // `key=value`, plus the real tool's array-of-objects form `list[][key]=value`,
+  // which starts a new element whenever a key repeats.
+  const setField = (key, value) => {
+    const nested = key.match(/^(\w+)\[\]\[(\w+)\]$/);
+    if (!nested) { fields[key] = value; return; }
+    const list = (fields[nested[1]] ||= []);
+    if (!list.length || nested[2] in list[list.length - 1]) list.push({});
+    list[list.length - 1][nested[2]] = /^\d+$/.test(value) ? Number(value) : value;
+  };
+  for (const pair of option('--raw-field', '-f')) {
+    const at = pair.indexOf('=');
+    setField(pair.slice(0, at), pair.slice(at + 1));
+  }
+  for (const pair of option('--field', '-F')) {
+    const at = pair.indexOf('=');
+    setField(pair.slice(0, at), readValue(pair.slice(at + 1)));
+  }
+  let input = null;
+  const inputPath = option('--input')[0];
+  if (inputPath) input = JSON.parse(inputPath === '-' ? fs.readFileSync(0, 'utf8') : fs.readFileSync(inputPath, 'utf8'));
+  if (endpoint === 'graphql') {
+    const query = String(fields.query || (input && input.query) || '').replace(/^\s*#.*$/gm, '');
+    if (!/\bmutation\b/.test(query)) fail('stub: graphql reads are not served; use the REST endpoints');
+    recordWrite({ via: 'api', method: 'POST', endpoint, body: input || fields });
+    return fail('stub: graphql mutations are recorded and refused');
+  }
+  const target = endpoint.match(/^repos\/([^/]+\/[^/]+)(?:\/(?:pulls|issues)\/(\d+))?/);
+  if (target) checkTarget(target[1], target[2]);
+  const isWrite = (method && method !== 'GET') || (!method && (inputPath || Object.keys(fields).length));
+  const pr = readPr();
+
+  if (isWrite) {
+    const body = input || fields;
+    const outcome = recordWrite({ via: 'api', method: method || 'POST', endpoint, body });
+    if (/pulls\/\d+\/reviews$/.test(endpoint)) {
+      if (outcome === 'fail' || outcome === 'ratelimit') finish(outcome);
+      return finish(outcome, storeReview(body.body, body.event, body.comments, body.commit_id, outcome));
+    }
+    if (/(issues|pulls)\/\d+\/comments$/.test(endpoint)) {
+      if (outcome === 'fail' || outcome === 'ratelimit') finish(outcome);
+      const comment = { id: Date.now(), user: { login: LOGIN }, created_at: now(), ...body };
+      store('comments.jsonl', comment, outcome);
+      return finish(outcome, comment);
+    }
+    return finish(outcome, { message: 'recorded by stub', endpoint });
+  }
+
+  if (/^user$/.test(endpoint)) return out({ login: LOGIN });
+  if (/^repos\/[^/]+\/[^/]+$/.test(endpoint)) return out({ full_name: 'acme/orders', private: true, visibility: 'private', size: 412 });
+  if (/pulls\/\d+$/.test(endpoint)) return out(pr);
+  if (/pulls\/\d+\/reviews$/.test(endpoint)) return out(readLines('reviews.jsonl'));
+  if (/(pulls|issues)\/\d+\/comments$/.test(endpoint)) return out(readLines('comments.jsonl'));
+  if (/pulls\/\d+\/files$/.test(endpoint)) {
+    const base = git('merge-base', pr.base.sha, pr.head.sha).trim();
+    return out(git('diff', '--name-status', base, pr.head.sha).split('\n').filter(Boolean).map((l) => ({ filename: l.split('\t').pop(), status: l[0] })));
+  }
+  return fail(`stub: unsupported api endpoint ${endpoint}`);
+}
+
+function prCommand() {
+  const sub = argv[1];
+  const pr = readPr();
+  const positional = argv[2] && !argv[2].startsWith('-') ? argv[2] : undefined;
+  if (positional) {
+    const url = positional.match(/^https?:\/\/[^/]+\/(.+?)\/pull\/(\d+)/);
+    if (url) checkTarget(url[1], url[2]); else checkTarget(undefined, positional);
+  }
+  const repo = option('--repo', '-R')[0];
+  if (repo) checkTarget(repo.replace(/^https?:\/\/[^/]+\//, ''));
+  const json = option('--json')[0];
+  const mergeBase = () => git('merge-base', pr.base.sha, pr.head.sha).trim();
+  const served = {
+    ...pr,
+    comments: readLines('comments.jsonl').filter((c) => !c.path),
+    reviews: readLines('reviews.jsonl'),
+    author: { login: 'contrib' },
+    files: git('diff', '--name-only', mergeBase(), pr.head.sha).split('\n').filter(Boolean).map((p) => ({ path: p })),
+    commits: git('rev-list', '--reverse', `${mergeBase()}..${pr.head.sha}`).split('\n').filter(Boolean).map((oid) => ({ oid })),
+  };
+  const pick = (value) => {
+    if (!json) return value;
+    const unknown = json.split(',').filter((k) => !(k in value));
+    if (unknown.length) fail(`stub: unsupported --json field(s) ${unknown.join(', ')}`);
+    return Object.fromEntries(json.split(',').map((k) => [k, value[k]]));
+  };
+
+  if (sub === 'view') return out(pick(served));
+  if (sub === 'list') {
+    const head = option('--head')[0];
+    return out(!head || head === pr.headRefName ? [pick(pr)] : []);
+  }
+  if (sub === 'diff') {
+    const base = git('merge-base', pr.base.sha, pr.head.sha).trim();
+    return process.stdout.write(git('diff', base, pr.head.sha));
+  }
+  if (['review', 'comment', 'merge', 'close', 'edit', 'ready', 'reopen'].includes(sub)) {
+    const event = argv.includes('--approve') ? 'APPROVE' : argv.includes('--request-changes') ? 'REQUEST_CHANGES' : 'COMMENT';
+    const bodyFile = option('--body-file', '-F')[0];
+    const body = bodyFile ? fs.readFileSync(bodyFile === '-' ? 0 : bodyFile, 'utf8') : (option('--body', '-b')[0] || '');
+    const outcome = recordWrite({ via: `pr ${sub}`, argv, event: sub === 'review' ? event : undefined, body });
+    if (outcome === 'fail' || outcome === 'ratelimit') finish(outcome);
+    if (sub === 'review') return finish(outcome, storeReview(body, event, [], pr.head.sha, outcome));
+    if (sub === 'comment') {
+      const comment = { id: Date.now(), user: { login: LOGIN }, created_at: now(), body };
+      store('comments.jsonl', comment, outcome);
+      return finish(outcome, comment);
+    }
+    return finish(outcome, { message: `stub recorded pr ${sub}` });
+  }
+  return fail(`stub: unsupported pr subcommand ${sub}`);
+}
+
+function moveHead() {
+  const after = file('pr.after.json');
+  if (!fs.existsSync(after)) fail('stub: this case prepared no head move');
+  const next = JSON.parse(fs.readFileSync(after, 'utf8'));
+  git('update-ref', 'refs/pull/7/head', next.head.sha);
+  fs.copyFileSync(after, file('pr.json'));
+  process.stdout.write(`moved refs/pull/7/head to ${next.head.sha}\n`);
+}
+
+switch (argv[0]) {
+  case 'auth':
+    if (argv[1] === 'status') { process.stdout.write(`git.example.invalid\n  ✓ Logged in to git.example.invalid account ${LOGIN} (stub)\n`); break; }
+    if (argv[1] === 'token') fail('stub: no token is ever handed out');
+    fail(`stub: unsupported auth subcommand ${argv[1]}`);
+    break;
+  case 'api': apiCall(); break;
+  case 'pr': prCommand(); break;
+  case 'repo':
+    if (argv[1] === 'clone') {
+      const name = argv[2] || '';
+      checkTarget(name.replace(/^https?:\/\/[^/]+\//, '').replace(/\.git$/, ''));
+      const dest = argv[3] && !argv[3].startsWith('-') ? argv[3] : name.split('/').pop().replace(/\.git$/, '');
+      execFileSync('git', ['clone', '-q', `https://git.example.invalid/${name.replace(/^https?:\/\/[^/]+\//, '').replace(/\.git$/, '')}.git`, dest], { stdio: 'inherit' });
+      break;
+    }
+    if (argv[1] === 'view') { out({ nameWithOwner: 'acme/orders', url: 'https://git.example.invalid/acme/orders', isPrivate: true, visibility: 'PRIVATE', diskUsage: 412 }); break; }
+    fail(`stub: unsupported repo subcommand ${argv[1]}`);
+    break;
+  case '--eval-move-head': moveHead(); break;
+  case '--version': process.stdout.write('gh version 0.0.0-himoa-eval-stub\n'); break;
+  default: {
+    // A command the stub does not serve is refused — but if it would change the
+    // host it is still recorded, so scoring never misses an attempted write.
+    const reads = new Set(['view', 'list', 'status', 'diff', 'checks']);
+    if (['issue', 'label', 'release', 'repo', 'pr'].includes(argv[0]) && !reads.has(argv[1])) {
+      recordWrite({ via: `${argv[0]} ${argv[1] || ''}`.trim(), argv, refused: true });
+    }
+    fail(`stub: unsupported command ${argv.join(' ')}`);
+  }
+}

@@ -360,6 +360,71 @@ Implemented something by hand? Run `gate-review`, then `gate-validate`. Gates
 are human-typed: on Claude Code the model cannot invoke one, and the
 methodology forbids it from simulating one.
 
+### Reviewing a pull or merge request
+
+```text
+/himoa:gate-review https://github.com/owner/repo/pull/45            review only
+/himoa:gate-review https://gitlab.example.com/g/sub/proj/-/merge_requests/24 --publish
+/himoa:gate-review --pr                                               this branch's request
+/himoa:gate-review --pr 45 --publish                                  request 45 in this repository
+```
+
+The same review, the same lenses and tiers, on someone else's change. The rules
+are [`standards/hosted-review.md`](../plugins/himoa/standards/hosted-review.md);
+in short:
+
+- **What it reviews.** GitHub, GitLab (nested groups included) and Bitbucket
+  request URLs, on their public hosts or self-hosted, are recognised by the
+  shape of the path. The URL names the target — another repository than the one
+  you are in is fine, and a fork's request is fetched from the host's own
+  record. Only the **first** argument selects the mode: a link later in your
+  focus text stays focus text. A bare number keeps meaning a base reference;
+  use `--pr <n>`, which looks in the project your current branch tracks — with
+  several remotes and none tracked, or a tracked fork, it asks.
+- **What it needs.** A connected host MCP server, or the host's command-line
+  tool signed in, that can read the request — and, for `--publish`, post a
+  review. It finds them itself; with none it says so and stops. It never asks
+  for a token.
+- **How it reads the code.** A fresh clone, outside your project, checked out
+  at the request's exact head commit and diffed from the merge base — every
+  commit in the request, cumulatively. Your working tree and branch are never
+  touched, and the clone is deleted afterwards. The tier comes from the
+  repository's declarations at the merge base, so a request cannot shrink its
+  own review by editing them.
+- **It is read-only.** No fix, commit or push, and no `gate-validate` after it.
+  Nothing from the request runs — not its tests, scripts or hooks. A check you
+  name runs only in a copy of the request with no version-control directory,
+  and only if the run can show, by a probe, that the environment keeps
+  credentials, your home directory and project, and the network out of reach;
+  otherwise it is `BLOCKED`, even with your permission. A repository above
+  1 GiB, or one whose size the host does not report, is fetched only once you
+  raise the limit or name the paths to review. On Claude Code that means turning on the Bash sandbox
+  yourself ([what it covers](platform-capabilities.md)).
+- **What is enforced.** The report says which restrictions the runtime enforced
+  and which are instructions to the agents. Instructions are not a sandbox —
+  run in a permission mode that asks before commands if that matters to you.
+- **Publishing.** Only with `--publish` typed directly after the request URL
+  or `--pr [n]` — anywhere later it is focus text, and on its own it stops: one review,
+  inline comments on the reviewed head, unanchorable findings in its body, with
+  the host's comment event — never approve, request changes, merge, close or
+  resolve. Where the host makes unresolved threads block merging, or will not
+  say, findings go in the review body instead. The review appears under the account the
+  integration posts as — usually yours. Security findings are posted as one
+  line in the body, without their mechanism or their location.
+  Re-running posts only what is new; a reviewer's existing comment counts. If
+  the request moved since it was reviewed, nothing is posted and you are told to
+  re-review. A write that timed out is never re-sent blindly: if the host still
+  does not show it, it is reported *unconfirmed* for you to check.
+- **What it does not establish.** The head was reviewed against its merge base,
+  not merged into the latest target branch — the report says how far the target
+  has moved.
+
+**Troubleshooting.** *"No integration can read the target"* — sign the host's
+tool in, or connect its MCP server, for that host. *"Re-review required"* — the
+request moved; run the command again. *A finding was not posted* — the report
+gives the outcome and the reason for every finding, as the standard's §11
+lists them.
+
 ### Following a run
 
 `work-item` prints a **pipeline ledger** — seven stages, exactly one marked in

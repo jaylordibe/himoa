@@ -8,7 +8,7 @@ tools:
   - search_file_content
 ---
 
-<!-- GENERATED from plugins/himoa/agents/context-mapper.md by tests/validate-adapter-projection.mjs (himoa 3.16.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/agents/context-mapper.md by tests/validate-adapter-projection.mjs (himoa 3.17.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Mission
 

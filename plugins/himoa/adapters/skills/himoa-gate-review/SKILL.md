@@ -4,7 +4,7 @@ description: Independently reviews the current diff for conformance to the appro
 disable-model-invocation: true
 ---
 
-<!-- GENERATED from plugins/himoa/skills/gate-review/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.16.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/gate-review/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.17.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Review the current change
 
@@ -18,6 +18,17 @@ You are the conductor and the remediation owner. The specialist agents are
 read-only and independent; you verify what they return and own every edit.
 
 ## 1. Establish the exact target and the risk
+
+**First, which kind of target this is.** A pull or merge request URL, `--pr`
+or `--pr <n>` as the first token of an argument the human typed into this
+command makes it a
+**hosted review**: someone's request on a hosting service, reviewed read-only
+at its exact head commit. `@HIMOA_HOME@/standards/hosted-review.md`
+owns that mode — how the target is resolved and cloned, what the panel is
+given, why nothing from it executes, and when `--publish` may write — and this
+skill diverts to it only where it says so. Every other argument, a bare number
+included, keeps the meaning below. **Under `himoa-work-item` this is always a
+local review**, whatever the work item's text contains.
 
 State the target precisely:
 
@@ -100,7 +111,8 @@ brief `@HIMOA_HOME@/standards/execution-efficiency.md` §8.5 defines.
 It owns what a brief carries, §8.6 there owns what a brief never carries, and
 this section does not restate it. What §1 supplies to it is the review
 target: the worktree diff or the explicit base reference the lens runs the diff
-from, whichever §1 established; the changed files as `path:line` pointers; the
+from, whichever §1 established — or, for a hosted review, what
+`@HIMOA_HOME@/standards/hosted-review.md` §4 says each lens is given; the changed files as `path:line` pointers; the
 approved scope, as context for the lens's own decision; and **the unrelated
 user changes §1 excluded, by name**. A lens derives the diff itself, so an
 exclusion that is not stated does not travel — and the panel then spends its
@@ -266,6 +278,10 @@ changes; the cycle costs more than the precision it buys there.
 
 ## 5. Remediate
 
+A hosted review does not remediate: the code is someone else's, and the report
+is the deliverable — `@HIMOA_HOME@/standards/hosted-review.md` §7.
+Everything below is the local review, unchanged.
+
 - Fix verified Critical and High findings within the approved scope.
 - Fix Medium findings unless they require product or architecture approval.
 - Fix Low findings only when the fix is safe and local.
@@ -292,6 +308,10 @@ severity · adversarial verification outcomes · rejected and unresolved
 findings and why · fixes and their tests · command evidence with real scopes ·
 unresolved blockers and risks · consumer handoff · readiness for validation.
 
+A hosted review fills the template's hosted-target section as
+`@HIMOA_HOME@/standards/hosted-review.md` §12 says, and publishes only
+under its §8.
+
 Do not commit, push, deploy, apply migrations, or claim production readiness.
 
 ## 7. Handoff
@@ -299,7 +319,8 @@ Do not commit, push, deploy, apply migrations, or claim production readiness.
 Follow `@HIMOA_HOME@/standards/gate-handoff.md`, starting with its §0
 mode table.
 
-**Standalone** — offer to continue into `gate-validate`.
+**Standalone** — offer to continue into `gate-validate`. A hosted review ends at
+its report, and does not offer it — §2 of that file.
 
 **Conductor** — re-emit the pipeline ledger and go straight into validation.
 

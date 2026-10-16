@@ -303,7 +303,11 @@ survive an adversarial refutation pass before it stands.
 
 What each lens examines in full is its definition in
 [`agents/`](plugins/himoa/agents/); how lenses are chosen and findings verified
-is in [`gate-review`](plugins/himoa/skills/gate-review/SKILL.md).
+is in [`gate-review`](plugins/himoa/skills/gate-review/SKILL.md). The same
+review runs on a pull or merge request — `/himoa:gate-review <url> [--publish]`
+— read-only, from a fresh clone at its exact head, and posts its verified
+findings back only when `--publish` is typed
+([`hosted-review.md`](plugins/himoa/standards/hosted-review.md)).
 
 Eight [domain playbooks](plugins/himoa/skills/) carry the questions particular
 kinds of change must answer — authentication, authorization, browser security,
