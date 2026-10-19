@@ -51,17 +51,17 @@ fi
 dry=0; [ "$mode" = "check" ] && dry=1
 printf '%s\n' "Himoa Copilot adapter — repository bootstrap (cloud agent; nothing written to \$HOME)"
 # Every destination is checked before anything is written, AGENTS.md included;
-# see himoa_dest_is_linked in lib/himoa-adapter-install.sh.
+# see himoa_dest_unsafe in lib/himoa-adapter-install.sh.
 linked=""
 for f in "$agents_src"/himoa-*.agent.md; do
   [ -e "$f" ] || continue
   dst="$agents_dst/$(basename "$f")"
-  if himoa_dest_is_linked "$dst" "$dst"; then linked="${linked}  $dst
+  if himoa_dest_unsafe "$dst" "$dst"; then linked="${linked}  $dst
 "; fi
 done
 if [ -n "$linked" ]; then
-  printf 'himoa-copilot-install: these destinations are symlinks; nothing was written:\n%s' "$linked" >&2
-  printf 'Writing through them would overwrite whatever they point at. Remove the links and re-run.\n' >&2
+  printf 'himoa-copilot-install: these destinations are symlinks or directories; nothing was written:\n%s' "$linked" >&2
+  printf 'A link would be written through and a directory would swallow the file. Remove them and re-run.\n' >&2
   exit 1
 fi
 himoa_repo_bootstrap "$source_root" "$reference_root" "$dry"

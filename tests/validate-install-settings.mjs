@@ -681,6 +681,9 @@ for (const [label, settings, named] of [
   ['a marketplace entry with no source', { extraKnownMarketplaces: { [MARKETPLACE]: { autoUpdate: true } } }, /\.source is null/],
   ['autoUpdate "false" as a string', { extraKnownMarketplaces: { [MARKETPLACE]: { ...ENTRY, autoUpdate: 'false' } } }, /autoUpdate is "false"/],
   [`env.${TASK_TOOLS_KEY} as a boolean`, { env: { [TASK_TOOLS_KEY]: false } }, new RegExp(`env\\.${TASK_TOOLS_KEY} is false`)],
+  // Present but null: the merge tests key presence, so null was kept while the
+  // run reported it would set "1". An absent key is still filled in.
+  [`env.${TASK_TOOLS_KEY} as an explicit null`, { env: { [TASK_TOOLS_KEY]: null } }, new RegExp(`env\\.${TASK_TOOLS_KEY} is null`)],
 ]) {
   runCase(`a wrong-typed value is refused, not reported: ${label}`, (name) => {
     const repository = buildRepository({ 'CLAUDE.md': '# CLAUDE.md\n', '.claude/settings.json': settings });

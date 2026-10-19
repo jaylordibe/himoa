@@ -53,11 +53,11 @@ esac
 
 say() { printf '%s\n' "$1"; }
 # Args: source, destination, the Himoa-owned root it sits under. The preflight
-# pass writes nothing; see himoa_dest_is_linked in lib/himoa-adapter-install.sh.
+# pass writes nothing; see himoa_dest_unsafe in lib/himoa-adapter-install.sh.
 linked=""
 install_file() {
   if [ "$mode" = "preflight" ]; then
-    if himoa_dest_is_linked "$2" "$3"; then linked="${linked}  $2
+    if himoa_dest_unsafe "$2" "$3"; then linked="${linked}  $2
 "; fi
     return 0
   fi
@@ -80,7 +80,7 @@ if [ "$mode" = "repo" ] || [ "$mode" = "repo-check" ]; then
   dry=0; [ "$mode" = "repo-check" ] && dry=1
   settings=".gemini/settings.json"
   # Checked before AGENTS.md is touched, so a refusal changes nothing at all.
-  himoa_refuse_linked_repo_file "$settings" && exit 1
+  himoa_refuse_unsafe_repo_file "$settings" && exit 1
   himoa_repo_bootstrap "$source_root" "$reference_root" "$dry"
   # Gemini reads GEMINI.md by default; add AGENTS.md via context.fileName,
   # preserving any existing setting. jq is the framework's JSON tool; without it
@@ -119,8 +119,8 @@ say ""
 # Every destination is checked before any is written.
 requested="$mode"; mode="preflight"; install_all; mode="$requested"
 if [ -n "$linked" ]; then
-  printf 'himoa-gemini-install: these destinations are symlinks, or sit under a symlinked Himoa directory; nothing was written:\n%s' "$linked" >&2
-  printf 'Writing through them would overwrite whatever they point at. Remove the links (re-link afterwards if they are yours on purpose) and re-run.\n' >&2
+  printf 'himoa-gemini-install: these destinations are symlinks or directories, or sit under a symlinked Himoa directory; nothing was written:\n%s' "$linked" >&2
+  printf 'A link would be written through and a directory would swallow the file. Remove them (re-link afterwards if a link is yours on purpose) and re-run.\n' >&2
   exit 1
 fi
 install_all

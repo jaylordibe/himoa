@@ -12,6 +12,49 @@ act, and MINOR and PATCH never do. Entries below `1.0.0` were released under the
 
 ---
 
+## 3.20.0 — 2026-10-19
+
+**Two installer refusals 3.19.0 missed. An adapter installer now stops when a
+file it would write already exists as a directory — 3.19.0 moved the file inside
+that directory and reported success with the expected file absent.
+`himoa-install-settings` now refuses an explicit `null` for
+`env.CLAUDE_CODE_ENABLE_TODO_TOOLS`, which it used to keep while reporting it
+would set `"1"`. Both runs used to exit 0 and now stop with the repair to make,
+so this is MINOR (`docs/versioning.md`: a change that stops something
+previously allowed). No consumer action unless one of them stops you.**
+
+### Fixed
+- **A directory at an expected file destination is refused** by the Codex,
+  Cursor, Gemini and Copilot installers, in the same pre-write check as a
+  symlink: the run names the path, writes nothing, leaves the directory and its
+  contents untouched, and exits 1. Remove or rename the directory and re-run.
+  `--repo` (and the Copilot installer) refuses the same way when `./AGENTS.md`
+  or `.gemini/settings.json` is a directory: `AGENTS.md` as a directory used to
+  print "Prepended the Himoa bootstrap" with exit 0 while writing nothing, and
+  Gemini wrote `AGENTS.md` before failing on the settings one.
+- **An explicit `null` for `env.CLAUDE_CODE_ENABLE_TODO_TOOLS` is refused** with
+  the file left byte-identical. Set it to a string such as `"1"` or `"0"`, or
+  remove the key; an absent key is still filled in as before.
+
+### Tests
+- `validate-adapter-install` plants a directory at an agent destination for
+  Codex, Gemini and Copilot and asserts a non-zero exit, a refusal naming the
+  path, the directory's contents unchanged, and no installed or temporary file;
+  and a directory at `AGENTS.md` (Codex, Copilot) or `.gemini/settings.json`,
+  asserting the repository is left exactly as it was.
+  `validate-install-settings` adds the explicit-`null` row. Both failed against
+  3.19.0 before passing.
+
+### Not established
+- Unchanged from 3.19.0: no behavioural eval case and no live host session has
+  been run, and the symlink and directory checks remain separate from the
+  writes, with no locking.
+- A regular file where a Himoa-owned *directory* is expected (for example
+  `~/.agents/himoa` as a file) still fails part-way: loudly, with a non-zero
+  exit, but after earlier files were written. An explicit `null` for the env
+  key is now refused under `--no-task-tools` as well, since the host reads env
+  values only as strings.
+
 ## 3.19.0 — 2026-10-19
 
 **The installers stop writing where they should not, and the methodology stops

@@ -22,9 +22,13 @@
 # other file was overwritten with a reviewer agent, and the install exited 0.
 # Directories ABOVE the owned root (~/.agents, ~/.codex, .github/agents) may be
 # symlinks — a dotfiles setup that links them is legitimate and keeps working.
+# Also true when the destination file is itself a directory: the render's `mv`
+# would move the file inside it, leaving the expected file absent while the
+# install exited 0. The directory and its contents are left as they are.
 # Args: destination, owned root (the destination itself for a single file).
-himoa_dest_is_linked() {
+himoa_dest_unsafe() {
   local p="$1"
+  [ -d "$p" ] && return 0
   while [ -n "$p" ]; do
     [ -L "$p" ] && return 0
     [ "$p" = "$2" ] && return 1
@@ -51,9 +55,15 @@ himoa_render() {
 # rewrite replaces the link with a regular file, so a deliberate link (AGENTS.md
 # -> CLAUDE.md) silently stops being one; a dangling link is written through.
 # Nothing is changed: the link and its target are both left as they are.
-himoa_refuse_linked_repo_file() {
-  [ -L "$1" ] || return 1
-  printf 'himoa: ./%s is a symlink; nothing was changed. Add the Himoa bootstrap to the file it points at yourself, or replace the link with a regular file and re-run.\n' "$1" >&2
+# Also refused when the file is a directory: the prepend's `cat` failed, the run
+# still reported "Prepended" with exit 0, and nothing was written.
+himoa_refuse_unsafe_repo_file() {
+  if [ -L "$1" ]; then
+    printf 'himoa: ./%s is a symlink; nothing was changed. Add the Himoa bootstrap to the file it points at yourself, or replace the link with a regular file and re-run.\n' "$1" >&2
+    return 0
+  fi
+  [ -d "$1" ] || return 1
+  printf 'himoa: ./%s is a directory; nothing was changed. Move or rename it and re-run.\n' "$1" >&2
   return 0
 }
 
@@ -66,7 +76,7 @@ himoa_repo_bootstrap() {
   local boot="$source_root/AGENTS.himoa.md"
   local scaffold="$reference_root/AGENTS.md.template"
   [ -f "$boot" ] || { printf 'himoa: missing bootstrap %s\n' "$boot" >&2; return 1; }
-  himoa_refuse_linked_repo_file "AGENTS.md" && return 1
+  himoa_refuse_unsafe_repo_file "AGENTS.md" && return 1
   if [ ! -e "AGENTS.md" ]; then
     if [ "$dry" = "1" ]; then printf '%s\n' "would create ./AGENTS.md (Himoa bootstrap + repository-truth scaffold)"; return 0; fi
     { cat "$boot"; printf '\n\n'; [ -f "$scaffold" ] && cat "$scaffold"; } > "AGENTS.md"
@@ -135,7 +145,7 @@ himoa_adapter_main() {
   local linked=""
   install_file() {
     if [ "$mode" = "preflight" ]; then
-      if himoa_dest_is_linked "$2" "$3"; then linked="${linked}  $2
+      if himoa_dest_unsafe "$2" "$3"; then linked="${linked}  $2
 "; fi
       return 0
     fi
@@ -197,8 +207,8 @@ himoa_adapter_main() {
   local requested="$mode"
   mode="preflight"; install_all; mode="$requested"
   if [ -n "$linked" ]; then
-    printf 'himoa-%s-install: these destinations are symlinks, or sit under a symlinked Himoa directory; nothing was written:\n%s' "$host" "$linked" >&2
-    printf 'Writing through them would overwrite whatever they point at. Remove the links (re-link afterwards if they are yours on purpose) and re-run.\n' >&2
+    printf 'himoa-%s-install: these destinations are symlinks or directories, or sit under a symlinked Himoa directory; nothing was written:\n%s' "$host" "$linked" >&2
+    printf 'A link would be written through and a directory would swallow the file. Remove them (re-link afterwards if a link is yours on purpose) and re-run.\n' >&2
     return 1
   fi
   install_all

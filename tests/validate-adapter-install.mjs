@@ -176,6 +176,46 @@ installAndAssert('codex', AWKWARD_HOME);
     check('symlink: copilot writes no AGENTS.md when it refuses', !existsSync(join(repo, 'AGENTS.md')));
   }
 
+  // A directory where a file is expected. The render's `mv` once moved the
+  // file inside it and the install exited 0 with the expected file absent.
+  // The directory and its contents must survive, with nothing installed and no
+  // temporary file left anywhere.
+  for (const [host, rel, inRepo] of [
+    ['codex', '.codex/agents/himoa-reviewer.toml'],
+    ['gemini', '.gemini/agents/himoa-reviewer.md'],
+    ['copilot', '.github/agents/himoa-reviewer.agent.md', true],
+  ]) {
+    const root = inRepo ? outside() : freshHome();
+    const home = inRepo ? freshHome() : root;
+    const dir = join(root, rel);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, 'mine.txt'), 'MINE\n');
+    const r = spawnSync(binFor(host), [], { cwd: inRepo ? root : repoRoot, env: { ...process.env, HOME: home, CODEX_HOME: join(home, '.codex'), GEMINI_HOME: join(home, '.gemini') }, encoding: 'utf8' });
+    const name = `directory collision: ${host} ${rel}`;
+    const left = regularFiles(root);
+    check(`${name} is refused (non-zero exit)`, r.status !== 0, `exit ${r.status}`);
+    check(`${name}: the refusal names the path`, r.stderr.includes(rel), r.stderr);
+    check(`${name}: the directory keeps exactly its own contents`, readdirSync(dir).join() === 'mine.txt' && readFileSync(join(dir, 'mine.txt'), 'utf8') === 'MINE\n', readdirSync(dir).join(', '));
+    check(`${name}: nothing installed, no temporary file left`, left.length === 1 && !left.some((f) => f.includes('.himoa-tmp.')), left.slice(0, 3).join(', '));
+  }
+
+  // A directory where the bootstrap expects AGENTS.md or Gemini's settings
+  // file. AGENTS.md as a directory once printed "Prepended" with exit 0 and
+  // wrote nothing; Gemini wrote AGENTS.md before failing on the settings one.
+  for (const [host, args, rel] of [
+    ['codex', ['--repo'], 'AGENTS.md'],
+    ['copilot', [], 'AGENTS.md'],
+    ['gemini', ['--repo'], '.gemini/settings.json'],
+  ]) {
+    const repo = outside();
+    mkdirSync(join(repo, rel), { recursive: true });
+    writeFileSync(join(repo, rel, 'mine.txt'), 'MINE\n');
+    const r = spawnSync(binFor(host), args, { cwd: repo, env: { ...process.env, HOME: freshHome() }, encoding: 'utf8' });
+    const left = regularFiles(repo);
+    check(`directory collision: ${host} refuses a directory at ${rel}`, r.status !== 0 && r.stderr.includes(rel), `exit ${r.status}: ${r.stderr}`);
+    check(`directory collision: ${host} leaves the repository exactly as it was`, left.length === 1 && left[0] === join(repo, rel, 'mine.txt'), left.slice(0, 3).join(', '));
+  }
+
   // A repository file the bootstrap would rewrite: the link and its target both
   // survive. Previously a linked AGENTS.md was replaced by a regular file.
   for (const [host, rel] of [['codex', 'AGENTS.md'], ['gemini', '.gemini/settings.json']]) {

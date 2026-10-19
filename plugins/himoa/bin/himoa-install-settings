@@ -300,7 +300,9 @@ if [ -e "$settings" ]; then
   #   the marketplace entry an object with an object `source` and an optional
   #                         boolean `autoUpdate` - the SchemaStore settings
   #                         schema; consistent with the host's own description
-  # null is accepted as absent, as it always was here.
+  # null is accepted as absent, as it always was here — except for the env key:
+  # its merge tests key presence, so an explicit null was kept while the run
+  # reported it would set "1".
   value_problem=$(printf '%s' "$current" | jq -r \
     --arg marketplace "$marketplace" --arg id "$plugin_id" --arg key "$task_tools_key" '
     (.extraKnownMarketplaces[$marketplace]) as $m
@@ -315,6 +317,8 @@ if [ -e "$settings" ]; then
       elif $p != null and ($p | type) != "boolean"
            and (($p | type) != "array" or any($p[]; type != "string")) then
         "enabledPlugins[\"\($id)\"] is \($p | tojson); it must be true or false, unquoted, or a list of version-constraint strings."
+      elif $e == null and ((.env // {}) | has($key)) then
+        "env.\($key) is null; set it to a string such as \"1\" or \"0\", or remove the key."
       elif $e != null and ($e | type) != "string" then
         "env.\($key) is \($e | tojson); environment values must be strings, such as \"1\" or \"0\"."
       else empty end')
