@@ -209,8 +209,10 @@ for (const sub of ['standards', 'templates']) {
     `> **Himoa.** This repository uses the Himoa engineering methodology.\n` +
     `> Its skills are installed as agent skills — invoke a workflow by name\n` +
     `> (\`himoa-work-item\`, \`himoa-gate-design\`; Codex \`$himoa-…\`, Cursor\n` +
-    `> \`/himoa-…\`); its reviewer roles run read-only. Deeper standards are\n` +
-    `> referenced by the installed skills and reviewer agents. The methodology\n` +
+    `> \`/himoa-…\`); its reviewer roles are read-only where the host enforces\n` +
+    `> it (Codex, Cursor, Gemini) and advisory where it does not (Copilot).\n` +
+    `> Deeper standards are referenced by the installed skills and reviewer\n` +
+    `> agents. The methodology\n` +
     `> below is always-on. The repository's own truth is the sections after it.\n\n` +
     body.replace(/^\n+/, '') +
     `\n\n_Himoa ${version} — methodology only. The sections below are authoritative for what this system is._\n`);

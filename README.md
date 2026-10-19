@@ -217,7 +217,7 @@ itself, and the methodology forbids inferring approval.
 
 | Agent | Status | What that means |
 |---|---|---|
-| **Claude Code** | **Reference — full** | Native plugin; gate skills the model cannot invoke; read-only review subagents; an always-on `SessionStart` charter stamped with the plugin version |
+| **Claude Code** | **Reference — full** | Native plugin; gate skills the model cannot invoke; review subagents with no file-editing tool (read-only by methodology — Bash remains); an always-on `SessionStart` charter stamped with the plugin version |
 | **OpenAI Codex** | **Supported — initial adapter** | Native skills; gates set `allow_implicit_invocation: false`; read-only sandboxed subagents; `AGENTS.md`. Structurally validated, live end-to-end run pending. The `AGENTS.md` bootstrap records the version it was written with and never updates itself, so a repository can run an older methodology silently |
 | **Cursor** | **Supported — initial adapter** | Native `SKILL.md` and `AGENTS.md`; `disable-model-invocation` honoured; read-only reviewer subagents. Shares its install with Codex. Live end-to-end run pending |
 | **Gemini CLI** | **Supported — initial adapter** | Reuses `AGENTS.md`; native read-only reviewer subagents; `/himoa:*` slash commands; gates are human-typed commands. Live end-to-end run pending |

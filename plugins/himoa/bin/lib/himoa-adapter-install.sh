@@ -16,6 +16,47 @@
 # Codex agents dir) — which is what lets it be tested against an isolated fake
 # HOME. bash 3.2 compatible.
 
+# True when a destination, or any directory between it and the Himoa-owned root
+# it belongs to, is a symlink (a dangling one included). Writing through one
+# lands outside Himoa's paths: an existing himoa-reviewer.toml linked to some
+# other file was overwritten with a reviewer agent, and the install exited 0.
+# Directories ABOVE the owned root (~/.agents, ~/.codex, .github/agents) may be
+# symlinks — a dotfiles setup that links them is legitimate and keeps working.
+# Args: destination, owned root (the destination itself for a single file).
+himoa_dest_is_linked() {
+  local p="$1"
+  while [ -n "$p" ]; do
+    [ -L "$p" ] && return 0
+    [ "$p" = "$2" ] && return 1
+    case "$p" in */*) p=${p%/*} ;; *) return 1 ;; esac
+  done
+  return 1
+}
+
+# Render a methodology file into place with @HIMOA_HOME@ replaced by a literal
+# value. The value is escaped for the sed replacement: an unescaped `&` in a
+# home path wrote the token itself back into every reference, and a `\` was
+# silently dropped, both with exit 0. Rendered beside the destination and moved
+# into place, so a failed render (a value containing a newline makes sed fail)
+# leaves the previous file whole rather than truncated to zero bytes.
+# Args: source, destination, value.
+himoa_render() {
+  local value tmp="$2.himoa-tmp.$$"
+  value=$(printf '%s' "$3" | sed 's/[\\&|]/\\&/g')
+  sed "s|@HIMOA_HOME@|$value|g" "$1" > "$tmp" || { rm -f "$tmp"; return 1; }
+  mv -f "$tmp" "$2"
+}
+
+# Refuse when a repository file the bootstrap would rewrite is a symlink. The
+# rewrite replaces the link with a regular file, so a deliberate link (AGENTS.md
+# -> CLAUDE.md) silently stops being one; a dangling link is written through.
+# Nothing is changed: the link and its target are both left as they are.
+himoa_refuse_linked_repo_file() {
+  [ -L "$1" ] || return 1
+  printf 'himoa: ./%s is a symlink; nothing was changed. Add the Himoa bootstrap to the file it points at yourself, or replace the link with a regular file and re-run.\n' "$1" >&2
+  return 0
+}
+
 # Create or safely extend ./AGENTS.md with the Himoa bootstrap + repository-truth
 # scaffold. Never destroys existing content. Args: source_root, reference_root,
 # dry(0/1). Shared by every adapter's repository bootstrap (Codex, Cursor,
@@ -25,6 +66,7 @@ himoa_repo_bootstrap() {
   local boot="$source_root/AGENTS.himoa.md"
   local scaffold="$reference_root/AGENTS.md.template"
   [ -f "$boot" ] || { printf 'himoa: missing bootstrap %s\n' "$boot" >&2; return 1; }
+  himoa_refuse_linked_repo_file "AGENTS.md" && return 1
   if [ ! -e "AGENTS.md" ]; then
     if [ "$dry" = "1" ]; then printf '%s\n' "would create ./AGENTS.md (Himoa bootstrap + repository-truth scaffold)"; return 0; fi
     { cat "$boot"; printf '\n\n'; [ -f "$scaffold" ] && cat "$scaffold"; } > "AGENTS.md"
@@ -88,14 +130,31 @@ himoa_adapter_main() {
   local version; version=$(cat "$source_root/VERSION" 2>/dev/null || printf 'unknown')
   say() { printf '%s\n' "$1"; }
 
+  # Args: source, destination, the Himoa-owned root the destination sits under.
+  # In the preflight pass nothing is written; each exact destination is checked.
+  local linked=""
   install_file() {
+    if [ "$mode" = "preflight" ]; then
+      if himoa_dest_is_linked "$2" "$3"; then linked="${linked}  $2
+"; fi
+      return 0
+    fi
     if [ "$mode" = "check" ]; then say "  would write  $2"; return; fi
     mkdir -p "$(dirname "$2")"
-    sed "s|@HIMOA_HOME@|$himoa_home|g" "$1" > "$2"
+    himoa_render "$1" "$2" "$himoa_home"
   }
+  # Args: source dir, destination dir, owned root (defaults to the destination).
   install_tree() {
     local rel
-    while IFS= read -r rel; do install_file "$1/$rel" "$2/$rel"; done < <(cd "$1" && find . -type f | sed 's|^\./||')
+    while IFS= read -r rel; do install_file "$1/$rel" "$2/$rel" "${3:-$2}"; done < <(cd "$1" && find . -type f | sed 's|^\./||')
+  }
+  install_all() {
+    local f d
+    for f in "$agents_src"/himoa-*; do [ -e "$f" ] && install_file "$f" "$agents_dst/$(basename "$f")" "$agents_dst/$(basename "$f")"; done
+    for d in "$source_root"/skills/himoa-*; do [ -e "$d" ] && install_tree "$d" "$skills_dst/$(basename "$d")"; done
+    install_tree "$source_root/standards" "$himoa_home/standards" "$himoa_home"
+    install_tree "$source_root/templates" "$himoa_home/templates" "$himoa_home"
+    install_file "$source_root/VERSION" "$himoa_home/VERSION" "$himoa_home"
   }
 
   # --- Repository bootstrap ---
@@ -133,18 +192,30 @@ himoa_adapter_main() {
   say "  reference  $himoa_home               (standards, templates, VERSION; shared)"
   say ""
 
-  for f in "$agents_src"/himoa-*; do [ -e "$f" ] && install_file "$f" "$agents_dst/$(basename "$f")"; done
-  for d in "$source_root"/skills/himoa-*; do [ -e "$d" ] && install_tree "$d" "$skills_dst/$(basename "$d")"; done
-  install_tree "$source_root/standards" "$himoa_home/standards"
-  install_tree "$source_root/templates" "$himoa_home/templates"
-  install_file "$source_root/VERSION" "$himoa_home/VERSION"
+  # Every destination is checked before any is written, so a refusal leaves the
+  # previous install whole rather than half-refreshed.
+  local requested="$mode"
+  mode="preflight"; install_all; mode="$requested"
+  if [ -n "$linked" ]; then
+    printf 'himoa-%s-install: these destinations are symlinks, or sit under a symlinked Himoa directory; nothing was written:\n%s' "$host" "$linked" >&2
+    printf 'Writing through them would overwrite whatever they point at. Remove the links (re-link afterwards if they are yours on purpose) and re-run.\n' >&2
+    return 1
+  fi
+  install_all
 
   # Migration: 3.1.0 installed the Codex reference home at ~/.codex/himoa; the
   # neutral home is now ~/.agents/himoa. Remove the stale one so it cannot be
-  # read in preference to the current standards.
+  # read in preference to the current standards. Only a directory that is not
+  # the current home under another spelling (`-ef`), and that carries what
+  # 3.1.0 wrote there (VERSION and standards/): a string comparison let
+  # CODEX_HOME=$HOME delete a user's own ~/himoa, and CODEX_HOME=~/.agents/
+  # delete the install just made, both reporting success.
   if [ "$host" = "codex" ] && [ "$mode" != "check" ]; then
     local legacy="${CODEX_HOME:-$HOME/.codex}/himoa"
-    [ -d "$legacy" ] && [ "$legacy" != "$himoa_home" ] && rm -rf "$legacy"
+    if [ -d "$legacy" ] && [ ! "$legacy" -ef "$himoa_home" ] \
+      && [ -f "$legacy/VERSION" ] && [ -d "$legacy/standards" ]; then
+      rm -rf "$legacy"
+    fi
   fi
 
   say ""

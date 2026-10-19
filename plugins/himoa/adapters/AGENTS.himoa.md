@@ -1,10 +1,12 @@
-<!-- himoa:bootstrap 3.18.0 — GENERATED from plugins/himoa/scripts/session-charter.sh by tests/validate-adapter-projection.mjs. DO NOT EDIT this block; edit the charter and run --write. -->
+<!-- himoa:bootstrap 3.19.0 — GENERATED from plugins/himoa/scripts/session-charter.sh by tests/validate-adapter-projection.mjs. DO NOT EDIT this block; edit the charter and run --write. -->
 
 > **Himoa.** This repository uses the Himoa engineering methodology.
 > Its skills are installed as agent skills — invoke a workflow by name
 > (`himoa-work-item`, `himoa-gate-design`; Codex `$himoa-…`, Cursor
-> `/himoa-…`); its reviewer roles run read-only. Deeper standards are
-> referenced by the installed skills and reviewer agents. The methodology
+> `/himoa-…`); its reviewer roles are read-only where the host enforces
+> it (Codex, Cursor, Gemini) and advisory where it does not (Copilot).
+> Deeper standards are referenced by the installed skills and reviewer
+> agents. The methodology
 > below is always-on. The repository's own truth is the sections after it.
 
 # Himoa
@@ -88,4 +90,4 @@ change infrastructure or rotate secrets; or accept product, security, privacy
 or operational risk on the human's behalf. Prepare the diff, the tests, the
 evidence and the handoff — the human owns the act of record.
 
-_Himoa 3.18.0 — methodology only. The sections below are authoritative for what this system is._
+_Himoa 3.19.0 — methodology only. The sections below are authoritative for what this system is._

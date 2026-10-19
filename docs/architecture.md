@@ -293,7 +293,7 @@ and hooks. See [constraints](constraints.md).
 
 ## Why the human gates are structural
 
-Two boundaries are enforced by mechanism, not by instruction:
+One boundary is enforced by mechanism, and one by instruction only:
 
 **A design cannot approve itself.** `gate-approve` sets
 `disable-model-invocation: true`, which removes it from Claude's context
@@ -311,8 +311,10 @@ no-op, and the guarantee was gone with nothing in this repository able to see
 it. A boundary that depends on an optional feature of the host is enforced by
 instruction after all.
 
-**The commit is the human's.** Git writes are denied at two layers, and the
-work is reported as existing only in the working tree.
+**The commit is the human's.** This one is instruction: the charter reserves
+git writes to the human and the work is reported as existing only in the
+working tree, but nothing in the plugin blocks a git write — a repository that
+wants one blocked adds its own permission rule.
 
 Everything else — moving between implement, review and validate — is *not* a
 gate. Prompting there converts one authorisation into four confirmations of a
@@ -714,4 +716,4 @@ here so the first pack starts from evidence rather than from a blank page.
 | **Enforcement of any kind** | A text parser cannot out-guess a shell — an attempt at a permissions floor and tool-call guards produced two Critical and ten High defects under a six-lens review, and every hole patched suggested another. A plugin that rewrites a developer's permission rules also confuses advice with authority. Permissions belong to the repository and its owner. |
 | Issue-tracker specifics | Tracker-agnostic and optional. |
 | A worktree fan-out for parallel implementation | Deferred in the original design for good reasons that still hold. |
-| `permissionMode` on agents | Not supported for plugin-shipped agents. Read-only comes from the tool pool and is asserted in CI. |
+| `permissionMode` on agents | Not supported for plugin-shipped agents. The tool pool carries no file-editing tool, asserted in CI; Bash remains, so not mutating through it is the agent's discipline. |

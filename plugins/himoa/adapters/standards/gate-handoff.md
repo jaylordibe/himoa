@@ -1,4 +1,4 @@
-<!-- GENERATED from plugins/himoa/standards/gate-handoff.md by tests/validate-adapter-projection.mjs (himoa 3.18.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/standards/gate-handoff.md by tests/validate-adapter-projection.mjs (himoa 3.19.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Gate handoff contract
 
@@ -209,7 +209,8 @@ Two are planned, and both are boundaries the pipeline cannot cross on its own:
    action. `gate-approve` sets `disable-model-invocation: true` precisely so a
    design cannot approve itself; an affirmative decision is the human judgement
    that control exists to require. Ambiguous praise is not one.
-2. **Present.** Git writes are denied. The human reviews the diff and pushes.
+2. **Present.** The model makes no git writes unless the human asks for that
+   exact one — a methodology rule; nothing blocks them. The human reviews the diff and pushes.
 
 Everything else runs through. Stop mid-pipeline **only** for:
 

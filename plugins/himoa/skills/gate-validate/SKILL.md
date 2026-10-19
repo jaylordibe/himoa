@@ -18,8 +18,10 @@ $ARGUMENTS
 
 **Validation is read-only.** Never modify source, tests, snapshots, fixtures,
 lockfiles, generated output, schema, migrations, configuration or documentation
-to make a check succeed. The `disallowed-tools` frontmatter enforces this for
-the turn that invokes it.
+to make a check succeed. On Claude Code the `disallowed-tools` frontmatter
+removes the file-editing tools for the turn that invokes it, and the shell
+stays; on other hosts nothing is removed. Either way the rule is yours to keep,
+not one enforced.
 
 The vocabulary for everything below is
 `${CLAUDE_PLUGIN_ROOT}/standards/evidence.md`. Read it first.

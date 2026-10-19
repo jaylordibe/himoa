@@ -288,6 +288,44 @@ if [ -e "$settings" ]; then
       exit 1
     fi
   done
+
+  # The three values this script reads must have the type the host reads them
+  # as. Without this, `"enabledPlugins": {"<id>": "false"}` was reported as
+  # PASS enabled and kept, while the host ignores an entry that is not a
+  # boolean or a list. Types, and where each is from:
+  #   enabledPlugins[<id>]  true, false, or a list of version-constraint
+  #                         strings - Claude Code 2.1.303's own message for an
+  #                         invalid entry says exactly that
+  #   env.<key>             a string - the host's own validation tip
+  #   the marketplace entry an object with an object `source` and an optional
+  #                         boolean `autoUpdate` - the SchemaStore settings
+  #                         schema; consistent with the host's own description
+  # null is accepted as absent, as it always was here.
+  value_problem=$(printf '%s' "$current" | jq -r \
+    --arg marketplace "$marketplace" --arg id "$plugin_id" --arg key "$task_tools_key" '
+    (.extraKnownMarketplaces[$marketplace]) as $m
+    | (.enabledPlugins[$id]) as $p
+    | (.env[$key]) as $e
+    | if $m != null and ($m | type) != "object" then
+        "extraKnownMarketplaces.\($marketplace) is \($m | tojson); it must be an object with a \"source\"."
+      elif $m != null and ($m.source | type) != "object" then
+        "extraKnownMarketplaces.\($marketplace).source is \($m.source | tojson); it must be an object such as {\"source\": \"github\", \"repo\": \"...\"}."
+      elif $m != null and ($m | has("autoUpdate")) and ($m.autoUpdate | type) != "boolean" then
+        "extraKnownMarketplaces.\($marketplace).autoUpdate is \($m.autoUpdate | tojson); it must be true or false, unquoted."
+      elif $p != null and ($p | type) != "boolean"
+           and (($p | type) != "array" or any($p[]; type != "string")) then
+        "enabledPlugins[\"\($id)\"] is \($p | tojson); it must be true or false, unquoted, or a list of version-constraint strings."
+      elif $e != null and ($e | type) != "string" then
+        "env.\($key) is \($e | tojson); environment values must be strings, such as \"1\" or \"0\"."
+      else empty end')
+  if [ -n "$value_problem" ]; then
+    fail '.claude/settings.json has a value of the wrong type.'
+    note "$value_problem"
+    note 'Claude Code does not read it as intended, and reporting it as'
+    note 'configured would be false. Nothing was written. Correct the value'
+    note 'and re-run.'
+    exit 1
+  fi
 fi
 
 # ---------------------------------------------------------------------------

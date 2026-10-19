@@ -1,4 +1,4 @@
-# GENERATED from plugins/himoa/skills/write-ticket/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.18.0).
+# GENERATED from plugins/himoa/skills/write-ticket/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.19.0).
 # DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write
 description = "Writes a work ticket the way a business analyst or product owner would — a goal in user-story form, then the outcome's process flow when its order is part of the outcome, current behaviour cited from the repository, observable acceptance criteria, explicit non-goals and the questions still open, every cross-referenced item carrying a literal identifier. Leaves the risk tier to gate-design. Resolves the blocking questions with the human first, a few focused ones per turn, while holding the complete working ticket; presents it when the blockers are resolved or the human asks, and never writes a design, a file, or an issue into any system on its own."
 prompt = '''
@@ -57,8 +57,9 @@ outcomes that would prove it, and stops there on purpose.
   this rule: every step in it is an event someone outside the system can
   observe, which is what makes it the goal rather than a plan for it.
 - **Never write anything into the repository.** The ticket lives in the
-  conversation. `disallowed-tools` enforces this for the turn that invokes the
-  skill; the rule holds for every turn after it.
+  conversation. On Claude Code `disallowed-tools` removes the file-editing
+  tools for the turn that invokes the skill, and the shell stays; on other
+  hosts nothing is removed. The rule holds regardless, for every turn.
 - **Never create, edit or transition an issue in a tracker on your own.** The
   finished ticket is handed over as text. If a tracker is connected and the
   human explicitly asks in that turn to create the issue, create it, report the

@@ -61,12 +61,14 @@ something to route around.
 > For security reasons, `hooks`, `mcpServers`, and `permissionMode` are not
 > supported for plugin-shipped agents. — *Plugins reference*
 
-**Consequence.** Read-only cannot be declared with `permissionMode: plan`. It
-must come from the effective tool pool: a read-only `tools` list *and*
-`disallowedTools: Edit, Write, NotebookEdit`.
+**Consequence.** Read-only cannot be declared with `permissionMode: plan`. The
+closest the effective tool pool gets is a `tools` list *and*
+`disallowedTools: Edit, Write, NotebookEdit`, which removes the file-editing
+tools. Bash stays in the pool and can still write, so the rest is the agent's
+discipline, stated in its runtime contract — not a sandbox.
 
 **Enforced by.** `validate-plugin.mjs` fails on any refused field, and judges
-read-only by the tool pool rather than by prose. Probing for a sentence like
+the absence of file-editing tools by the tool pool rather than by prose. Probing for a sentence like
 "never edit files" would pass any agent that has neither the sentence nor the
 restriction — silence reading as compliance.
 

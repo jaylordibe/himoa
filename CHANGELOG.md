@@ -12,6 +12,87 @@ act, and MINOR and PATCH never do. Entries below `1.0.0` were released under the
 
 ---
 
+## 3.19.0 — 2026-10-19
+
+**The installers stop writing where they should not, and the methodology stops
+claiming enforcement it does not have. The Codex, Cursor, Gemini and Copilot
+installers now refuse, writing nothing, when a file they would write is a
+symlink — previously they wrote straight through it and overwrote whatever it
+pointed at. A home path containing `&` or `\` now installs correctly instead
+of exiting 0 with broken references. `framework-install` refuses a settings
+value of the wrong type instead of reporting it as configured. Three
+invocations that used to succeed now stop with the repair to make, so this is
+MINOR (`docs/versioning.md`: a change that stops something previously allowed).
+No consumer action unless one of them stops you.**
+
+### Changed workflow
+- **Adapter installers refuse symlinked destinations.** Every file a run would
+  write is checked before any is written. If one is a symlink (dangling
+  included), or sits under a symlinked Himoa-owned directory (`~/.agents/himoa`,
+  a `himoa-*` skill or agent, Gemini's `commands/himoa`), the run lists the
+  links, writes nothing and exits 1. A directory *above* those paths —
+  `~/.agents`, `~/.codex`, `~/.gemini`, `.github/agents` — may still be a
+  symlink, so dotfiles setups that link them are unaffected. If you linked an
+  installed `himoa-*` file on purpose, remove the link, re-run, and re-link.
+- **`--repo` refuses a symlinked `AGENTS.md` or `.gemini/settings.json`.** The
+  rewrite used to replace the link with a regular file, so `AGENTS.md ->
+  CLAUDE.md` silently stopped being one, and a dangling settings link was
+  written through. Both the link and its target are now left exactly as they
+  are; add the bootstrap to the target yourself.
+- **`himoa-install-settings` refuses wrong-typed values.** The plugin's
+  `enabledPlugins` entry must be `true`, `false` or a list of version-constraint
+  strings (Claude Code 2.1.303's own rule); `env.CLAUDE_CODE_ENABLE_TODO_TOOLS`
+  a string; the marketplace entry an object with an object `source` and a
+  boolean `autoUpdate`. `"false"` as a string used to be reported `PASS …
+  enabled`. Now the run names the value, writes nothing and exits 1.
+
+### Fixed
+- Installed references are substituted literally, so a home path with `&`, `|`,
+  `\` or spaces resolves. Each file is rendered beside its destination and
+  moved into place, so a render that fails — a home path containing a newline —
+  exits non-zero and leaves no truncated file (it used to leave a zero-byte
+  agent file).
+- **The Codex migration no longer deletes what is not a 3.1.0 home.** It removed
+  `${CODEX_HOME}/himoa` whenever that path's spelling differed from the current
+  home, so `CODEX_HOME=$HOME` deleted a user's own `~/himoa`, and
+  `CODEX_HOME=~/.agents/` deleted the install it had just made — both exiting
+  0. It now removes only a directory that is not the current home under another
+  spelling and that holds what 3.1.0 wrote there (`VERSION` and `standards/`).
+- Wording that overstated runtime enforcement: "Git writes are denied"
+  (`work-item`, `standards/gate-handoff.md`) is a methodology rule, and nothing
+  blocks a git write; `disallowed-tools` on `gate-validate`, `gate-design` and
+  `write-ticket` removes the file-editing tools on Claude Code but leaves the
+  shell; the adapter bootstrap's reviewers are read-only where the host
+  enforces it and advisory on Copilot. The repository docs that said the same
+  are corrected alongside.
+
+### Tests
+- `validate-adapter-install` plants links at real destinations for every
+  installer and asserts the unrelated file survives byte for byte, the link
+  survives, and nothing is installed; that a linked `~/.codex` still installs;
+  and that installs under a home path with ` & | \` resolve every reference,
+  with a count so the check cannot pass on zero matches. Each refusal must name
+  the linked path, so a crash cannot pass for one. Added after review: Gemini's
+  own directory roots, a JSON link target for the settings refusal, the two
+  migration cases, and a failed render leaving nothing behind. Each failed
+  against 3.18.0's installers, or against a mutant of this release's, before it
+  passed.
+- `validate-install-settings` adds seven wrong-typed shapes, which are refused
+  with the file byte-identical, and a valid list of version constraints, which
+  is kept. The seven failed against 3.18.0.
+- `docs/adapter-smoke-test.md` adds a bounded workflow run per host: plan
+  stop, approved implementation, review, validation, handoff, and a refusal
+  leg, scored from the copy's git state rather than the model's account.
+
+### Not established
+- No behavioural eval case and no live host session was run for this release.
+  Codex, Cursor, Gemini and Copilot were not available to run, so the new
+  workflow procedure is written, not yet passed, on any host.
+- The symlink check and the writes are separate steps. A link created between
+  them is followed, and no locking guards against that.
+- The marketplace entry's `autoUpdate` and `source` types are from the
+  SchemaStore schema, not read from the host's own code.
+
 ## 3.18.0 — 2026-10-16
 
 **Hosted review closes the gaps its 3.17.0 review left open. A review agent now

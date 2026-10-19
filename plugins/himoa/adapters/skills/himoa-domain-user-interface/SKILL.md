@@ -3,7 +3,7 @@ name: himoa-domain-user-interface
 description: The decisions and failure modes that govern what a person sees, operates or receives — a web interface, a native or cross-platform app screen, a server-rendered page or an email. Carries the questions a change must answer, and none of the answers.
 ---
 
-<!-- GENERATED from plugins/himoa/skills/domain-user-interface/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.18.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/domain-user-interface/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.19.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # User-facing surfaces
 

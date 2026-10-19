@@ -519,14 +519,16 @@ function validateAgents() {
       fail(filePath, `declares a \`maxTurns\` ceiling but neither carries the runtime contract nor cites any of ${CONVERGENCE_CARRIERS.join(', ')}, so nothing tells it when it has gathered enough evidence or that a bounded report is owed either way. An agent that reaches its ceiling returns nothing at all, and everything it established is lost. See standards/execution-efficiency.md §8.`);
     }
 
-    // Read-only is judged by the effective tool pool, never by a sentence in
+    // No file-editing tool is judged by the effective tool pool, never by a sentence in
     // the prose. Probing for "never edit files" would pass any agent that has
     // neither the sentence nor the restriction — silence reading as compliance.
     //
     // `disallowedTools` is required even when `tools` already omits the
     // mutating ones. An agent declaring `tools: Read, Bash` looks read-only to
     // a tools-only check while being able to write any file through the shell,
-    // so the explicit refusal is what actually carries the guarantee.
+    // so the explicit refusal of the file-editing tools is asserted as well.
+    // Neither removes Bash; not mutating through it is the runtime contract's
+    // rule, which is discipline rather than a sandbox.
     const allowedTools = toList(frontmatter.tools);
     const disallowedTools = toList(frontmatter.disallowedTools);
     const missingRefusals = REQUIRED_DISALLOWED_TOOLS.filter((tool) => !disallowedTools.includes(tool));
@@ -838,7 +840,7 @@ function validateSkills() {
       const declared = toList(frontmatter['disallowed-tools']);
       const missing = REQUIRED_DISALLOWED_TOOLS.filter((tool) => !declared.includes(tool));
       if (missing.length > 0) {
-        fail(skillFile, `\`disallowed-tools\` is missing ${missing.join(', ')}. This skill must be read-only: ${READ_ONLY_SKILLS[entry.name]}. The frontmatter is what enforces that for the turn; prose in the body is not.`);
+        fail(skillFile, `\`disallowed-tools\` is missing ${missing.join(', ')}. This skill must be read-only: ${READ_ONLY_SKILLS[entry.name]}. The frontmatter removes the file-editing tools for the turn; prose in the body does not.`);
       }
     }
   }

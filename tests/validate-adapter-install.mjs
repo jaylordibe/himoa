@@ -16,7 +16,7 @@
 //
 // No dependencies. Run: node tests/validate-adapter-install.mjs
 
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync, symlinkSync, lstatSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -48,29 +48,36 @@ function walk(dir) {
 }
 const snapshot = (dir) => new Map(walk(dir).map((p) => [p, readFileSync(p, 'utf8')]));
 const tmpRoots = [];
-const freshHome = () => { const d = mkdtempSync(join(tmpdir(), 'himoa-home-')); tmpRoots.push(d); return d; };
+const freshHome = (prefix = 'himoa-home-') => { const d = mkdtempSync(join(tmpdir(), prefix)); tmpRoots.push(d); return d; };
+// A home path carrying every character the installer's sed replacement treats
+// specially. An `&` once wrote the token back into every reference, exit 0.
+const AWKWARD_HOME = 'himoa home & | \\ -';
 const agentsDir = (host, home, codexHome) => host === 'codex' ? join(codexHome, 'agents') : join(home, '.cursor/agents');
 
 const expectedSkills = readdirSync(join(adapters, 'skills')).filter((n) => n.startsWith('himoa-')).length;
 const expectedAgents = readdirSync(join(adapters, 'codex/agents')).filter((n) => n.endsWith('.toml')).length;
 
-function installAndAssert(host) {
-  const home = freshHome();
+function installAndAssert(host, homePrefix) {
+  const home = freshHome(homePrefix);
+  const tag = homePrefix ? `${host} (awkward home)` : host;
   const codexHome = join(home, '.codex');
   const r = run(host, [], { home, codexHome });
-  check(`${host}: install exits 0`, r.status === 0, r.stderr);
+  check(`${tag}: install exits 0`, r.status === 0, r.stderr);
 
   const skillsRoot = join(home, '.agents/skills');
   const skills = existsSync(skillsRoot) ? readdirSync(skillsRoot).filter((n) => n.startsWith('himoa-')) : [];
   const agents = existsSync(agentsDir(host, home, codexHome)) ? readdirSync(agentsDir(host, home, codexHome)).filter((n) => n.startsWith('himoa-')) : [];
-  check(`${host}: all skills installed (shared)`, skills.length === expectedSkills, `${skills.length}/${expectedSkills}`);
-  check(`${host}: all reviewer agents installed`, agents.length === expectedAgents, `${agents.length}/${expectedAgents}`);
-  check(`${host}: reference home present`, existsSync(join(home, '.agents/himoa/standards')) && existsSync(join(home, '.agents/himoa/VERSION')));
+  check(`${tag}: all skills installed (shared)`, skills.length === expectedSkills, `${skills.length}/${expectedSkills}`);
+  check(`${tag}: all reviewer agents installed`, agents.length === expectedAgents, `${agents.length}/${expectedAgents}`);
+  check(`${tag}: reference home present`, existsSync(join(home, '.agents/himoa/standards')) && existsSync(join(home, '.agents/himoa/VERSION')));
 
   const installed = snapshot(home);
-  check(`${host}: @HIMOA_HOME@ fully resolved`, ![...installed.values()].some((c) => c.includes('@HIMOA_HOME@')));
-  check(`${host}: installed version matches canonical`,
-    readFileSync(join(home, '.agents/himoa/VERSION'), 'utf8').trim() === readFileSync(join(adapters, 'VERSION'), 'utf8').trim());
+  check(`${tag}: @HIMOA_HOME@ fully resolved`, ![...installed.values()].some((c) => c.includes('@HIMOA_HOME@')));
+  // existsSync first: a failed install must fail this check, not end the run
+  // before the cases after it can report.
+  const installedVersion = join(home, '.agents/himoa/VERSION');
+  check(`${tag}: installed version matches canonical`, existsSync(installedVersion)
+    && readFileSync(installedVersion, 'utf8').trim() === readFileSync(join(adapters, 'VERSION'), 'utf8').trim());
 
   // End-to-end coherence: every referenced standards/template path and every
   // himoa-<skill> invocation resolves to an installed file.
@@ -78,26 +85,159 @@ function installAndAssert(host) {
   const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const refRe = new RegExp(`${esc(himoaHome)}/(standards|templates)/([A-Za-z0-9._-]+\\.md)`, 'g');
   const dangling = [];
+  let resolved = 0;
   for (const [file, content] of installed) {
-    for (const m of content.matchAll(refRe)) if (!existsSync(join(himoaHome, m[1], m[2]))) dangling.push(`${file} -> ${m[1]}/${m[2]}`);
+    for (const m of content.matchAll(refRe)) {
+      if (existsSync(join(himoaHome, m[1], m[2]))) resolved += 1; else dangling.push(`${file} -> ${m[1]}/${m[2]}`);
+    }
   }
-  check(`${host}: no dangling references in installed methodology`, dangling.length === 0, dangling.slice(0, 6).join('; '));
+  check(`${tag}: no dangling references in installed methodology`, dangling.length === 0, dangling.slice(0, 6).join('; '));
+  // Without a count the check above passes vacuously when a corrupted prefix
+  // makes no reference match the expected home at all.
+  check(`${tag}: installed references name the real home and resolve`, resolved > 0, `${resolved} resolved`);
 
   const unexpected = readdirSync(home).filter((n) => n !== '.agents' && n !== '.codex' && n !== '.cursor');
-  check(`${host}: writes nothing outside .agents/.codex/.cursor`, unexpected.length === 0, unexpected.join(', '));
+  check(`${tag}: writes nothing outside .agents/.codex/.cursor`, unexpected.length === 0, unexpected.join(', '));
 
   const before = snapshot(home);
   run(host, [], { home, codexHome });
   const after = snapshot(home);
-  check(`${host}: second install is byte-identical (idempotent)`, before.size === after.size && [...before].every(([p, c]) => after.get(p) === c));
+  check(`${tag}: second install is byte-identical (idempotent)`, before.size === after.size && [...before].every(([p, c]) => after.get(p) === c));
 
   const home2 = freshHome();
   const rc = run(host, ['--check'], { home: home2, codexHome: join(home2, '.codex') });
-  check(`${host}: --check writes nothing`, rc.status === 0 && walk(home2).length === 0);
+  check(`${tag}: --check writes nothing`, rc.status === 0 && walk(home2).length === 0);
 }
 
 installAndAssert('codex');
 installAndAssert('cursor');
+installAndAssert('codex', AWKWARD_HOME);
+
+// --- Symlinked destinations are refused before anything is written --------
+// An existing himoa-reviewer.toml linked to an unrelated file was overwritten
+// with a reviewer agent while the install exited 0. Each case plants a link at
+// a destination the run would write (or a Himoa-owned directory above one),
+// and asserts the unrelated file survives byte for byte, the link survives,
+// and nothing was installed.
+{
+  const regularFiles = (dir) => {
+    if (!existsSync(dir)) return [];
+    const out = [];
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      const p = join(dir, e.name);
+      if (e.isSymbolicLink()) continue;
+      if (e.isDirectory()) out.push(...regularFiles(p)); else out.push(p);
+    }
+    return out;
+  };
+  const outside = () => { const d = mkdtempSync(join(tmpdir(), 'himoa-outside-')); tmpRoots.push(d); return d; };
+  const plant = (linkPath, target) => { mkdirSync(dirname(linkPath), { recursive: true }); symlinkSync(target, linkPath); };
+  const binFor = (host) => join(pluginRoot, 'bin', `himoa-${host}-install`);
+
+  const cases = [
+    { host: 'codex', what: 'linked agent file', at: (h) => join(h, '.codex/agents/himoa-reviewer.toml') },
+    { host: 'cursor', what: 'linked Himoa home directory', at: (h) => join(h, '.agents/himoa'), dir: true },
+    { host: 'codex', what: 'linked directory inside a skill', at: (h) => join(h, '.agents/skills/himoa-work-item/agents'), dir: true },
+    { host: 'gemini', what: 'linked agent file', at: (h) => join(h, '.gemini/agents/himoa-reviewer.md') },
+    // Gemini wires its own owned roots; a linked directory below its home must
+    // be caught there, not only by VERSION's root.
+    { host: 'gemini', what: 'linked standards directory', at: (h) => join(h, '.gemini/himoa/standards'), dir: true },
+    { host: 'gemini', what: 'dangling linked VERSION', at: (h) => join(h, '.gemini/himoa/VERSION'), dangling: true },
+  ];
+  for (const c of cases) {
+    const home = freshHome();
+    const victimDir = outside();
+    const victim = join(victimDir, 'unrelated.txt');
+    writeFileSync(victim, 'UNRELATED-CONTENT\n');
+    const target = c.dangling ? join(victimDir, 'absent') : c.dir ? victimDir : victim;
+    plant(c.at(home), target);
+    const r = spawnSync(binFor(c.host), [], { cwd: repoRoot, env: { ...process.env, HOME: home, CODEX_HOME: join(home, '.codex'), GEMINI_HOME: join(home, '.gemini') }, encoding: 'utf8' });
+    const name = `symlink: ${c.host} ${c.what}`;
+    check(`${name} is refused (non-zero exit)`, r.status !== 0, `exit ${r.status}`);
+    // The refusal names the link, so a crash on this path cannot pass for one.
+    check(`${name}: the refusal names the linked path`, r.stderr.includes(c.at(home)), r.stderr);
+    check(`${name}: the unrelated file is unchanged`, readFileSync(victim, 'utf8') === 'UNRELATED-CONTENT\n');
+    check(`${name}: nothing was written through the link`, readdirSync(victimDir).length === 1, readdirSync(victimDir).join(', '));
+    check(`${name}: the link itself is kept`, lstatSync(c.at(home)).isSymbolicLink());
+    check(`${name}: nothing was installed`, regularFiles(home).length === 0, regularFiles(home).slice(0, 3).join(', '));
+  }
+
+  // Copilot writes into the repository; same refusal, before AGENTS.md exists.
+  {
+    const repo = outside();
+    const victimDir = outside();
+    const victim = join(victimDir, 'unrelated.txt');
+    writeFileSync(victim, 'UNRELATED-CONTENT\n');
+    plant(join(repo, '.github/agents/himoa-reviewer.agent.md'), victim);
+    const r = spawnSync(binFor('copilot'), [], { cwd: repo, env: { ...process.env, HOME: freshHome() }, encoding: 'utf8' });
+    check('symlink: copilot linked agent file is refused', r.status !== 0, `exit ${r.status}`);
+    check('symlink: copilot refusal names the linked path', r.stderr.includes('.github/agents/himoa-reviewer.agent.md'), r.stderr);
+    check('symlink: copilot leaves the unrelated file unchanged', readFileSync(victim, 'utf8') === 'UNRELATED-CONTENT\n');
+    check('symlink: copilot writes no AGENTS.md when it refuses', !existsSync(join(repo, 'AGENTS.md')));
+  }
+
+  // A repository file the bootstrap would rewrite: the link and its target both
+  // survive. Previously a linked AGENTS.md was replaced by a regular file.
+  for (const [host, rel] of [['codex', 'AGENTS.md'], ['gemini', '.gemini/settings.json']]) {
+    const repo = outside();
+    const victimDir = outside();
+    // Valid JSON, so a refusal placed after the settings merge would rewrite it
+    // and replace the link — a non-JSON target made that pass vacuously.
+    const victim = join(victimDir, 'linked-target');
+    writeFileSync(victim, '{}\n');
+    plant(join(repo, rel), victim);
+    const r = spawnSync(binFor(host), ['--repo'], { cwd: repo, env: { ...process.env, HOME: freshHome() }, encoding: 'utf8' });
+    check(`symlink: ${host} --repo refuses a linked ${rel}`, r.status !== 0, `exit ${r.status}`);
+    check(`symlink: ${host} --repo keeps ${rel} a link`, lstatSync(join(repo, rel)).isSymbolicLink());
+    check(`symlink: ${host} --repo leaves the link target unchanged`, readFileSync(victim, 'utf8') === '{}\n');
+  }
+
+  // Legitimate: a dotfiles setup that links a directory ABOVE the Himoa-owned
+  // paths keeps working, and the install lands in the link's target.
+  {
+    const home = freshHome();
+    const dotfiles = outside();
+    symlinkSync(dotfiles, join(home, '.codex'));
+    const r = spawnSync(binFor('codex'), [], { cwd: repoRoot, env: { ...process.env, HOME: home, CODEX_HOME: join(home, '.codex') }, encoding: 'utf8' });
+    check('symlink: a linked ~/.codex directory still installs', r.status === 0, r.stderr);
+    const n = existsSync(join(dotfiles, 'agents')) ? readdirSync(join(dotfiles, 'agents')).filter((f) => f.startsWith('himoa-')).length : 0;
+    check('symlink: reviewer agents land in the linked directory', n === expectedAgents, `${n}/${expectedAgents}`);
+  }
+}
+
+// --- The Codex migration removes only a 3.1.0 reference home ---------------
+// It once removed `${CODEX_HOME}/himoa` whenever the path string differed from
+// the current home: CODEX_HOME=$HOME deleted a user's own ~/himoa, and a second
+// spelling of ~/.agents deleted the install just made, both exiting 0.
+{
+  const codex = (home, codexHome) => spawnSync(bin('codex'), [], { cwd: repoRoot, env: { ...process.env, HOME: home, CODEX_HOME: codexHome }, encoding: 'utf8' });
+  const home1 = freshHome();
+  mkdirSync(join(home1, 'himoa'));
+  writeFileSync(join(home1, 'himoa', 'README'), 'MINE\n');
+  const r1 = codex(home1, home1);
+  check('migration: CODEX_HOME=$HOME keeps a foreign ~/himoa', r1.status === 0 && existsSync(join(home1, 'himoa', 'README')), r1.stderr);
+
+  const home2 = freshHome();
+  const r2 = codex(home2, `${join(home2, '.agents')}/`);
+  check('migration: CODEX_HOME naming ~/.agents/ keeps the fresh install', r2.status === 0 && existsSync(join(home2, '.agents/himoa/VERSION')), r2.stderr);
+
+  const home3 = freshHome();
+  mkdirSync(join(home3, '.codex/himoa/standards'), { recursive: true });
+  writeFileSync(join(home3, '.codex/himoa/VERSION'), '3.1.0\n');
+  codex(home3, join(home3, '.codex'));
+  check('migration: a real 3.1.0 home at ~/.codex/himoa is still removed', !existsSync(join(home3, '.codex/himoa')));
+}
+
+// --- A render that fails leaves no truncated file ---------------------------
+// A newline in the home path makes sed fail; writing straight to the
+// destination had already emptied it, leaving a zero-byte agent file.
+{
+  const home = freshHome('himoa-home-\nline-');
+  const r = spawnSync(bin('codex'), [], { cwd: repoRoot, env: { ...process.env, HOME: home, CODEX_HOME: join(home, '.codex') }, encoding: 'utf8' });
+  const written = walk(home);
+  check('render: a newline in the home path fails (non-zero exit)', r.status !== 0, `exit ${r.status}`);
+  check('render: and leaves no file behind, truncated or temporary', written.length === 0, written.slice(0, 3).join(', '));
+}
 
 // --- Cross-host uninstall: shared files survive while another host needs them
 {
@@ -206,6 +346,21 @@ installAndAssert('cursor');
   const dangling = [];
   for (const [f, c] of inst) for (const m of c.matchAll(re)) if (!existsSync(join(gh, m[1], m[2]))) dangling.push(`${f} -> ${m[1]}/${m[2]}`);
   check('gemini: no dangling references in installed methodology', dangling.length === 0, dangling.slice(0, 5).join('; '));
+
+  // Gemini renders through the same literal substitution; prove it with the
+  // home path that once corrupted every reference.
+  {
+    const awk = freshHome(AWKWARD_HOME);
+    const gh2 = join(awk, '.gemini/himoa');
+    const ra = spawnSync(gbin, [], { cwd: repoRoot, env: { ...process.env, HOME: awk, GEMINI_HOME: join(awk, '.gemini') }, encoding: 'utf8' });
+    const all = [...snapshot(awk).values()].join('\n');
+    const re2 = new RegExp(`${esc(gh2)}/(standards|templates)/([A-Za-z0-9._-]+\\.md)`, 'g');
+    const refs = [...all.matchAll(re2)];
+    check('gemini (awkward home): install exits 0', ra.status === 0, ra.stderr);
+    check('gemini (awkward home): @HIMOA_HOME@ fully resolved', !all.includes('@HIMOA_HOME@'));
+    check('gemini (awkward home): references name the real home and resolve',
+      refs.length > 0 && refs.every((m) => existsSync(join(gh2, m[1], m[2]))), `${refs.length} references`);
+  }
   const anyWrite = agents.some((n) => /write_file|run_shell_command/.test(readFileSync(join(geminiHome, 'agents', n), 'utf8').split('\n---\n')[0]));
   check('gemini: reviewer subagents are read-only (no write tools)', !anyWrite);
 

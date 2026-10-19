@@ -118,7 +118,7 @@ and rewrite any that remain. Two mechanical changes are required:
 
 - **Remove `permissionMode`.** Plugin-shipped agents do not support it. If you
   keep an agent project-local it still works, but you now have two agents
-  enforcing read-only two different ways.
+  restricting tools two different ways.
 - **Reference the plugin's standards** with `${CLAUDE_PLUGIN_ROOT}/standards/…`
   rather than `.claude/standards/…`.
 

@@ -4,7 +4,7 @@ description: Performs read-only evidence validation for a reviewed change using 
 disable-model-invocation: true
 ---
 
-<!-- GENERATED from plugins/himoa/skills/gate-validate/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.18.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/gate-validate/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.19.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Validate the reviewed change
 
@@ -16,8 +16,10 @@ $ARGUMENTS
 
 **Validation is read-only.** Never modify source, tests, snapshots, fixtures,
 lockfiles, generated output, schema, migrations, configuration or documentation
-to make a check succeed. The `disallowed-tools` frontmatter enforces this for
-the turn that invokes it.
+to make a check succeed. On Claude Code the `disallowed-tools` frontmatter
+removes the file-editing tools for the turn that invokes it, and the shell
+stays; on other hosts nothing is removed. Either way the rule is yours to keep,
+not one enforced.
 
 The vocabulary for everything below is
 `@HIMOA_HOME@/standards/evidence.md`. Read it first.

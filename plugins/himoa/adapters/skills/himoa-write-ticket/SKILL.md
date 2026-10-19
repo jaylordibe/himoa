@@ -4,7 +4,7 @@ description: Writes a work ticket the way a business analyst or product owner wo
 disable-model-invocation: true
 ---
 
-<!-- GENERATED from plugins/himoa/skills/write-ticket/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.18.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/write-ticket/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.19.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Write a ticket
 
@@ -61,8 +61,9 @@ outcomes that would prove it, and stops there on purpose.
   this rule: every step in it is an event someone outside the system can
   observe, which is what makes it the goal rather than a plan for it.
 - **Never write anything into the repository.** The ticket lives in the
-  conversation. `disallowed-tools` enforces this for the turn that invokes the
-  skill; the rule holds for every turn after it.
+  conversation. On Claude Code `disallowed-tools` removes the file-editing
+  tools for the turn that invokes the skill, and the shell stays; on other
+  hosts nothing is removed. The rule holds regardless, for every turn.
 - **Never create, edit or transition an issue in a tracker on your own.** The
   finished ticket is handed over as text. If a tracker is connected and the
   human explicitly asks in that turn to create the issue, create it, report the

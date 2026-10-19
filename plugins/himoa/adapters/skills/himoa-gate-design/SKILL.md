@@ -4,7 +4,7 @@ description: Designs a material change by mapping repository reality first, reco
 disable-model-invocation: true
 ---
 
-<!-- GENERATED from plugins/himoa/skills/gate-design/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.18.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/gate-design/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.19.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Design a change
 
@@ -15,8 +15,10 @@ $ARGUMENTS
 ```
 
 This gate is **design-only**. Do not edit source, tests, schema, migrations,
-configuration, lockfiles, generated output or deployment artefacts. The
-`disallowed-tools` frontmatter enforces this for the turn that invokes it.
+configuration, lockfiles, generated output or deployment artefacts. On Claude
+Code the `disallowed-tools` frontmatter removes the file-editing tools for the
+turn that invokes it, and the shell stays; on other hosts nothing is removed.
+Either way the rule is yours to keep, not one enforced.
 
 **This gate writes nothing to the repository.** The design is a plan, presented
 through Claude Code's plan flow and structured on

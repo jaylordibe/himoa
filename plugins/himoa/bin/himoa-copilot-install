@@ -50,13 +50,27 @@ fi
 
 dry=0; [ "$mode" = "check" ] && dry=1
 printf '%s\n' "Himoa Copilot adapter — repository bootstrap (cloud agent; nothing written to \$HOME)"
+# Every destination is checked before anything is written, AGENTS.md included;
+# see himoa_dest_is_linked in lib/himoa-adapter-install.sh.
+linked=""
+for f in "$agents_src"/himoa-*.agent.md; do
+  [ -e "$f" ] || continue
+  dst="$agents_dst/$(basename "$f")"
+  if himoa_dest_is_linked "$dst" "$dst"; then linked="${linked}  $dst
+"; fi
+done
+if [ -n "$linked" ]; then
+  printf 'himoa-copilot-install: these destinations are symlinks; nothing was written:\n%s' "$linked" >&2
+  printf 'Writing through them would overwrite whatever they point at. Remove the links and re-run.\n' >&2
+  exit 1
+fi
 himoa_repo_bootstrap "$source_root" "$reference_root" "$dry"
 for f in "$agents_src"/himoa-*.agent.md; do
   [ -e "$f" ] || continue
   base=$(basename "$f")
   if [ "$dry" = "1" ]; then printf '  would write  %s/%s\n' "$agents_dst" "$base"; continue; fi
   mkdir -p "$agents_dst"
-  sed "s|@HIMOA_HOME@|$standards_url|g" "$f" > "$agents_dst/$base"
+  himoa_render "$f" "$agents_dst/$base" "$standards_url"
 done
 if [ "$dry" = "1" ]; then
   printf '%s\n' "Dry run — nothing written."

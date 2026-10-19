@@ -61,7 +61,7 @@ The official validator checks the manifests. This one checks what fails
 - **agent frontmatter against the supported plugin-agent field set** — a
   refused field like `permissionMode` is ignored at load time, so the agent has
   more access than its author believes;
-- **read-only judged by the effective tool pool**, never by prose. Probing for
+- **the absence of file-editing tools judged by the effective tool pool**, never by prose. Probing for
   "never edit files" would pass an agent that has neither the sentence nor the
   restriction — silence reading as compliance;
 - **every `${CLAUDE_PLUGIN_ROOT}` reference resolves**, and no path traverses
@@ -146,7 +146,8 @@ plugins/himoa/agents/<name>.md
 ```
 
 Frontmatter name must match the file name. Read-only agents need **both** a
-read-only `tools` list and `disallowedTools: Edit, Write, NotebookEdit`. Do not
+`tools` list with no file-editing tool and `disallowedTools: Edit, Write,
+NotebookEdit`; Bash stays, so not mutating through it is the agent's discipline. Do not
 use `permissionMode` — plugin agents do not support it.
 
 Start the body by pointing at `standards/repository-evidence.md`, then have the

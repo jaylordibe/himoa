@@ -4,7 +4,7 @@ description: Drives a requirement, ticket or issue end to end in one session —
 disable-model-invocation: true
 ---
 
-<!-- GENERATED from plugins/himoa/skills/work-item/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.18.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/work-item/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.19.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Work-item conductor
 
@@ -40,7 +40,7 @@ authorisation for the whole sequence. The human is interrupted exactly twice:
 | Stop | Stage | Why it cannot be automated |
 |---|---|---|
 | **Plan approval** | 2 | `gate-approve` is human-invocable only. A design must not approve itself. |
-| **Present, then human review and push** | 6 | Git writes are denied. The commit is the human's act of record. |
+| **Present, then human review and push** | 6 | The model makes no git writes unless the human asks for that exact one — a methodology rule, not a block. The commit is the human's act of record. |
 
 Everything between those two runs without asking. You are operating the gate
 skills in **conductor mode** — `@HIMOA_HOME@/standards/gate-handoff.md`

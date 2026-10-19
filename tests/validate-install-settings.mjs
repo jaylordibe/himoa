@@ -668,6 +668,41 @@ runCase('a repository that does not exist fails rather than passing vacuously', 
   check(name, /no such directory/.test(run.output), 'the report does not name the missing directory', run.output);
 });
 
+// A value of the wrong type is refused, the file left byte-identical, and the
+// report names the value. `"false"` as a string was once reported as PASS
+// enabled and kept, while the host ignores an entry that is not a boolean or a
+// list. The accepted types, and their sources, are commented in the script.
+const ENTRY = { source: declaration.entry.source, autoUpdate: true };
+for (const [label, settings, named] of [
+  ['enabledPlugins value "false" as a string', { enabledPlugins: { [PLUGIN_ID]: 'false' } }, /enabledPlugins\[.*\] is "false"/],
+  ['enabledPlugins value 0', { enabledPlugins: { [PLUGIN_ID]: 0 } }, /enabledPlugins\[.*\] is 0/],
+  ['enabledPlugins list holding a non-string', { enabledPlugins: { [PLUGIN_ID]: [1] } }, /enabledPlugins\[.*\] is \[1\]/],
+  ['a marketplace entry that is a string', { extraKnownMarketplaces: { [MARKETPLACE]: 'github:x' } }, /extraKnownMarketplaces\..* is "github:x"/],
+  ['a marketplace entry with no source', { extraKnownMarketplaces: { [MARKETPLACE]: { autoUpdate: true } } }, /\.source is null/],
+  ['autoUpdate "false" as a string', { extraKnownMarketplaces: { [MARKETPLACE]: { ...ENTRY, autoUpdate: 'false' } } }, /autoUpdate is "false"/],
+  [`env.${TASK_TOOLS_KEY} as a boolean`, { env: { [TASK_TOOLS_KEY]: false } }, new RegExp(`env\\.${TASK_TOOLS_KEY} is false`)],
+]) {
+  runCase(`a wrong-typed value is refused, not reported: ${label}`, (name) => {
+    const repository = buildRepository({ 'CLAUDE.md': '# CLAUDE.md\n', '.claude/settings.json': settings });
+    const before = snapshot(repository);
+    const run = runInstaller(repository);
+    check(name, run.exit === 1, `expected exit 1, got ${run.exit}`, run.output);
+    check(name, !/^PASS/m.test(run.output), 'a wrong-typed file still produced a PASS line', run.output);
+    check(name, named.test(run.output), 'the report does not name the wrong value', run.output);
+    check(name, snapshot(repository).bytes === before.bytes, 'the file was rewritten', run.output);
+  });
+}
+
+runCase('a list of version constraints is a valid choice and is kept', (name) => {
+  // The host accepts true, false, or a list of version-constraint strings.
+  const settings = { extraKnownMarketplaces: { [MARKETPLACE]: ENTRY }, enabledPlugins: { [PLUGIN_ID]: ['^3.0.0'] }, env: CONFIGURED_ENV };
+  const repository = buildRepository({ 'CLAUDE.md': '# CLAUDE.md\n', '.claude/settings.json': settings });
+  const before = snapshot(repository);
+  const run = runInstaller(repository);
+  check(name, run.exit === 0, `expected exit 0, got ${run.exit}`, run.output);
+  check(name, snapshot(repository).bytes === before.bytes, 'a valid list was rewritten', run.output);
+});
+
 // ---------------------------------------------------------------------------
 // Report
 // ---------------------------------------------------------------------------

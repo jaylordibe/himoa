@@ -65,7 +65,8 @@ behavioural equivalence is verified first.
 
 Capabilities verified 2026-09-20 (`docs/platform-capabilities.md`): Codex has
 native `AGENTS.md`, native `SKILL.md` with progressive disclosure, native
-read-only subagents, native MCP, and runtime-hard approvals/sandbox. Every core
+read-only subagents, native MCP, a runtime-enforced sandbox, and on-request
+approvals (human approval of a design stays `native + methodology`, not hard). Every core
 primitive maps to a **native** Codex mechanism — Codex should feel native to
 Codex while executing the same methodology, not emulate Claude Code.
 

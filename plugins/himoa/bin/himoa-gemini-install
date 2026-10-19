@@ -52,22 +52,39 @@ case "${1:-}" in
 esac
 
 say() { printf '%s\n' "$1"; }
+# Args: source, destination, the Himoa-owned root it sits under. The preflight
+# pass writes nothing; see himoa_dest_is_linked in lib/himoa-adapter-install.sh.
+linked=""
 install_file() {
+  if [ "$mode" = "preflight" ]; then
+    if himoa_dest_is_linked "$2" "$3"; then linked="${linked}  $2
+"; fi
+    return 0
+  fi
   if [ "$mode" = "check" ]; then say "  would write  $2"; return; fi
-  mkdir -p "$(dirname "$2")"; sed "s|@HIMOA_HOME@|$himoa_home|g" "$1" > "$2"
+  mkdir -p "$(dirname "$2")"; himoa_render "$1" "$2" "$himoa_home"
 }
 install_tree() {
-  local rel; while IFS= read -r rel; do install_file "$1/$rel" "$2/$rel"; done < <(cd "$1" && find . -type f | sed 's|^\./||')
+  local rel; while IFS= read -r rel; do install_file "$1/$rel" "$2/$rel" "$3"; done < <(cd "$1" && find . -type f | sed 's|^\./||')
+}
+install_all() {
+  for f in "$source_root"/gemini/agents/himoa-*.md; do [ -e "$f" ] && install_file "$f" "$agents_dst/$(basename "$f")" "$agents_dst/$(basename "$f")"; done
+  for f in "$source_root"/gemini/commands/himoa/*.toml; do [ -e "$f" ] && install_file "$f" "$commands_dst/$(basename "$f")" "$commands_dst"; done
+  install_tree "$source_root/standards" "$himoa_home/standards" "$himoa_home"
+  install_tree "$source_root/templates" "$himoa_home/templates" "$himoa_home"
+  install_file "$source_root/VERSION" "$himoa_home/VERSION" "$himoa_home"
 }
 
 # --- Repository bootstrap: AGENTS.md + point Gemini at it -------------------
 if [ "$mode" = "repo" ] || [ "$mode" = "repo-check" ]; then
   dry=0; [ "$mode" = "repo-check" ] && dry=1
+  settings=".gemini/settings.json"
+  # Checked before AGENTS.md is touched, so a refusal changes nothing at all.
+  himoa_refuse_linked_repo_file "$settings" && exit 1
   himoa_repo_bootstrap "$source_root" "$reference_root" "$dry"
   # Gemini reads GEMINI.md by default; add AGENTS.md via context.fileName,
   # preserving any existing setting. jq is the framework's JSON tool; without it
   # the merge is not guessed — the snippet is printed for the user to add.
-  settings=".gemini/settings.json"
   if [ "$dry" = "1" ]; then
     say "would ensure $settings has context.fileName including AGENTS.md"
   elif command -v jq >/dev/null 2>&1; then
@@ -99,10 +116,13 @@ fi
 say "Himoa Gemini adapter — ${mode}"
 say "Destinations (Himoa-owned only): $agents_dst/himoa-*.md · $commands_dst · $himoa_home"
 say ""
-for f in "$source_root"/gemini/agents/himoa-*.md; do [ -e "$f" ] && install_file "$f" "$agents_dst/$(basename "$f")"; done
-for f in "$source_root"/gemini/commands/himoa/*.toml; do [ -e "$f" ] && install_file "$f" "$commands_dst/$(basename "$f")"; done
-install_tree "$source_root/standards" "$himoa_home/standards"
-install_tree "$source_root/templates" "$himoa_home/templates"
-install_file "$source_root/VERSION" "$himoa_home/VERSION"
+# Every destination is checked before any is written.
+requested="$mode"; mode="preflight"; install_all; mode="$requested"
+if [ -n "$linked" ]; then
+  printf 'himoa-gemini-install: these destinations are symlinks, or sit under a symlinked Himoa directory; nothing was written:\n%s' "$linked" >&2
+  printf 'Writing through them would overwrite whatever they point at. Remove the links (re-link afterwards if they are yours on purpose) and re-run.\n' >&2
+  exit 1
+fi
+install_all
 say ""
 if [ "$mode" = "check" ]; then say "Dry run — nothing written."; else say "Installed. Bootstrap a repository with: himoa-gemini-install --repo, then verify: himoa-gemini-doctor"; fi

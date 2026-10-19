@@ -41,7 +41,7 @@ authorisation for the whole sequence. The human is interrupted exactly twice:
 | Stop | Stage | Why it cannot be automated |
 |---|---|---|
 | **Plan approval** | 2 | `gate-approve` is human-invocable only. A design must not approve itself. |
-| **Present, then human review and push** | 6 | Git writes are denied. The commit is the human's act of record. |
+| **Present, then human review and push** | 6 | The model makes no git writes unless the human asks for that exact one — a methodology rule, not a block. The commit is the human's act of record. |
 
 Everything between those two runs without asking. You are operating the gate
 skills in **conductor mode** — `${CLAUDE_PLUGIN_ROOT}/standards/gate-handoff.md`

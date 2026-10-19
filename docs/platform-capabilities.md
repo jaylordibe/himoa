@@ -52,7 +52,7 @@ behaviour is version-sensitive; re-verify before relying on a row
 |---|---|---|
 | **Always-on methodology bootstrap** | SessionStart hook injects the charter; **version-stamped** from `plugin.json`; native | `AGENTS.md` (root→CWD cascade, 32 KiB cap), always read; **stamped once, never refreshed**; native-load, content advisory |
 | **Progressive-disclosure skills** | `SKILL.md` + description-driven load; native | `SKILL.md` + `name`/`description`, ≤2% preview, `.agents/skills/`; native |
-| **Independent read-only reviewers** | subagents, `disallowedTools`, fresh context; native | subagents `.codex/agents/*.toml`, `sandbox_mode="read-only"`, isolated context; native |
+| **Independent read-only reviewers** | subagents with no file-editing tool (`disallowedTools`), fresh context; Bash remains, so read-only is methodology | subagents `.codex/agents/*.toml`, `sandbox_mode="read-only"`, isolated context; native |
 | **Human-approval gate the model cannot self-start** | `disable-model-invocation` gate skills; native + methodology | `policy.allow_implicit_invocation:false`; native + methodology. Plus `approval_policy=on-request` is **hard** for restricted ops |
 | **Human-owned operations** (commit/deploy/migrate) | methodology (charter) | methodology; `sandbox_mode`/`approval_policy` can additionally **hard-block** |
 | **MCP** | native | native (`[mcp_servers.*]`) |
