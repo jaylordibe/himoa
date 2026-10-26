@@ -4,7 +4,7 @@ description: Reads a presented design back to the human — recommendation, reje
 disable-model-invocation: true
 ---
 
-<!-- GENERATED from plugins/himoa/skills/gate-approve/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.20.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/gate-approve/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.21.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Approve or reject a design
 
@@ -21,7 +21,10 @@ $ARGUMENTS
 design cannot approve itself no matter what the surrounding context concludes.
 
 That control lives in this frontmatter. It does not depend on any file, any
-status line, or anything a summary could claim.
+status line, or anything a summary could claim. So does `disallowed-tools`,
+which on Claude Code removes the file-editing tools for the turn that invokes
+this skill, and the shell stays; on other hosts nothing is removed. Either way
+the rule — this gate changes nothing — is yours to keep, not one enforced.
 
 **Never infer approval.** "Looks good", "nice", "ok" said while discussing
 something else is not an approval. If this skill was invoked the user intends

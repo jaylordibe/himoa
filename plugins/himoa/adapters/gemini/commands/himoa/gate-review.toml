@@ -1,4 +1,4 @@
-# GENERATED from plugins/himoa/skills/gate-review/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.20.0).
+# GENERATED from plugins/himoa/skills/gate-review/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.21.0).
 # DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write
 description = "Independently reviews the current diff for conformance to the approved plan, correctness, application security, contract compatibility, data and migration safety, reliability and test coverage — selecting review lenses by risk tier, verifying every finding against source, adversarially refuting Critical and High findings, then remediating and re-reviewing."
 prompt = '''
@@ -12,6 +12,11 @@ $ARGUMENTS
 
 You are the conductor and the remediation owner. The specialist agents are
 read-only and independent; you verify what they return and own every edit.
+
+**After any compaction, re-read this file** from
+`himoa-gate-review` before the next step. A host
+may re-attach an invoked skill cut to its opening, and Claude Code does, and verification,
+refutation and remediation sit below the cut.
 
 ## 1. Establish the exact target and the risk
 

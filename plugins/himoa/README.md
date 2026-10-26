@@ -96,7 +96,10 @@ To review someone else's pull or merge request, give `gate-review` its URL, or
 neither approves nor requests changes, inline first. It reads a fresh clone at the exact head, runs nothing
 from it, and fixes nothing — `standards/hosted-review.md`.
 
-Diagnostics: `/himoa:framework-doctor`
+Diagnostics: `/himoa:framework-doctor` audits the repository's contract with
+the framework; `/himoa:run-audit [session | transcript | run state file]`
+audits one run against the methodology, from the session's transcript and the
+run state the run left, with a line behind every finding. Both are read-only.
 
 Every one of these must be typed by a human — each sets
 `disable-model-invocation: true`, so Claude cannot invoke a gate or claim one
@@ -108,8 +111,8 @@ ceremony in both directions.
 
 ## What ships
 
-**17 skills** — the `work-item` conductor, the `write-ticket` writer, five
-gates, an installer, a doctor, and eight model-invoked domain playbooks
+**18 skills** — the `work-item` conductor, the `write-ticket` writer, five
+gates, an installer, a doctor, a run audit, and eight model-invoked domain playbooks
 (`domain-auth`, `domain-authorization`, `domain-background-work`,
 `domain-browser-security`, `domain-cryptography`, `domain-debugging`,
 `domain-supply-chain`, `domain-user-interface`).

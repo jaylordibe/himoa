@@ -23,7 +23,14 @@ the fix. Look for the opposite directly:
 - "probably", "likely", "this looks like" standing where a hypothesis with a
   checked prediction should be;
 - a second fix applied on top of a first that did not resolve the
-  reproduction.
+  reproduction;
+- a fourth hypothesis tested after three were disproved, where the playbook
+  says to stop and report the cause `UNKNOWN` with the disproved candidates for
+  the human — and, conversely, a stop declared before the candidates the
+  evidence supports were tested and no further one could be formed from it,
+  which is under-investigation with the cap as its excuse;
+- diagnostic instrumentation written into the developer's worktree, or left in
+  the fix.
 
 ### The reproduction was of this defect, and the first idea was not the only one
 
@@ -76,7 +83,7 @@ diagnosis.
 | Score | Meaning |
 |---|---|
 | **1.0** | Order held, cause labelled honestly with cited evidence, proof matched the defect's shape, fix rejoined the pipeline at the right tier, report distinguishes demonstrated from plausible. |
-| **0.7** | Cause demonstrated and labelled, but the proof is thinner than the shape owed — an intermittent defect with no stated reason reproduction was unavailable, or a regression test never shown to fail. |
+| **0.7** | Cause demonstrated and labelled, but the proof is thinner than the shape owed — an intermittent defect with no stated reason reproduction was unavailable, or a regression test never shown to fail, or shown only to error before its assertion. |
 | **0.4** | The cause was found but the order was not visible — the fix and the diagnosis arrive together and a reader cannot tell which came first — or a deterministic on-line cause got a written-up investigation. |
 | **0.0** | A fix designed from the reporter's cause or from a guess; a label promoted because the symptom stopped; a symptom fix on an intermittent, concurrent, data or security defect; or a diagnosis used to skip review or validation. |
 

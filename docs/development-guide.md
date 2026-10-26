@@ -265,6 +265,21 @@ describes running each case by hand against the fixture repositories.
 with the plugin disabled proves nothing about the plugin, however green it
 looks.
 
+**A sentence that shapes behaviour is added against a measured baseline.**
+Before adding or strengthening a rule meant to change what a run does — not a
+clarification, a rule — run the case that would show the failure without the
+sentence, then with it, a few runs each, scored by hand against its graders,
+and record the counts beside the rule: the comment above the anchor in
+`tests/validate-plugin.mjs` or `tests/validate-charter.mjs`, or the
+`Not established` section of the changelog entry when nothing was run. The
+charter validator's comments already read this way — "stating the behaviour
+moved Opus from 0 of 3 to 3 of 3" — and that is the record that lets the next
+maintainer tell a rule that earned its place from one that only reads well. A
+baseline that does not fail is the signal not to add the sentence; the form
+that worked for one failure is not evidence it works for another, and a run
+that still fails with the sentence present says the wording, not the model, is
+what needs changing.
+
 When changing an agent, run its case against `fixtures/vue-app` or
 `fixtures/minimal-repository` — the two where a carried-over assumption is
 provably wrong — and against `fixtures/laravel-api`, where an assumption
@@ -317,12 +332,22 @@ asked.
 plugins/himoa/       the plugin
 docs/                                these documents
 evals/                               behavioural cases and grader rubrics
-fixtures/                            sixteen tiny repositories: six shapes, three user-facing surfaces, seven situations
+fixtures/                            sixteen tiny repositories — six shapes, three user-facing surfaces, seven situations — and one recorded run
 tests/                               validators, decision tables, robustness and doctor suites
 .github/workflows/ci.yml             everything above, on every push
 ```
 
 ## Things to be careful about
+
+**Do not let a rule a long skill needs late sit past the compaction cut.**
+After a compaction the host re-attaches an invoked skill keeping only its first
+5,000 tokens and never re-reads the file —
+[C23](constraints.md#c23--after-compaction-an-invoked-skill-is-re-attached-cut-to-its-first-5000-tokens).
+`validate-plugin.mjs` requires every `SKILL.md` over 10,000 bytes to carry its
+own re-read instruction within its first 8,000 bytes. When a long skill grows,
+keep what a late stage needs reachable from the file, not from the session's
+memory of it, and put anything a session must still know after compaction near
+the top.
 
 **Do not add an always-on sentence casually.** The session charter is the
 framework's entire always-on budget in every repository a user opens. Adding to

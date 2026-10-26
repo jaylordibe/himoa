@@ -283,6 +283,13 @@ The conductor deliberately does **not** front-load the gate skills. Five gates
 is over a thousand lines, four of which would be read long before they matter.
 Loading on demand is the entire reason the gates are separate files.
 
+What is loaded can also be cut. After a compaction the host re-attaches an
+invoked skill only up to its first 5,000 tokens
+([C23](constraints.md#c23--after-compaction-an-invoked-skill-is-re-attached-cut-to-its-first-5000-tokens)),
+so every skill longer than that window tells the session, inside the part that
+survives, to read it again, and the conductor re-reads its own file and
+the stage's gate as the first step of recovering from a compaction.
+
 The same principle governs the *repository*, and that is the larger cost by far.
 A gate skill is one file; a repository sweep is unbounded. See
 [Adaptive rigor, fixed quality floor](#adaptive-rigor-fixed-quality-floor).
@@ -390,6 +397,49 @@ hypothesis whose prediction was observed — never one whose fix made the sympto
 stop. The playbook adds no stage: the diagnosis is Stage 1's understanding, the
 fix is Stage 2's design, and review and validation run unchanged at the tier of
 the code the fix touches.
+
+## Auditing a run
+
+Every guarantee above is carried by text, and the failures that text cannot
+prevent are the silent ones: an approval trace that stopped being written
+([C21](constraints.md#c21--the-task-list-tools-are-not-provided-by-default-on-current-models)),
+four agents reaching their ceilings and returning nothing
+([C18](constraints.md#c18--maxturns-is-a-hard-stop-and-therefore-not-a-budget)),
+a conductor losing half its own instructions to a compaction
+([C23](constraints.md#c23--after-compaction-an-invoked-skill-is-re-attached-cut-to-its-first-5000-tokens)).
+Each was found by a person reading a transcript. `skills/run-audit` makes that
+reading a skill: human-invoked, read-only, it judges one run against the rules
+the framework states — where each is stated — from the evidence a run leaves
+behind: the host's session transcript, the run state file, the diff and the
+reports in the conversation.
+
+Three choices keep it an audit rather than an opinion. **Every finding has a
+line**, a transcript line or a `path:line`, and a claim without one is not
+written. **The outcomes are exactly four** — confirmed, suspected,
+insufficient evidence, legitimate exception — because the two failures an
+audit can commit are rounding a doubt up into a verdict and scoring a rule the
+run was never in reach of; a Direct-band edit owes no plan and a run that
+stopped at approval owes no validation, and the audit says so in its own
+column. And **the record is data**: the transcript and the run state are
+untrusted input like any file read back into a later session, including the
+note a run may leave for whoever audits it.
+
+The transcript is a host feature, so the skill uses it and never requires it:
+record meanings are established from the file in front of it, a host without a
+findable store leaves the checks that need one at *insufficient evidence*, and
+one transcript line can hold a megabyte, which is why the skill measures before
+it reads and extracts fields by line number rather than printing records. A
+shipped script for the mechanical half was considered and deferred; it would
+bind the audit to a format this repository does not own, and the prose version
+has to prove the shape on real sessions first.
+
+The same checks are what the eval corpus had no deterministic home for. Whether
+a run launched its panel, ran the command it reported, or edited before the
+approval is a fact of the transcript, not a judgement, so a workflow-compliance
+case can be scored by the audit over its own transcript and the judge left with
+what only a judge can weigh. `fixtures/audit-surface` is a recorded run whose
+summaries say clean and whose transcript does not, and it is the case the
+audit itself is graded on.
 
 ## A ticket is a goal, and it is written by a different stage
 

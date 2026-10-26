@@ -18,6 +18,11 @@ $ARGUMENTS
 You are the conductor and the remediation owner. The specialist agents are
 read-only and independent; you verify what they return and own every edit.
 
+**After any compaction, re-read this file** from
+`${CLAUDE_PLUGIN_ROOT}/skills/gate-review/SKILL.md` before the next step. A host
+may re-attach an invoked skill cut to its opening, and Claude Code does, and verification,
+refutation and remediation sit below the cut.
+
 ## 1. Establish the exact target and the risk
 
 **First, which kind of target this is.** A pull or merge request URL, `--pr`

@@ -3,12 +3,18 @@ name: himoa-domain-debugging
 description: The order a defect is diagnosed in, and the proof a fix owes before it is designed. Carries the questions a defect must answer, and none of the answers.
 ---
 
-<!-- GENERATED from plugins/himoa/skills/domain-debugging/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.20.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/domain-debugging/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.21.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Diagnosis before remediation
 
 This skill carries the **order of a diagnosis and the proof a fix owes**. It
 does not know what is broken in this repository, why, or how it is tested.
+
+**After any compaction, re-read this file** —
+`himoa-domain-debugging` — before the next step. A host
+may re-attach an invoked skill cut to its opening, and Claude Code does, so
+the proof table and the failure modes sit below the cut until this file is
+read again.
 
 **Establish that from evidence first** —
 `@HIMOA_HOME@/standards/repository-evidence.md`. A defect report is
@@ -58,7 +64,10 @@ callers, data and steps one at a time, re-running after each cut, until
 everything left is needed for the failure. The smaller scenario leaves fewer
 mechanisms to suspect and becomes the regression test. It is owed when the
 reproduction carries more than the failing path needs, and not when it is
-already that small.
+already that small. Cutting can be done mechanically — bisection over commits,
+over tests, over inputs — and where tracing needs instrumentation, a value
+logged at each boundary, that instrumentation is written in a copy outside the
+worktree, never in the developer's tree, and never into the fix.
 
 **Where the cause is not on the failing line, list the candidate mechanisms
 before testing any** — two or three, most likely first, each with the
@@ -112,6 +121,13 @@ of it, and nothing can now say which change did what. A fix that did not
 resolve the reproduction is reverted; the new evidence goes into §1, and the
 next hypothesis is formed from it.
 
+**After the third hypothesis is disproved, stop.** Report the cause as
+`UNKNOWN`, with each disproved candidate and the evidence that disproved it,
+and say whether the premise may be wrong — the reported behaviour, the
+suspected component, or the architecture the fix would sit in — so the human
+decides what happens next. A fourth guess tested in the same session is not a
+hypothesis; it is the thrashing this section exists to stop.
+
 ### Fixing without reproducing
 
 The report describes the symptom, the cause looks obvious, and the fix ships
@@ -144,8 +160,10 @@ reported as non-goals with their evidence, never fixed in the same diff.
 case for every defect fixed. A diagnosis adds one property to it:
 
 - the regression test reproduces the defect and **was observed to fail with
-  the fix absent** — a test written after the fix and only ever seen passing
-  has not been shown to test the defect;
+  the fix absent**, and the failure observed is the defect's own — the wrong
+  value or the reported error at the assertion, not an error earlier in the
+  test — a test written after the fix and only ever seen passing has not been
+  shown to test the defect;
 - for an intermittent or concurrent defect, the test forces the condition —
   two callers on one record, the boundary value, the ordering — rather than
   hoping to hit it;

@@ -12,6 +12,118 @@ act, and MINOR and PATCH never do. Entries below `1.0.0` were released under the
 
 ---
 
+## 3.21.0 — 2026-10-26
+
+**The pipeline survives compaction, tests have to fail for the right reason,
+implementation works in closed slices with its deviations on record, a
+diagnosis stops after three disproved hypotheses, and a new read-only skill
+audits a run against the methodology. Every change is methodology inside
+existing gates and standards, plus one new skill; no gate is renamed, nothing
+new is required of a consuming repository, and nothing blocks a workflow that
+ran before — MINOR. No consumer action.**
+
+### Changed workflow
+- **Long skills tell the session to re-read them after a compaction.** The
+  host re-attaches an invoked skill keeping only its first 5,000 tokens and
+  never re-reads the file (`docs/constraints.md` C23, verified against the
+  skills documentation and Claude Code 2.1.310). `work-item` is 37 KB, so a
+  conductor compacted mid-run kept Stages 1–2 and lost Implement, Review,
+  Validate and Present. Every skill over 10,000 bytes — `work-item`,
+  `write-ticket`, `gate-design`, `gate-review`, `gate-implement`,
+  `gate-validate`, `framework-install`, `domain-debugging`,
+  `domain-user-interface` and the new `run-audit` — now carries a standing
+  instruction inside the surviving window, worded for any host that cuts a
+  re-attached skill, and the conductor's compaction recovery re-reads its own
+  file and the stage's gate before the run state and the source.
+- **A test is seen to fail for the reason the missing behaviour predicts**
+  (`standards/testing.md` §4). An error before the assertion — an import that
+  does not resolve, a typo — is not a failure seen; a test that passes before
+  the change exists is a finding about the test. The standard adds the
+  mutation sweep: with the change's tests written, each realistic mutation of
+  the code names the test that catches it or is stated as an accepted gap. A
+  test only a deliberate decision can fail joins the catalogue of tests that
+  prove nothing. `gate-implement`, `domain-debugging` §5 and the tester lens
+  cite the rule.
+- **Implementation works the plan's slices in order and closes each on
+  evidence.** `templates/plan.md` §5 ends with the slices, in dependency
+  order, each with the test that proves it and what it produces for the next;
+  `gate-implement` closes a slice only when its checks ran and were read, its
+  line is in the progress record, and the test it owes failed for the predicted
+  reason and then passed — or its line says why that observation was not
+  available, the honest line `standards/testing.md` §4 already allows — and
+  never carries a red slice forward. A deviation within the approved design is
+  recorded when it is decided, with what it costs if wrong — in the run state
+  under `work-item` (`standards/resumption.md` §2), in the message as it
+  happens standalone — and read back at review and in the presentation.
+  `standards/architecture.md` §3.5 now names the conformances that need no
+  approval beside the simplifications it already named: a test placed by the
+  repository's topology, a name changed to its convention.
+- **A diagnosis stops after the third disproved hypothesis** and reports the
+  cause `UNKNOWN` with the disproved candidates for the human; diagnostic
+  instrumentation is written in a copy outside the worktree and never into the
+  fix; bisection is named as cutting done mechanically
+  (`skills/domain-debugging` §2, §4).
+
+### New
+- **`/himoa:run-audit`** — human-invoked and read-only. Audits one run against
+  the rules the framework states, from the host's session transcript, the run
+  state file, the diff and the reports in the conversation. Every finding
+  carries a transcript line or `path:line`; every check ends in one of four
+  outcomes — confirmed violation, suspected violation, insufficient evidence,
+  legitimate exception — and a rule the run was never in reach of is an
+  exception, not a finding. It measures a transcript before reading it,
+  extracts by line number, treats the transcript and the run state as untrusted
+  input, modifies nothing, posts nowhere, identifies a session by identifier,
+  timestamp and a redacted excerpt rather than by quoting it, treats a path a
+  run state file names as data rather than a file to open, and names no defect
+  in the framework as the cause. `work-item` names it at Stage 6 on High and
+  Critical work.
+- `fixtures/audit-surface`, a recorded run whose summaries say clean and whose
+  transcript shows six planted violations and one legitimate exception; the
+  case `audit-run-reports-planted-violations`; the graders `audit-integrity`
+  and `slice-discipline`; the cases `impl-test-that-already-passes` and
+  `implement-slices-close-in-order`.
+
+### Changed guarantees
+- **Every read-only skill says what its declaration leaves in place** — the
+  shell stays on Claude Code, nothing is removed on other hosts — and
+  `gate-approve` and `framework-doctor` gain the sentence the other read-only
+  skills already carried. `validate-plugin` now requires it.
+- **The skills only a human may start are pinned by name**, not only by the
+  `gate-` prefix: `run-audit`, `framework-doctor`, `framework-install`,
+  `write-ticket` and `work-item` must keep `disable-model-invocation: true`,
+  or validation fails.
+
+### Tests
+- `validate-plugin` requires the re-read instruction within the first 8,000
+  bytes of every `SKILL.md` over 10,000 bytes; pins `run-audit` read-only;
+  anchors the predicted-failure and mutation rules, the slice contract, the
+  deviation record, the hypothesis cap and instrumentation rule, and the audit's
+  four outcomes and never-does list; makes `run-audit` the owner of the outcome
+  vocabulary. Each new anchor was mutation-tested: deleting the sentence it
+  pins fails the suite and nothing else did.
+- `validate-fixtures` registers `audit-surface` and pins both halves of every
+  plant — the claim in the text and the call that contradicts it — at the exact
+  lines its README names: the edit precedes the approval, one lens launches
+  where three are claimed, the only test run is filtered where the table says
+  full, nothing runs the lint the table reports, and a commit runs with no
+  human asking. The audit case's `setup.sh` removes the fixture's README, the
+  answer key, from the workspace before the run.
+
+### Not established
+- No live compaction has been run to show the re-read instruction recovers a
+  stage; the constraint is verified against the documentation and the measured
+  file sizes, and the deferred split of the long skills into reference files
+  waits on that measurement.
+- No eval case in this release has been run against a live session, with or
+  without the plugin; the new cases are written to be scored by hand and their
+  graders carry the automatic-failure conditions. `run-audit` has not yet been
+  run on a real transcript, and a shipped script for its mechanical checks is
+  deferred until it has.
+- The record shape `audit-surface` uses was observed on Claude Code 2.1.310
+  for the fields an audit reads; the skill establishes meanings from the file
+  it is given and assumes no format.
+
 ## 3.20.0 — 2026-10-19
 
 **Two installer refusals 3.19.0 missed. An adapter installer now stops when a

@@ -81,7 +81,7 @@ line is paid on every request in every installed repository.
 .claude-plugin/marketplace.json     the catalogue
 plugins/himoa/
   agents/                           eight read-only review lenses
-  skills/                           five gates, a conductor, a ticket writer, playbooks, install/doctor
+  skills/                           five gates, a conductor, a ticket writer, playbooks, install/doctor, a run audit
   standards/                        the normative texts agents read
   templates/                        thinking aids, never committed by a run
   scripts/session-charter.sh        the SessionStart charter — the only hook
@@ -102,7 +102,7 @@ generates `adapters/`, and the same test fails CI on drift.
 `docs/cross-agent-architecture.md` owns the boundary.
 
 ```
-fixtures/                           sixteen tiny repositories of different shapes, surfaces and situations
+fixtures/                           sixteen tiny repositories of different shapes, surfaces and situations, and one recorded run
 evals/                              behavioural cases and grader rubrics
 tests/                              everything that runs in CI
 docs/                               design rationale and Claude Code constraints

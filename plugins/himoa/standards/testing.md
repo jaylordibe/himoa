@@ -82,8 +82,10 @@ Reject, in your own tests and in review:
   worked example, a known-good literal;
 - a test of *how* rather than *what* — asserting that an internal collaborator
   was called, a call count or order, private state, or reading the outcome back
-  through a side channel the public interface could show. It breaks on a
-  correct refactor and passes a wrong result. Substitute only what the test
+  through a side channel the public interface could show — or a test only a
+  deliberate decision can fail, a constant's value or a message's exact
+  wording, where the behaviour that depends on the decision is what matters. It
+  breaks on a correct refactor and passes a wrong result. Substitute only what the test
   cannot own — a remote service, time, randomness — unless the repository's
   own convention says otherwise;
 - uncontrolled time, randomness, network or ordering;
@@ -102,7 +104,13 @@ was not updated is an unfinished change.
 
 Three claims, never merged: a test **exists**; it **ran and passed**; it **was
 seen to fail** while the behaviour it protects was absent or wrong. Only the
-third shows it can detect anything. Where a change owes a test, get that
+third shows it can detect anything — **and only when the failure seen is the
+one the missing behaviour predicts**: the assertion on the expected value, not
+an import that does not resolve, a typo, or an unrelated assertion earlier in
+the test. A test that errors before it reaches its assertion has not been seen
+to fail. A test that passes before the change exists is testing behaviour the
+repository already had, and that is a finding about the test, not evidence
+about the change. Where a change owes a test, get that
 observation the cheapest way the work allows — run the test before the code
 that satisfies it, or break or revert that code once green and watch the test
 fail. **Break or revert it in a copy outside the worktree** — a temporary
@@ -113,6 +121,15 @@ that passes it — produces the observation as it goes and suits logic behind a
 clear interface; it is one way to get it, not a required process. Where it was
 not observed, the report says so: "added and passing, not seen to fail" is an
 honest line, and the reader weighs it.
+
+**Then ask the same question of the set.** With the change's tests written,
+take each realistic mutation of the code — a wrong branch or operator, a
+dropped side effect or state change, an empty or default return, a missing
+check of empty, absent, malformed or unauthorized input, a wrong constant — and
+name the test that would fail. A mutation nothing catches is a behaviour left
+unprotected or a test that cannot fail, and it is covered now or stated as an
+accepted gap, never left implicit. This is reasoning over the tests already in
+front of you, not a tool to run and not a report to write.
 
 ### A negative exposure test proves absence of content, on the path that ships
 

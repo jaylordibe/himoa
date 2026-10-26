@@ -93,6 +93,15 @@ practice its shape follows or the requirement that justifies departing from
 it.** A generic property — scalability, flexibility, best practice — is not
 what fails. A row naming nothing more is scope to cut here, not to review later.
 
+**Then the implementation slices, in dependency order.** Each names the
+behaviour it delivers, the files it touches, the test that proves it, and what
+it produces that a later slice consumes — an interface, a shape, a name. A
+slice is the smallest unit that carries its own test — or names the existing
+check that closes it — and could be judged on its own; setup and documentation fold into the slice whose deliverable needs them.
+Implementation works them in this order and closes each before the next
+(`skills/gate-implement/SKILL.md`). A Medium change is often one slice, and a
+plan says so in a line rather than inventing more.
+
 ## 6. Contract impact
 
 Entry point · access control declaration · request and response shape · stable

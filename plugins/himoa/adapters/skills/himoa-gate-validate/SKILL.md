@@ -4,7 +4,7 @@ description: Performs read-only evidence validation for a reviewed change using 
 disable-model-invocation: true
 ---
 
-<!-- GENERATED from plugins/himoa/skills/gate-validate/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.20.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/gate-validate/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.21.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Validate the reviewed change
 
@@ -13,6 +13,12 @@ Input:
 ```text
 $ARGUMENTS
 ```
+
+**After any compaction, re-read this file** —
+`himoa-gate-validate` — before the next step. A host
+may re-attach an invoked skill cut to its opening, and Claude Code does, so
+the verdict rules, the evidence table and the report shape are gone from
+context until this file is read again.
 
 **Validation is read-only.** Never modify source, tests, snapshots, fixtures,
 lockfiles, generated output, schema, migrations, configuration or documentation

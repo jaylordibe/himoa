@@ -18,6 +18,10 @@ rest still carry the 2026-08-11 verification above.
 the opt-in registers them but the host hands them over deferred rather than
 callable.
 
+**C23 verified against:** Claude Code **v2.1.310** and the skills page of the
+same documentation on **2026-10-26**, plus the byte sizes of the shipped skills
+measured on that date.
+
 **C19–C20 verified against:** the same documentation on **2026-08-16**, plus the
 on-disk plugin state of an installed machine. C20 is *measured*: the documented
 sentences alone do not settle where a project-scoped `autoUpdate` ends up, and
@@ -705,6 +709,59 @@ drift vocabulary.
 **Verified against** the documentation at `code.claude.com/docs/en/sessions`,
 `code.claude.com/docs/en/cli-reference` and `code.claude.com/docs/en/hooks`, on
 **2026-08-22**.
+
+---
+
+## C23 — After compaction an invoked skill is re-attached cut to its first 5,000 tokens
+
+> When the conversation is summarized to free context, Claude Code re-attaches
+> the most recent invocation of each skill after the summary, keeping the first
+> 5,000 tokens of each. Re-attached skills share a combined budget of 25,000
+> tokens. Claude Code fills this budget starting from the most recently invoked
+> skill, so older skills can be dropped entirely after compaction if you have
+> invoked many in one session. — *Skills, "Auto-compaction"*
+
+> Claude Code does not re-read the skill file on later turns, so write guidance
+> that should apply throughout a task as standing instructions rather than
+> one-time steps. — *Skills*
+
+**Consequence.** A skill longer than the window keeps its opening and loses the
+rest the first time a session compacts. Measured on 2026-10-26, before the
+re-read instruction below was added: `write-ticket` was 50,596 bytes,
+`work-item` 37,045, `gate-design` 21,066 and `gate-review` 18,555, and in
+`work-item` the Stage 3 heading sat at byte 24,665. A conductor
+compacted mid-run therefore keeps roughly Stages 1–2 and loses the instructions
+for Implement, Review, Validate and Present. A gate `SKILL.md` the conductor
+opened with a file read is a tool result and is summarised like any other. The
+failure is silent: the run continues from the summary's account of a stage it
+can no longer see, which is exactly the shape of defect C21 describes for the
+approval trace.
+
+**What we do.** Every skill over the window carries a standing instruction
+inside the part that survives — *after any compaction, re-read this file*,
+naming its own plugin path — and the conductor's compaction recovery re-reads
+its own file and the stage's gate before the run state and the source.
+`tests/validate-plugin.mjs` requires that instruction within the first 8,000
+bytes of every `SKILL.md` over 10,000 bytes. Both numbers are bytes rather than
+tokens because tokens are not countable here, and the ratio is the risk rather
+than the comfort: markdown dense with paths, tables and backticks tokenises at
+*fewer* bytes per token than prose. The constants therefore rest on an
+**ASSUMPTION** stated at its weakest — no fewer than two bytes per token — under
+which 10,000 bytes fits the 5,000-token window whole and an 8,000-byte prefix is
+at most 4,000 tokens. A token count of the longest skill under the window
+against the host's tokenizer would settle it; until then the constants err
+toward requiring the sentence of a file that may not have needed it, which
+costs one sentence.
+
+**What we do not do, yet.** Split the long skills into a lean `SKILL.md` plus
+reference files read at the step that needs them. That is the durable shape,
+and it is a restructuring of the conductor — the highest-risk file the plugin
+ships. It is deferred until a measured compaction run loses a stage despite the
+re-read instruction; a split made in advance of that evidence is the kind of
+change this document exists to make somebody think twice about.
+
+**Verified against** Claude Code **v2.1.310** and the documentation at
+`code.claude.com/docs/en/skills`, on **2026-10-26**.
 
 ---
 

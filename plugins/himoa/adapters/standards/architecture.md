@@ -1,4 +1,4 @@
-<!-- GENERATED from plugins/himoa/standards/architecture.md by tests/validate-adapter-projection.mjs (himoa 3.20.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/standards/architecture.md by tests/validate-adapter-projection.mjs (himoa 3.21.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Architecture standard
 
@@ -222,9 +222,11 @@ platform capability, a constraint — shows that an approved structure fails thi
 test, changing it is the human's decision: stop before building the affected
 part, and return with the simpler alternative, what it changes, and what is
 already built. Do not build it anyway because it was approved, and do not swap
-it silently because it is smaller. A simplification inside the approved
-architecture, scope and contracts — a reused helper, an inlined single-use
-function — is ordinary implementation and needs no approval.
+it silently because it is smaller. A simplification or a conformance inside
+the approved architecture, scope and contracts — a reused helper, an inlined
+single-use function, a test placed where the repository's topology puts it, a
+name changed to the repository's convention — is ordinary implementation and
+needs no approval.
 
 ## 4. Contracts
 

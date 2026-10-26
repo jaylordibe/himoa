@@ -4,7 +4,7 @@ description: Designs a material change by mapping repository reality first, reco
 disable-model-invocation: true
 ---
 
-<!-- GENERATED from plugins/himoa/skills/gate-design/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.20.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/gate-design/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.21.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Design a change
 
@@ -19,6 +19,11 @@ configuration, lockfiles, generated output or deployment artefacts. On Claude
 Code the `disallowed-tools` frontmatter removes the file-editing tools for the
 turn that invokes it, and the shell stays; on other hosts nothing is removed.
 Either way the rule is yours to keep, not one enforced.
+
+**After any compaction, re-read this file** from
+`himoa-gate-design` before the next step. A host
+may re-attach an invoked skill cut to its opening, and Claude Code does, and the stages from risk
+classification onward sit below the cut.
 
 **This gate writes nothing to the repository.** The design is a plan, presented
 through Claude Code's plan flow and structured on
@@ -306,7 +311,11 @@ schema leakage · webhook authenticity · audit gaps.
 ## 7. Plan exact changes
 
 Produce a file-by-file plan: for each file, what changes and which contract it
-must satisfy.
+must satisfy. Then order the changes into the implementation slices
+`@HIMOA_HOME@/templates/plan.md` §5 describes, each with the test
+that proves it and what it produces for the slices after it, so a name or a
+shape two slices share is decided once here rather than twice during
+implementation.
 
 **Name the contracts; do not restate them.** The authoritative text is the
 repository's own documentation plus `@HIMOA_HOME@/standards/`. A plan

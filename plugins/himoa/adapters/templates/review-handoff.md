@@ -1,4 +1,4 @@
-<!-- GENERATED from plugins/himoa/templates/review-handoff.md by tests/validate-adapter-projection.mjs (himoa 3.20.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/templates/review-handoff.md by tests/validate-adapter-projection.mjs (himoa 3.21.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Review report: [change title]
 
@@ -114,6 +114,9 @@ above.
 - [ ] Every condition the human attached at approval is honoured, verbatim
 - [ ] No unrelated scope, speculative abstraction, opportunistic refactor, or
       addition nobody approved
+- [ ] Every deviation recorded during implementation was one
+      `standards/architecture.md` §3.5 allows without approval, and none
+      widened the scope, the architecture or a contract
 - [ ] Every in-scope call site of a changed pattern was migrated
 - [ ] Replaced code paths were deleted, not left in parallel
 - [ ] Contract changes name their consumers

@@ -15,6 +15,11 @@ Scope requested:
 $ARGUMENTS
 ```
 
+**After any compaction, re-read this file** —
+`${CLAUDE_PLUGIN_ROOT}/skills/framework-install/SKILL.md` — before the next step. A host
+may re-attach an invoked skill cut to its opening, and Claude Code does, so
+the merge rules below are gone from context until this file is read again.
+
 Empty argument means `all`. `settings` runs §1–2 and §4; `truth` runs §1,
 §3 and §4.
 

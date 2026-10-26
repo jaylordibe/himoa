@@ -16,6 +16,12 @@ Input:
 $ARGUMENTS
 ```
 
+**After any compaction, re-read this file** —
+`${CLAUDE_PLUGIN_ROOT}/skills/gate-validate/SKILL.md` — before the next step. A host
+may re-attach an invoked skill cut to its opening, and Claude Code does, so
+the verdict rules, the evidence table and the report shape are gone from
+context until this file is read again.
+
 **Validation is read-only.** Never modify source, tests, snapshots, fixtures,
 lockfiles, generated output, schema, migrations, configuration or documentation
 to make a check succeed. On Claude Code the `disallowed-tools` frontmatter

@@ -15,6 +15,12 @@ Input:
 $ARGUMENTS
 ```
 
+**After any compaction, re-read this file** —
+`${CLAUDE_PLUGIN_ROOT}/skills/gate-implement/SKILL.md` — before the next step. A host
+may re-attach an invoked skill cut to its opening, and Claude Code does, so
+the slice contract, the contracts table and the reconciliation below are gone
+from context until this file is read again.
+
 ## Hard gate
 
 There must be a plan the human **explicitly approved for this run**. If there is
@@ -68,18 +74,52 @@ propose an amendment rather than adapting silently.
 
 ## Implement in coherent slices
 
-For each slice:
+The slices are the plan's (`${CLAUDE_PLUGIN_ROOT}/templates/plan.md` §5), in
+the order the plan gave them; a plan with none is worked as one slice. For each
+slice:
 
-1. restate the behaviour and the invariant it must preserve;
+1. restate the behaviour, the invariant it must preserve, and what it produces
+   for the slices after it;
 2. read the complete relevant files and their tests — not just the region you
    intend to change;
-3. implement the smallest **coherent and complete** change, per
+3. where the slice owes a test and the work allows it, write that test first
+   and see it fail for the reason the missing behaviour predicts
+   (`${CLAUDE_PLUGIN_ROOT}/standards/testing.md` §4);
+4. implement the smallest **coherent and complete** change, per
    `${CLAUDE_PLUGIN_ROOT}/standards/architecture.md` §3;
-4. add or update the tests;
-5. run the focused checks;
-6. inspect the diff you just produced.
+5. add or update the remaining tests;
+6. run the focused checks and read their output;
+7. inspect the diff you just produced.
 
-**"Smallest coherent and complete" has an actionable meaning, and step 3 is
+**A slice is closed, and the next one started, only when** its focused checks
+ran and their output was read, its line is in the progress record, and — where
+the slice owes a test — that test was seen to fail for the predicted reason and
+then pass, or the line says plainly that the observation was not available and
+why (`${CLAUDE_PLUGIN_ROOT}/standards/testing.md` §4 owns that honest line,
+and the reader weighs it). A slice with no new behaviour closes on its checks.
+A red slice is never carried into the next one: the next slice would be built
+on behaviour nobody has shown to hold, and when it fails there is no longer a
+way to tell which slice broke it. Fix the red slice, or stop and say why it
+cannot be fixed within the approved plan.
+
+The progress record is the run state under `work-item`. Standalone, this gate
+has no file: write each slice's line, and each deviation, into the message as
+the slice closes — the way a conductor writes its ledger — so a compaction
+finds them in the recent turns, and collect them in the Report below.
+
+**A deviation decided while implementing is recorded when it is decided** —
+what was decided, why, and what it costs if the decision is wrong — in the run
+state under `work-item` (`${CLAUDE_PLUGIN_ROOT}/standards/resumption.md` §2
+holds the record) and in the message, then the Report, otherwise. That is for
+the deviations the last paragraph of
+`${CLAUDE_PLUGIN_ROOT}/standards/architecture.md` §3.5 names as needing no
+approval, and only those. A material divergence is not recorded and continued;
+it goes back
+to the approval gate (Reconciliation below). The record survives compaction
+where the conversation does not, so a deviation written only into the final
+report is one a compacted run forgets it made and a resumed run cannot see.
+
+**"Smallest coherent and complete" has an actionable meaning, and step 4 is
 where it is paid.** `${CLAUDE_PLUGIN_ROOT}/standards/architecture.md` §3 owns
 the complexity ladder and the list of what counts as unnecessary complexity;
 this gate does not restate it. What it adds is a threshold: **before you add a
@@ -156,7 +196,8 @@ Tests are implementation work, not a follow-up.
 Cover the scenarios in `${CLAUDE_PLUGIN_ROOT}/standards/testing.md` §3 that
 this change makes reachable, plus a regression case for any defect fixed, and
 hold them to its §4 — an expected value independent of the code, and each new
-test seen to fail before it is reported as protecting anything. Placement, harness and isolation rules come from the repository's own test
+test seen to fail, for the reason the missing behaviour predicts rather than on
+an error before its assertion, before it is reported as protecting anything. Placement, harness and isolation rules come from the repository's own test
 topology — discover it rather than assuming one.
 
 The one property worth restating: if the suite runs in parallel, a test must
@@ -201,7 +242,8 @@ retrofitted; a plan rewritten to agree with the diff records nothing.
 
 Behaviour implemented · files and contracts touched · security controls added
 or relied on · tests written · focused command results, with real scopes ·
-migrations prepared but **not applied** · deviations and blockers · consumer
+migrations prepared but **not applied** · each slice's line as it closed · the
+recorded deviations, each with what it costs if wrong · blockers · consumer
 handoff · how the diff differs from the approved plan, if at all.
 
 ## Handoff

@@ -4,7 +4,7 @@ description: Writes a work ticket the way a business analyst or product owner wo
 disable-model-invocation: true
 ---
 
-<!-- GENERATED from plugins/himoa/skills/write-ticket/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.20.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/write-ticket/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.21.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Write a ticket
 
@@ -24,6 +24,11 @@ it is worth reading.
 Run it in the **main conversation context**. Do not fork it into a subagent:
 the working ticket is held in the conversation, the questions are answered by
 the person here, and the person is the only one who can end the mode.
+
+**After any compaction, re-read this file** from
+`himoa-write-ticket` before the next turn. A host
+may re-attach an invoked skill cut to its opening, and Claude Code does, and the rules a later
+turn owes sit below the cut.
 
 The work here is bounded — classifying the input, a targeted read, separating
 the outcome from the mechanism, and writing the draft. It maps nothing,

@@ -1,4 +1,4 @@
-<!-- GENERATED from plugins/himoa/standards/resumption.md by tests/validate-adapter-projection.mjs (himoa 3.20.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/standards/resumption.md by tests/validate-adapter-projection.mjs (himoa 3.21.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Resumption standard
 
@@ -57,7 +57,9 @@ the original and resolved requirement · the current stage · the risk tier and
 the investigation depth that standard assigns · the approved scope · every
 human condition, **verbatim** · the relevant non-goals · material design
 decisions · unresolved blockers · the repository baseline from §5 · progress as
-completed, remaining and blocked · evidence references as `path:line` · review
+completed, remaining and blocked, slice by slice where the plan has slices ·
+deviations decided within the approved design, each as what was decided, why,
+and what it costs if wrong · evidence references as `path:line` · review
 state, once reached · validation state, once reached · tracker comments posted,
 each as its item, the hash and time of its intent, and the comment identifier
 the tracker returned.

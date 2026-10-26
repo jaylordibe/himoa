@@ -17,7 +17,10 @@ $ARGUMENTS
 ```
 
 This skill is **read-only**. It reports; it never fixes. Use
-`/himoa:framework-install` to change anything.
+`/himoa:framework-install` to change anything. On Claude Code the
+`disallowed-tools` frontmatter removes the file-editing tools for the turn
+that invokes it, and the shell stays; on other hosts nothing is removed. Either
+way the rule is yours to keep, not one enforced.
 
 ## 1. Run the mechanical checks
 

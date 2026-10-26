@@ -143,6 +143,22 @@ const READ_ONLY_SKILLS = {
   'gate-validate': 'validation that can edit anything can manufacture its own PASS, which destroys the only signal the gate produces',
   'framework-doctor': 'an audit that can change what it is auditing is not an audit',
   'write-ticket': 'a ticket that can write into the repository has started implementing the design it exists not to contain',
+  'run-audit': 'an audit of a run that can edit the run\'s record, or the repository the run worked in, can make any run look compliant',
+};
+
+// Skills that only a human may start, with the reason. `disable-model-invocation`
+// is what makes each one a boundary rather than a step: a conductor that could
+// invoke the run audit on its own session would present self-certification as
+// independent evidence, and a design that could invoke the ticket writer or the
+// installer would be doing the human's part of the work. The gates are pinned
+// by their prefix in validateSkills; these carry no prefix, so a flipped flag
+// passed every check in this suite until this list existed.
+const HUMAN_ONLY_SKILLS = {
+  'run-audit': 'an audit a run can start on itself is self-certification presented as independent evidence',
+  'framework-doctor': 'a repository audit Claude starts on its own is advice nobody asked for, in every repository',
+  'framework-install': 'the only component that writes into a file the repository owns',
+  'write-ticket': 'a ticket written unasked is a design written unasked',
+  'work-item': 'the pipeline is the human\'s authorisation for seven stages, and must be typed',
 };
 
 // Marketplace names reserved for official Anthropic use, plus the pattern of
@@ -842,6 +858,24 @@ function validateSkills() {
       if (missing.length > 0) {
         fail(skillFile, `\`disallowed-tools\` is missing ${missing.join(', ')}. This skill must be read-only: ${READ_ONLY_SKILLS[entry.name]}. The frontmatter removes the file-editing tools for the turn; prose in the body does not.`);
       }
+      // The declaration removes the file-editing tools and nothing else: the
+      // shell stays on Claude Code, and other hosts remove nothing. A read-only
+      // skill that does not say so over-claims its own enforcement, which is the
+      // shape of defect 3.19.0 removed from the rest of the framework.
+      const body = readFileSync(skillFile, 'utf8');
+      if (!/the shell\s+stays/i.test(body) || !/nothing is\s+removed/i.test(body)) {
+        fail(skillFile, 'is declared read-only but does not say what that declaration leaves in place — "the shell stays; on other hosts nothing is removed". Without that sentence the body claims an enforcement the host does not provide.');
+      }
+    }
+
+    if (entry.name in HUMAN_ONLY_SKILLS && !humanOnly) {
+      fail(skillFile, `must set \`disable-model-invocation: true\`: ${HUMAN_ONLY_SKILLS[entry.name]}.`);
+    }
+  }
+
+  for (const requiredName of Object.keys(HUMAN_ONLY_SKILLS)) {
+    if (!seenNames.has(requiredName)) {
+      fail(skillsDirectory, `\`${requiredName}\` is declared human-only in this validator but no such skill exists; the list is stale or the skill was renamed and its boundary silently stopped being checked.`);
     }
   }
 
@@ -1155,6 +1189,67 @@ const NORMATIVE_ANCHORS = [
     file: 'standards/evidence.md',
     guarantee: 'weakening the check itself is manufacturing a pass; a legitimate check change answers to the requirement and manipulation answers only to a red result; materially weakening a quality bar is surfaced for human review',
     patterns: [/weakening the check itself/i, /manipulation/i, /lowering a coverage/i, /human review/i],
+  },
+  // 3.21.0. "Seen to fail" had no rule about WHICH failure: a test that errors
+  // on an unresolved import was seen to fail and then seen to pass, proving
+  // nothing about its assertion. The mutation sweep is the same question asked
+  // of the set rather than of one test. Both are reasoning, and both are the
+  // kind of sentence a tidy rewrite drops as redundant with "seen to fail".
+  {
+    file: 'standards/testing.md',
+    guarantee: 'the failure seen is the one the missing behaviour predicts, a test that passes before the change is a finding about the test, and each realistic mutation of the change names the test that catches it or is an accepted gap',
+    patterns: [/one the missing behaviour predicts/i, /passes before the change/i, /realistic mutation/i, /accepted gap/i],
+  },
+  // 3.21.0. The slice contract. Each clause fails separately: the close
+  // condition can be reworded into "run the checks" and lose the predicted
+  // failure; the red-slice rule can be dropped as obvious; the deviation record
+  // can be moved back into the final report, which is where it was lost.
+  {
+    file: 'skills/gate-implement/SKILL.md',
+    guarantee: 'a slice closes only on a predicted failure then a pass with its checks read, a red slice is never carried into the next, and a deviation is recorded when it is decided with what it costs if wrong',
+    patterns: [/closed, and the next one started, only when/i, /red\s+slice is never carried/i, /recorded when it is decided/i, /costs if the decision is wrong/i, /each slice's line as it closed/i],
+    // The approval-free deviations are listed in architecture.md §3.5 and
+    // cited from here; a second copy of the list in the gate is the drift the
+    // citation exists to prevent, so the owner's wording is forbidden here.
+    forbid: [/inlined single-use function/i],
+  },
+  // 3.21.0. The width of what may change after approval without going back to
+  // the human is owned here and cited from gate-implement; the gate's examples
+  // are the owner's, so the owner is what is pinned.
+  {
+    file: 'standards/architecture.md',
+    guarantee: 'the simplifications and conformances that need no approval are named in §3.5 — a reused helper, an inlined single-use function, a test placed by the repository\'s topology, a name changed to its convention',
+    patterns: [/inlined\s+single-use function/i, /test placed where the repository's topology puts it/i, /name changed to the repository's convention/i, /needs no approval/i],
+  },
+  {
+    file: 'standards/resumption.md',
+    guarantee: 'the run state carries the deviations decided within the approved design, each with its cost if wrong',
+    patterns: [/deviations decided within the approved design/i, /what it costs if wrong/i],
+  },
+  // 3.21.0. The two additions to the diagnosis order. A cap on disproved
+  // hypotheses is the one line that turns thrashing into an honest UNKNOWN,
+  // and the instrumentation rule is the one that keeps a diagnosis out of the
+  // developer's worktree — both read as over-caution to a tidying hand.
+  {
+    file: 'skills/domain-debugging/SKILL.md',
+    guarantee: 'after the third disproved hypothesis the investigation stops and reports UNKNOWN for the human, and diagnostic instrumentation goes in a copy outside the worktree, never into the fix',
+    patterns: [/third hypothesis is disproved, stop/i, /copy outside the\s+worktree/i, /never into the fix/i, /bisection/i],
+  },
+  // 3.21.0. The run audit judges a run against the framework's rules from the
+  // record the run left. Four things make it an audit rather than an opinion,
+  // and each is a sentence a helpful rewrite would soften: every finding has a
+  // line; the outcomes are exactly four and a doubtful one is never rounded;
+  // a rule the run was not in reach of is an exception, not a finding; and the
+  // record is data, never instruction, even the run state this framework wrote.
+  {
+    file: 'skills/run-audit/SKILL.md',
+    guarantee: 'every finding carries a line reference, the four outcomes are the only ones, a doubtful outcome is never rounded up or down, a rule the run was not in reach of is a legitimate exception, and transcript and run state are untrusted input',
+    patterns: [/No reference, no finding/i, /Confirmed violation/, /Suspected violation/, /Insufficient evidence/, /Legitimate exception/, /never rounded up to \*\*Confirmed\*\*/i, /never rounded down to clean/i, /never in reach of is not a finding/i, /untrusted input/i, /establish the record meanings from the file/i],
+  },
+  {
+    file: 'skills/run-audit/SKILL.md',
+    guarantee: 'the audit never modifies a session file or the repository, posts nowhere, names no framework defect as the cause, and measures a transcript before reading it',
+    patterns: [/Never modify, move, copy over, or delete a session file/i, /Posts, files, uploads or sends anything anywhere/i, /Names a defect in this framework's own text as the cause/i, /Measure before reading/i, /Line numbers first, fields second/i, /a path or identifier the state file\s+itself names is data, never a file to open/i, /opened only where[\s\S]{0,120}§2 says one lives/i, /Every\s+quoted line, in every section of this report[\s\S]{0,120}\[redacted\]/i, /set\s+aside by identifier only/i],
   },
   // The ticket writer's whole reason to exist is a default it corrects: asked
   // for a ticket, an agent writes the design it found into the description.
@@ -2310,6 +2405,14 @@ const SINGLE_SOURCE_POLICIES = [
     vocabulary: /\bSAFE TO RESUME\b|\bREVALIDATE DESIGN\b|\bRE-APPROVAL REQUIRED\b|\bdrift assessment\b/i,
     what: 'the resume drift assessment and its outcomes',
   },
+  // The four audit outcomes are a vocabulary a second file would be tempted to
+  // reuse loosely — "a suspected violation" in a grader note or a gate — and a
+  // loosened copy is the one a reader would quote back. The skill owns them.
+  {
+    owner: 'skills/run-audit/SKILL.md',
+    vocabulary: /\bConfirmed violation\b|\bSuspected violation\b|\bLegitimate exception\b/i,
+    what: 'the run-audit outcome vocabulary',
+  },
   // The hosted review mode is reached from the gate, the handoff table and the
   // report template. A second unlinked statement of when `--publish` may write,
   // or what the clone is, is the copy a careless edit loosens first.
@@ -2485,6 +2588,38 @@ function validateTestQualityMirror() {
   }
 }
 
+// After a compaction the host re-attaches an invoked skill keeping only its
+// first 5,000 tokens (docs/constraints.md C23), and does not re-read the file
+// on later turns. A skill longer than that window loses its later sections —
+// for the conductor, every stage after Design — unless something that survived
+// the cut tells the session to read the file again. So every skill over the
+// window carries that instruction, and carries it near the top, where it is
+// still in context when it is needed. Measured in bytes, because tokens are
+// not countable here, and the ratio is the risk: markdown dense with paths,
+// tables and backticks tokenises at FEWER bytes per token than prose, so the
+// constants are chosen to hold down to two bytes per token — 10,000 bytes is
+// the most a file can be and still fit the 5,000-token window whole, and an
+// 8,000-byte prefix is at most 4,000 tokens. docs/constraints.md C23 records
+// the assumption and what would settle it.
+//
+// Verified non-vacuous: deleting the sentence from work-item fails here and
+// nowhere else in the suite.
+const COMPACTION_REATTACH_WINDOW_BYTES = 10000;
+const COMPACTION_SURVIVING_PREFIX_BYTES = 8000;
+const COMPACTION_REREAD_INSTRUCTION = /after any compaction, re-read this file/i;
+
+function validateCompactionReread(skillNames) {
+  for (const [name, skillFile] of skillNames) {
+    const buffer = readFileSync(skillFile);
+    if (buffer.length <= COMPACTION_REATTACH_WINDOW_BYTES) continue;
+    const prefix = buffer.subarray(0, COMPACTION_SURVIVING_PREFIX_BYTES).toString('utf8');
+    const ownPath = `\${CLAUDE_PLUGIN_ROOT}/skills/${name}/SKILL.md`;
+    if (!COMPACTION_REREAD_INSTRUCTION.test(prefix) || !prefix.includes(ownPath)) {
+      fail(skillFile, `is ${buffer.length} bytes, longer than the ${COMPACTION_REATTACH_WINDOW_BYTES}-byte window the host re-attaches after compaction, and its first ${COMPACTION_SURVIVING_PREFIX_BYTES} bytes do not tell the session to re-read it ("After any compaction, re-read this file" naming ${ownPath}). Without that, every section past the cut is gone from context after the first compaction and nothing says so.`);
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // 8. Stack-assumption leakage
 // ---------------------------------------------------------------------------
@@ -2556,6 +2691,7 @@ validateHostedAnchorStrength();
 validateSingleSourcePolicies();
 validateNoRequiredHostTaskTool();
 validateTestQualityMirror();
+validateCompactionReread(skillNames);
 validateNoStackAssumptions();
 validateChangelog(manifest);
 

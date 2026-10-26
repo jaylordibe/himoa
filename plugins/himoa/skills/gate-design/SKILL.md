@@ -22,6 +22,11 @@ Code the `disallowed-tools` frontmatter removes the file-editing tools for the
 turn that invokes it, and the shell stays; on other hosts nothing is removed.
 Either way the rule is yours to keep, not one enforced.
 
+**After any compaction, re-read this file** from
+`${CLAUDE_PLUGIN_ROOT}/skills/gate-design/SKILL.md` before the next step. A host
+may re-attach an invoked skill cut to its opening, and Claude Code does, and the stages from risk
+classification onward sit below the cut.
+
 **This gate writes nothing to the repository.** The design is a plan, presented
 through Claude Code's plan flow and structured on
 `${CLAUDE_PLUGIN_ROOT}/templates/plan.md`.
@@ -308,7 +313,11 @@ schema leakage · webhook authenticity · audit gaps.
 ## 7. Plan exact changes
 
 Produce a file-by-file plan: for each file, what changes and which contract it
-must satisfy.
+must satisfy. Then order the changes into the implementation slices
+`${CLAUDE_PLUGIN_ROOT}/templates/plan.md` §5 describes, each with the test
+that proves it and what it produces for the slices after it, so a name or a
+shape two slices share is decided once here rather than twice during
+implementation.
 
 **Name the contracts; do not restate them.** The authoritative text is the
 repository's own documentation plus `${CLAUDE_PLUGIN_ROOT}/standards/`. A plan

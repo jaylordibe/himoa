@@ -3,12 +3,18 @@ name: himoa-domain-user-interface
 description: The decisions and failure modes that govern what a person sees, operates or receives — a web interface, a native or cross-platform app screen, a server-rendered page or an email. Carries the questions a change must answer, and none of the answers.
 ---
 
-<!-- GENERATED from plugins/himoa/skills/domain-user-interface/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.20.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/domain-user-interface/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.21.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # User-facing surfaces
 
 This skill carries the **decisions and the failure modes**. It does not know
 how this repository renders anything, and it names no framework.
+
+**After any compaction, re-read this file** —
+`himoa-domain-user-interface` — before the next step. A host
+may re-attach an invoked skill cut to its opening, and Claude Code does, so
+the questions a surface must answer sit below the cut until this file is read
+again.
 
 **Establish the mechanism from evidence first** —
 `@HIMOA_HOME@/standards/repository-evidence.md` — then apply the

@@ -10,6 +10,12 @@ user-invocable: false
 This skill carries the **decisions and the failure modes**. It does not know
 how this repository renders anything, and it names no framework.
 
+**After any compaction, re-read this file** —
+`${CLAUDE_PLUGIN_ROOT}/skills/domain-user-interface/SKILL.md` — before the next step. A host
+may re-attach an invoked skill cut to its opening, and Claude Code does, so
+the questions a surface must answer sit below the cut until this file is read
+again.
+
 **Establish the mechanism from evidence first** —
 `${CLAUDE_PLUGIN_ROOT}/standards/repository-evidence.md` — then apply the
 questions below to what you actually found. The repository's own design system,

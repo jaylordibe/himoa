@@ -4,7 +4,7 @@ description: Drives a requirement, ticket or issue end to end in one session —
 disable-model-invocation: true
 ---
 
-<!-- GENERATED from plugins/himoa/skills/work-item/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.20.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
+<!-- GENERATED from plugins/himoa/skills/work-item/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.21.0). DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write -->
 
 # Work-item conductor
 
@@ -18,6 +18,13 @@ Run this workflow in the **main conversation context**. Do not fork the whole
 skill into a subagent: the conductor must hold the pipeline ledger, stop for
 human approval, delegate multiple independent agents, edit only after approval,
 and resume after discussion or compaction.
+
+**After any compaction, re-read this file** from
+`himoa-work-item`, and the `SKILL.md` of the
+stage in progress, before the next step. A host
+may re-attach an invoked skill cut to its opening, and Claude Code does, so everything from here down to the last stage is gone from
+context until it is read again — and a conductor that continues from the
+summary's account of a stage is running a stage it can no longer see.
 
 ## Non-negotiable boundaries
 
@@ -187,9 +194,11 @@ it. `standards/execution-efficiency.md` §11 states why: a carried-forward
 summary is never stronger evidence than the file it summarises, and after
 compaction the file is still there.
 
-So after compaction: re-read the run state and the approval trace, re-emit the
-ledger from them, then **re-read the source for anything correctness depends
-on**. Do not resume from a summary's account of what the code does.
+So after compaction: re-read this file and the stage's gate `SKILL.md`, as the
+top of this file says; re-read the run state and the approval trace; re-emit the
+ledger from them; then **re-read the source for anything correctness depends
+on**. Do not resume from a summary's account of what the code does, or of what
+a stage requires.
 
 The one thing no record establishes by asserting it is the approval itself. A
 resumed session that finds no approval trace has an unapproved design, however
@@ -479,7 +488,9 @@ for a human who typed that command.
 Before editing: inspect status and diff, preserve unrelated changes, and
 confirm repository reality still matches the approved plan.
 
-Implement coherent slices with their tests. Run focused checks after each.
+Work the plan's slices in order, each closed before the next; run focused
+checks after each; write each slice's progress line, and any deviation as it
+is decided, into the run state.
 
 If a material divergence becomes necessary, stop and return to the approval
 gate. Never edit the plan to match what you built.
@@ -537,7 +548,8 @@ its line, then continue to Stage 6.
 
 Present: the behaviour implemented · a concise diff summary · contract and
 consumer handoff · review findings and fixes · the exact evidence table and
-verdict · migrations prepared but not applied · blockers and residual risk ·
+verdict · migrations prepared but not applied · the deviations recorded in the
+run state, each with what it costs if wrong · blockers and residual risk ·
 the recommended human next steps · the linked items Stage 7 will comment on,
 and those it will not, with the reason.
 
@@ -560,6 +572,11 @@ in a **code comment beside the line**.
 
 Do not perform Git writes, publication, migration application, deployment,
 release or risk acceptance.
+
+On High or Critical work, name the run state file's path once more and say
+that `himoa-run-audit` can judge this run against the methodology from it and
+the session's transcript, in a fresh session — an independent audit the human
+may want before the commit. Name it; never run it from here.
 
 Stage 6 is a human ownership boundary, not an additional permission for
 Stage 7. After presenting, mark Stage 6 complete, mark Stage 7 in progress, and

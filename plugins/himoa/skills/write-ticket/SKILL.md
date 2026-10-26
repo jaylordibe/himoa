@@ -27,6 +27,11 @@ Run it in the **main conversation context**. Do not fork it into a subagent:
 the working ticket is held in the conversation, the questions are answered by
 the person here, and the person is the only one who can end the mode.
 
+**After any compaction, re-read this file** from
+`${CLAUDE_PLUGIN_ROOT}/skills/write-ticket/SKILL.md` before the next turn. A host
+may re-attach an invoked skill cut to its opening, and Claude Code does, and the rules a later
+turn owes sit below the cut.
+
 The work here is bounded — classifying the input, a targeted read, separating
 the outcome from the mechanism, and writing the draft. It maps nothing,
 designs nothing, implements nothing and reviews nothing. How much of that
