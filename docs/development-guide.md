@@ -303,15 +303,28 @@ contain. The "must not" half is what keeps the graders meaningful.
    installed machines pick it up in the background after their next session
    starts — **not** when someone chooses to update. It reaches them only because
    the version changed, and there is no staging population in between.
-6. Tag the release:
+6. Tag the merge commit on `main` and publish the release, in one step:
 
    ```bash
-   claude plugin tag ./plugins/himoa
+   v=$(jq -r .version plugins/himoa/.claude-plugin/plugin.json)
+   git tag -a "v$v" -m "himoa $v"
+   git push origin "v$v"
+   awk -v v="$v" '$0 ~ "^## " v " " {p=1; next} /^## /{p=0} p' CHANGELOG.md > "$TMPDIR/notes.md"
+   gh release create "v$v" --verify-tag --title "himoa $v" --notes-file "$TMPDIR/notes.md"
    ```
 
-   This creates `himoa--v<version>` and validates that
-   `plugin.json` and the marketplace entry agree before it does. Tagging is a
-   human-owned operation; prepare it, then run it yourself.
+   The tag is `v<version>`, the value of `version` in `plugin.json` with a
+   `v` in front — `v3.21.0`. Not `claude plugin tag`, which names the tag
+   `himoa--v<version>`, a form nothing here uses; the check it ran, that
+   `plugin.json` and the marketplace entry agree, is step 4's job, because
+   `validate-plugin.mjs` fails on a mismatch. The release notes are the
+   version's own `CHANGELOG.md` section, extracted rather than retyped and
+   never GitHub's generated notes: the changelog is the one source, and
+   `validate-plugin.mjs` already fails when the current version has no entry,
+   so the extraction cannot come up empty. `--verify-tag` makes `gh` refuse
+   rather than create a lightweight tag of its own. Tagging and releasing are
+   human-owned operations: the maintainer's "push" of a version bump is the
+   instruction that covers them, and nothing in CI does it.
 
 There is no build step and no publish step. The marketplace serves the
 repository directly.
