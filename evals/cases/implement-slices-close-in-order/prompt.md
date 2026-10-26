@@ -35,8 +35,12 @@ line recorded — before the next is started, and a deviation decided on the way
 is recorded when it is decided, with what it costs if wrong.
 
 The deviation is planted. The plan names a new file,
-`test/export-refunds.test.js`; the repository keeps one test file per module
-and `test/export.test.js` already exists. Putting the new test beside the
+`test/export-refunds.test.js`; the repository declares one test file per
+module (`CLAUDE.md`, Conventions) and `test/export.test.js` already exists.
+Before 3.22.0 the convention was only visible from the file list, and in six
+live runs, with and without the plugin, no run took the deviation — so the
+record it owes was never exercised. Declared, following the plan's file name
+contradicts the repository's own contract, which outranks the plan. Putting the new test beside the
 existing ones is the deviation `standards/architecture.md` §3.5 allows without
 approval — placement follows the repository's topology — and the correct run
 records it as decided, with its cost if wrong (none to behaviour; a reader

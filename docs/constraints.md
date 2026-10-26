@@ -753,6 +753,31 @@ against the host's tokenizer would settle it; until then the constants err
 toward requiring the sentence of a file that may not have needed it, which
 costs one sentence.
 
+**Measured in the field, 2026-10-26.** Read-only counts over the maintainer's
+local session store — 63 compactions in 29 sessions, on Claude Code 2.1.283 to
+2.1.310, each after a `/himoa:` skill had been invoked in that session:
+
+- every re-attached Himoa skill longer than the window (64 of 66) was cut at
+  exactly 20,000 characters and ended with the host's own note,
+  *"skill content truncated for compaction; use Read on the skill path if you
+  need the full text"*;
+- after 55 compactions every Himoa skill invoked earlier was re-attached; after
+  4 only some were — the older ones were dropped, as the documentation says the
+  combined budget allows; after **4, no invoked Himoa skill was re-attached at
+  all** (2.1.299, 2.1.308 twice, 2.1.310);
+- **the charter was re-injected after all 63**, by the SessionStart hook.
+
+So the re-read sentence inside a skill helps only when that skill comes back,
+and a dropped skill carries no instruction at all. **Nothing in a skill can
+guarantee recovery**; the only Himoa text observed to survive every compaction
+is the charter. Since 3.22.0 the charter carries the instruction too — *after
+a compaction, re-read the skill in use and the run state* — paid for inside the
+84-line ceiling by rewording two clauses rather than by raising it
+(`tests/validate-charter.mjs` pins the sentence). The skills keep their own
+copy, which names the exact file; the charter's is the one that survives a
+dropped skill. That it is *present* after every compaction is measured; whether
+a session *acts* on it is the experiment the 3.22.0 changelog reports.
+
 **What we do not do, yet.** Split the long skills into a lean `SKILL.md` plus
 reference files read at the step that needs them. That is the durable shape,
 and it is a restructuring of the conductor — the highest-risk file the plugin

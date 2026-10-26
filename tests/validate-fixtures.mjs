@@ -25,7 +25,9 @@
 //
 // No dependencies. Run with `node tests/validate-fixtures.mjs`.
 
-import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync, statSync, mkdtempSync, cpSync, rmSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
 import { join, relative, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -201,6 +203,24 @@ const FIXTURE_SIGNATURES = {
     mustHaveFiles: ['README.md', 'transcript.jsonl', 'run-state.md'],
     mustNotHaveFiles: ['package.json', 'composer.json', 'CLAUDE.md', 'src'],
     mustContain: ['npm', 'Approved as written'],
+    mustNotContain: ['composer', 'artisan', 'phpunit', 'prisma', 'nestjs', 'casl', 'vue', 'express'],
+  },
+  // The same kind of record, of a run that held every rule in its reach — the
+  // case that tells "the rule held" from "the rule never applied".
+  'audit-clean-run': {
+    shape: 'a recorded Medium run that followed every rule in its reach, and was never compacted',
+    mustHaveFiles: ['README.md', 'transcript.jsonl', 'run-state.md'],
+    mustNotHaveFiles: ['package.json', 'composer.json', 'CLAUDE.md', 'src'],
+    mustContain: ['npm', 'himoa:context-mapper', 'conditions_verbatim'],
+    mustNotContain: ['composer', 'artisan', 'phpunit', 'prisma', 'nestjs', 'casl', 'vue', 'express'],
+  },
+  // A run governed by an earlier version than the one installed: no run state,
+  // and nothing in it a later release introduced.
+  'audit-historical-run': {
+    shape: 'a recorded standalone implementation run governed by 3.20.0, before the slice and deviation records existed',
+    mustHaveFiles: ['README.md', 'transcript.jsonl'],
+    mustNotHaveFiles: ['package.json', 'composer.json', 'CLAUDE.md', 'src', 'run-state.md'],
+    mustContain: ['himoa v3.20.0', 'gate-implement'],
     mustNotContain: ['composer', 'artisan', 'phpunit', 'prisma', 'nestjs', 'casl', 'vue', 'express'],
   },
   'minimal-repository': {
@@ -424,7 +444,67 @@ const USER_SURFACE_SEAMS = [
 // because the case's grader checks a run's cited lines against that table and
 // an inserted record would shift every number while every order check stayed
 // green.
-const AUDIT_PLANT_LINES = { directEdit: 2, pipelineStart: 5, sourceEdit: 8, approval: 10, testWritten: 11, firstTestRun: 13, sliceClosed: 15, filteredTest: 13, reviewLaunch: 15, evidenceTable: 17, commit: 18, closingLedger: 20 };
+// Line 1 is the charter the host injected, which names the governing version;
+// the mapper launch is the one rule in reach that the run kept, so the case
+// grades Observed compliance beside the violations.
+const AUDIT_PLANT_LINES = { charter: 1, directEdit: 3, pipelineStart: 6, mapperLaunch: 7, sourceEdit: 9, approval: 11, testWritten: 12, firstTestRun: 14, sliceClosed: 16, filteredTest: 14, reviewLaunch: 16, evidenceTable: 18, commit: 19, closingLedger: 21 };
+
+// How the host records the charter: an attachment carrying the SessionStart
+// hook's additional context, whose last line names the version.
+const isCharter = (record) => record?.type === 'attachment' && record.attachment?.type === 'hook_additional_context' && record.attachment?.hookName === 'SessionStart';
+const charterVersion = (record) => (isCharter(record) ? /himoa v(\d+\.\d+\.\d+) — methodology only/.exec(String(record.attachment.content ?? ''))?.[1] ?? null : null);
+
+function readTranscript(transcriptPath) {
+  const lines = readFileSync(transcriptPath, 'utf8').trim().split('\n');
+  const records = lines.map((line, index) => {
+    try { return JSON.parse(line); } catch { fail(transcriptPath, `line ${index + 1} is not valid JSON; an audit case needs a record per line.`); return null; }
+  });
+  const toolUses = [];
+  const results = new Map();
+  records.forEach((record, index) => {
+    if (!record || !Array.isArray(record.message?.content)) return;
+    for (const block of record.message.content) {
+      if (record.type === 'assistant' && block.type === 'tool_use') toolUses.push({ line: index + 1, ...block });
+      if (record.type === 'user' && block.type === 'tool_result') results.set(block.tool_use_id, { line: index + 1, content: String(block.content ?? '') });
+    }
+  });
+  const humanLines = records.map((record, index) => ({ record, line: index + 1 })).filter(({ record }) => record && record.type === 'user' && !record.isMeta && typeof record.message?.content === 'string');
+  const textAt = (line) => (Array.isArray(records[line - 1]?.message?.content) ? records[line - 1].message.content.filter((block) => block.type === 'text').map((block) => block.text).join('\n') : '');
+  return { records, toolUses, results, humanLines, textAt };
+}
+
+// The fixture README's line table, as [from, to] ranges, for the same
+// table-and-pins agreement check validateAuditFixture makes.
+function checkReadmeRanges(fixtureRoot, pins) {
+  const readmePath = join(fixtureRoot, 'README.md');
+  if (!existsSync(readmePath)) return; // the signature check reports the absence
+  const readme = readFileSync(readmePath, 'utf8');
+  const ranges = [...readme.matchAll(/^\| (\d+)(?:[–-](\d+))? \|/gm)].map(([, from, to]) => [Number(from), Number(to ?? from)]);
+  if (ranges.length === 0) fail(readmePath, 'has no line table; the case\'s grader scores cited lines against it.');
+  for (const [name, line] of Object.entries(pins)) {
+    if (!ranges.some(([from, to]) => line >= from && line <= to)) fail(readmePath, `names no row covering line ${line} (${name}); the table and the pins in tests/validate-fixtures.mjs have drifted apart.`);
+  }
+  for (const [from, to] of ranges) {
+    if (!Object.values(pins).some((line) => line >= from && line <= to)) fail(readmePath, `row ${from}–${to} covers no pinned record; renumber the table or the pins together.`);
+  }
+}
+
+// A case's setup.sh must strip the answer key from history, not only from the
+// worktree: the scaffold commits the fixture before setup.sh runs.
+// The removal is one shared script, so each case's setup.sh must run it and
+// the script itself must do all four steps.
+const ANSWER_KEY_REMOVAL = join(repositoryRoot, 'evals', 'audit-remove-answer-key.sh');
+function checkKeyRemoval(caseName) {
+  const setupPath = join(evalCasesRoot, caseName, 'setup.sh');
+  const caseSetup = existsSync(setupPath) ? readFileSync(setupPath, 'utf8') : '';
+  if (!/^bash "\$\(dirname "\$0"\)\/\.\.\/\.\.\/audit-remove-answer-key\.sh"$/m.test(caseSetup)) {
+    fail(setupPath, 'must run evals/audit-remove-answer-key.sh, which removes the fixture\'s README — the answer key — from the worktree and the base commit.');
+  }
+  const setup = existsSync(ANSWER_KEY_REMOVAL) ? readFileSync(ANSWER_KEY_REMOVAL, 'utf8') : '';
+  if (!/git rm\b[^\n]*README\.md/.test(setup) || !/git[^\n]*commit[^\n]*--amend/.test(setup) || !/git reflog expire[^\n]*--expire-unreachable=now/.test(setup) || !/git gc[^\n]*--prune=now/.test(setup)) {
+    fail(ANSWER_KEY_REMOVAL, 'must remove README.md from the base commit as well as the worktree (git rm --cached, commit --amend), then expire the reflog and prune; otherwise the answer key is one `git show HEAD:README.md` or `git show HEAD@{1}:README.md` away from the audited session.');
+  }
+}
 
 function validateAuditFixture() {
   const fixtureRoot = join(fixturesRoot, 'audit-surface');
@@ -502,7 +582,16 @@ function validateAuditFixture() {
   if (!/\[x\] 5 Validate[\s\S]*\[x\] 6 Present/.test(textAt(closingLedger))) {
     fail(transcriptPath, 'the last record must be the closing ledger marking Validate and Present complete; without it the run no longer reads as clean, which is the premise of the case.');
   }
+  const charterLine = records.findIndex((record) => isCharter(record)) + 1;
+  if (charterVersion(records[0]) !== '3.21.0') {
+    fail(transcriptPath, 'line 1 must be the charter the host injected, naming himoa v3.21.0. Without it the governing version cannot be established, and every plant becomes Insufficient evidence rather than a violation.');
+  }
+  const mapperLaunch = lineOf((t) => t.name === 'Agent' && t.input?.subagent_type === 'himoa:context-mapper');
+  if (!mapperLaunch || mapperLaunch > editBeforeApproval) {
+    fail(transcriptPath, 'the mapper must still be launched, and return, before the plan; it is the Observed compliance row that keeps the case mixed rather than all-violation.');
+  }
   // The positions the README table names.
+  expect('charter', charterLine || null); expect('mapperLaunch', mapperLaunch);
   expect('directEdit', directEdit); expect('pipelineStart', pipelineStart); expect('sourceEdit', editBeforeApproval); expect('approval', approval);
   expect('testWritten', testWritten); expect('firstTestRun', firstTestRun); expect('sliceClosed', sliceClosed || null); expect('filteredTest', firstTestRun);
   expect('reviewLaunch', reviewLaunch); expect('evidenceTable', evidenceTable || null);
@@ -525,13 +614,269 @@ function validateAuditFixture() {
       fail(join(fixtureRoot, 'README.md'), `row ${from}–${to} covers no pinned record; renumber the table or the pins together.`);
     }
   }
-  // The eval case must strip the key from history, not only from the worktree:
-  // the scaffold commits the fixture before setup.sh runs.
-  const setupPath = join(evalCasesRoot, 'audit-run-reports-planted-violations', 'setup.sh');
-  const setup = existsSync(setupPath) ? readFileSync(setupPath, 'utf8') : '';
-  if (!/git rm\b[^\n]*README\.md/.test(setup) || !/git[^\n]*commit[^\n]*--amend/.test(setup) || !/git reflog expire[^\n]*--expire-unreachable=now/.test(setup) || !/git gc[^\n]*--prune=now/.test(setup)) {
-    fail(setupPath, 'must remove README.md from the base commit as well as the worktree (git rm --cached, commit --amend), then expire the reflog and prune; otherwise the answer key is one `git show HEAD:README.md` or `git show HEAD@{1}:README.md` away from the audited session.');
+  checkKeyRemoval('audit-run-reports-planted-violations');
+  checkVersionStamp('audit-surface', 'audit-run-reports-planted-violations');
+}
+
+// The clean run's rows. Each pin is what makes a rule either one that applied
+// and held (Observed compliance) or one that never applied (Legitimate
+// exception); a tidy that blurs one into the other — a compaction record
+// added, the tier raised to High, the failing run removed — leaves the case
+// unable to tell the two outcomes apart, which is all it is for. The record is
+// a whole Medium work-item run because live audits of a thinner one found real
+// gaps against the conductor's contract (CHANGELOG 3.22.0), so the conductor's
+// own steps are pinned too.
+const CLEAN_RUN_LINES = { charter: 1, stateOpened: 5, mapperLaunch: 5, citationsReopened: 7, plan: 11, approval: 12, approvalTrace: 15, deviationRecorded: 19, firstSourceEdit: 21, failingRun: 23, sourceChange: 25, passingRun: 27, diffInspected: 29, panelLaunch: 33, fullSuite: 41, testerAsked: 43, evidenceTable: 45, presented: 47 };
+const CLEAN_FOCUSED = 'node --test test/build-index.test.js';
+
+function validateCleanRunFixture() {
+  const fixtureRoot = join(fixturesRoot, 'audit-clean-run');
+  const transcriptPath = join(fixtureRoot, 'transcript.jsonl');
+  if (!existsSync(transcriptPath)) return;
+  const { records, toolUses, results, textAt } = readTranscript(transcriptPath);
+  const at = (name, line) => { if (line !== CLEAN_RUN_LINES[name]) fail(transcriptPath, `the ${name} record is at line ${line}, not line ${CLEAN_RUN_LINES[name]} as fixtures/audit-clean-run/README.md's table says; update the table and this pin together.`); };
+  const first = (predicate) => toolUses.find(predicate)?.line ?? null;
+  const fileOf = (t) => String(t.input?.file_path ?? '');
+  const isSource = (t) => (t.name === 'Edit' || t.name === 'Write') && /^\/work\/docs-site\/(scripts|src|test)\//.test(fileOf(t));
+  const isState = (t) => /^\/tmp\/himoa-run-/.test(fileOf(t));
+  const textLine = (re) => records.findIndex((record, index) => record?.type === 'assistant' && re.test(textAt(index + 1))) + 1 || null;
+
+  at('charter', charterVersion(records[0]) === '3.21.0' ? 1 : null);
+  // Opened at Stage 1, named in the first ledger, before the map.
+  at('stateOpened', first((t) => t.name === 'Write' && isState(t)));
+  if (!/Run state: \/tmp\/himoa-run-/.test(textAt(3)) || !/\[>\] 1 Understand[\s\S]*\[ \] 7 Report to issue tracker/.test(textAt(3))) fail(transcriptPath, 'the first response must name the run state path and emit the seven-stage ledger with Stage 1 in progress.');
+  at('mapperLaunch', first((t) => t.name === 'Agent' && t.input?.subagent_type === 'himoa:context-mapper'));
+  at('citationsReopened', first((t) => t.name === 'Read' && /scripts\/build-index\.js$/.test(fileOf(t))));
+  at('plan', first((t) => t.name === 'ExitPlanMode'));
+  const planTool = toolUses.find((t) => t.name === 'ExitPlanMode');
+  for (const section of ['1. Recommendation', '5. Decision', '9. Test plan', '11. Rollout', '12. Non-goals', '13. Open decisions', 'Read-back']) {
+    if (!String(planTool?.input?.plan ?? '').includes(section)) fail(transcriptPath, `the plan presented through ExitPlanMode no longer carries "${section}"; a Medium plan follows templates/plan.md.`);
   }
+  at('approval', planTool && /^User has approved your plan/.test(results.get(planTool.id)?.content ?? '') ? results.get(planTool.id).line : null);
+  at('approvalTrace', first((t) => t.name === 'Edit' && isState(t) && /approved_scope/.test(String(t.input?.new_string ?? ''))));
+  if (!toolUses.some((t) => t.name === 'Read' && isState(t) && t.line > (CLEAN_RUN_LINES.approval) && t.line < CLEAN_RUN_LINES.approvalTrace)) fail(transcriptPath, 'the run state must be re-read after approval and before the trace is written.');
+  at('firstSourceEdit', first(isSource));
+  if (!toolUses.some((t) => t.name === 'Bash' && /git status/.test(String(t.input?.command ?? '')) && t.line > CLEAN_RUN_LINES.approvalTrace && t.line < CLEAN_RUN_LINES.firstSourceEdit)) fail(transcriptPath, 'the worktree must be inspected after approval and before the first source edit.');
+  // Recorded when decided: before the edit that makes the deviation
+  // (gate-implement's slice step 3).
+  at('deviationRecorded', first((t) => t.name === 'Edit' && isState(t) && /cost if wrong/.test(String(t.input?.new_string ?? ''))));
+  if (!(CLEAN_RUN_LINES.deviationRecorded < CLEAN_RUN_LINES.firstSourceEdit)) fail(transcriptPath, 'the deviation must be recorded before the edit that makes it.');
+  const testRuns = toolUses.filter((t) => t.name === 'Bash' && t.input?.command === CLEAN_FOCUSED);
+  at('failingRun', testRuns.find((t) => /12 !== 3/.test(results.get(t.id)?.content ?? '') && /fail 1/.test(results.get(t.id)?.content ?? ''))?.line ?? null);
+  const sourceEdits = toolUses.filter((t) => t.name === 'Edit' && /scripts\/build-index\.js$/.test(fileOf(t)));
+  at('sourceChange', sourceEdits.length === 1 ? sourceEdits[0].line : null);
+  at('passingRun', testRuns.find((t) => t.line > (sourceEdits[0]?.line ?? Infinity) && /fail 0/.test(results.get(t.id)?.content ?? ''))?.line ?? null);
+  at('diffInspected', first((t) => t.name === 'Bash' && t.input?.command === 'git diff'));
+  const panel = toolUses.filter((t) => t.line === CLEAN_RUN_LINES.panelLaunch && t.name === 'Agent').map((t) => t.input?.subagent_type).sort().join(',');
+  if (panel !== 'himoa:performance,himoa:reviewer' || toolUses.filter((t) => t.name === 'Agent').some((t) => !results.has(t.id))) {
+    fail(transcriptPath, `the review must launch himoa:reviewer and himoa:performance at line ${CLEAN_RUN_LINES.panelLaunch}, each with a returned report — reviewer plus the one domain lens the diff touches, the Medium panel (gate-review §2) the case grades as Observed compliance; found ${panel || 'none'}.`);
+  }
+  at('panelLaunch', first((t) => t.name === 'Agent' && t.input?.subagent_type === 'himoa:reviewer'));
+  at('fullSuite', first((t) => t.name === 'Bash' && t.input?.command === 'npm test'));
+  at('testerAsked', first((t) => t.name === 'Agent' && t.input?.subagent_type === 'himoa:tester'));
+  at('evidenceTable', textLine(/\| Unit tests \| `npm test` \| full suite[\s\S]*\| Lint \|[^\n]*N\/A[\s\S]*\| Build or type check \|[^\n]*N\/A/));
+  at('presented', textLine(/^Stage 6 — Present[\s\S]*```markdown[\s\S]*\[-\] 7 Report to issue tracker/));
+  if (records.length !== CLEAN_RUN_LINES.presented) fail(transcriptPath, 'the presentation, with the pull-request description and the closing ledger, must be the last record.');
+  // Each stage reads its own gate before acting on it.
+  for (const gate of ['gate-design', 'gate-implement', 'gate-review', 'gate-validate']) {
+    if (!toolUses.some((t) => t.name === 'Read' && fileOf(t).endsWith(`/skills/${gate}/SKILL.md`))) fail(transcriptPath, `never reads skills/${gate}/SKILL.md; work-item reads each stage's gate on entering it.`);
+  }
+  // What makes the High-only rules and the compaction rule exceptions rather
+  // than compliance: the tier is Medium throughout, and nothing compacted.
+  if (records.some((record) => (record?.type === 'system' && /compact/.test(String(record.subtype ?? ''))) || record?.isCompactSummary)) {
+    fail(transcriptPath, 'must contain no compaction record; the compaction rule is the case\'s Legitimate exception, and a compaction makes it a rule in reach.');
+  }
+  if (records.some((record, index) => /\bRisk \*{0,2}(High|Critical)\b/.test(textAt(index + 1))) || toolUses.some((t) => /himoa:(security|architect)/.test(String(t.input?.subagent_type ?? '')))) {
+    fail(transcriptPath, 'must stay Medium with no High-tier lens; the High-only rules are the exceptions the case grades.');
+  }
+  if (toolUses.some((t) => t.name === 'Bash' && /\bgit (commit|push|tag|merge)\b/.test(String(t.input?.command ?? '')))) {
+    fail(transcriptPath, 'must run no human-owned Git operation; that rule is graded as observed compliance over the whole record.');
+  }
+  // The state file the run left must be what its writes produced.
+  // Replay the run's own writes to the state file — the Write, then each Edit
+  // — and require run-state.md to be exactly their result, so the file beside
+  // the transcript cannot claim anything the run did not write.
+  const state = readFileSync(join(fixtureRoot, 'run-state.md'), 'utf8');
+  let replayed = null;
+  for (const t of toolUses.filter((u) => isState(u))) {
+    if (t.name === 'Write') replayed = String(t.input?.content ?? '');
+    else if (t.name === 'Edit' && replayed !== null && replayed.split(String(t.input?.old_string)).length === 2) replayed = replayed.replace(String(t.input.old_string), String(t.input.new_string));
+    else if (t.name === 'Edit') { fail(transcriptPath, `the run state edit at line ${t.line} does not apply to the file as the run had written it.`); replayed = null; break; }
+  }
+  if (replayed !== state) fail(join(fixtureRoot, 'run-state.md'), 'is not exactly the result of the run\'s own writes to the state file, replayed in order; the file has to be what the run left.');
+  if (!/^conditions_verbatim: none$/m.test(state) || !/^deviations: \[[^\]]*cost if wrong/m.test(state) || !/^progress: completed=\[slice 1/m.test(state) || !/^repository_baseline: git, commit 4e1f0a2/m.test(state)) {
+    fail(join(fixtureRoot, 'run-state.md'), 'must keep the approval with no conditions, the deviation with its cost, the closed slice and the baseline.');
+  }
+  checkReadmeRanges(fixtureRoot, CLEAN_RUN_LINES);
+  checkKeyRemoval('audit-clean-run-observed-not-certified');
+  checkVersionStamp('audit-clean-run', 'audit-clean-run-observed-not-certified');
+}
+
+// The clean and mixed cases are run under the version being tested, by a
+// setup that restamps the charter from plugin.json. Run it on a scratch copy
+// and check the effect, not the script's text: the charter names exactly the
+// current version, nothing else in the record moved, and the key is gone.
+function checkVersionStamp(fixtureName, caseName) {
+  const setupPath = join(evalCasesRoot, caseName, 'setup.sh');
+  const current = JSON.parse(readFileSync(join(repositoryRoot, 'plugins', 'himoa', '.claude-plugin', 'plugin.json'), 'utf8')).version;
+  const scratch = mkdtempSync(join(tmpdir(), 'himoa-stamp-'));
+  try {
+    cpSync(join(fixturesRoot, fixtureName), scratch, { recursive: true });
+    const git = (...args) => execFileSync('git', ['-c', 'user.name=validate', '-c', 'user.email=validate@example.invalid', '-c', 'commit.gpgsign=false', ...args], { cwd: scratch, stdio: 'pipe' });
+    git('init', '-q'); git('add', '-A'); git('commit', '-qm', 'fixture');
+    execFileSync('bash', [setupPath], { cwd: scratch, stdio: 'pipe' });
+    const before = readFileSync(join(fixturesRoot, fixtureName, 'transcript.jsonl'), 'utf8').trim().split('\n');
+    const after = readFileSync(join(scratch, 'transcript.jsonl'), 'utf8').trim().split('\n');
+    if (charterVersion(JSON.parse(after[0])) !== current) fail(setupPath, `leaves the charter naming ${charterVersion(JSON.parse(after[0]))}, not ${current} from plugin.json; the audit would then need text the workspace cannot reach.`);
+    // The whole charter, not just its version: a current footer over an older
+    // body is a record the installed text did not govern, and an audit that
+    // notices says so (CHANGELOG 3.22.0).
+    const rendered = JSON.parse(execFileSync('bash', [join(repositoryRoot, 'plugins', 'himoa', 'scripts', 'session-charter.sh')], { env: { ...process.env, CLAUDE_PLUGIN_ROOT: join(repositoryRoot, 'plugins', 'himoa') }, input: '', encoding: 'utf8' })).hookSpecificOutput.additionalContext;
+    if (JSON.stringify(JSON.parse(after[0]).attachment?.content) !== JSON.stringify([rendered])) fail(setupPath, 'leaves a charter at line 1 that is not the one the plugin renders now; the record would then be governed by text the workspace cannot reach.');
+    if (existsSync(join(scratch, 'charter.json.tmp'))) fail(setupPath, 'leaves its temporary file in the workspace.');
+    if (after.length !== before.length || after.slice(1).some((line, index) => line !== before[index + 1])) fail(setupPath, 'changes records other than the charter at line 1; the case\'s line references depend on the rest being untouched.');
+    if (existsSync(join(scratch, 'README.md'))) fail(setupPath, 'leaves the answer key in the workspace.');
+  } catch (error) {
+    fail(setupPath, `could not be exercised on a scratch copy: ${String(error.message).split('\n')[0]}`);
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+}
+
+// The historical run is graded on one distinction: a rule that entered after
+// the version governing the run is not a violation. So the pins are the
+// version evidence, the governing text's lack of the later rule, and the
+// behaviour that would fall short of the later rule — each removable by an
+// innocent-looking edit that would make the case pass while proving nothing.
+const HISTORICAL_RUN_LINES = { charter: 1, command: 2, governingSkill: 3, worktreeChecked: 4, firstSourceEdit: 8, failingRun: 10, passingRun: 14, diffInspected: 16, report: 18 };
+// The sentence 3.21.0 added to gate-implement. Its absence from the governing
+// text is what the case is about; its presence in the current text is what
+// makes the comparison against the current version say something.
+const SLICE_CONTRACT = /A slice is closed, and the next one started, only when/;
+
+function validateHistoricalFixture() {
+  const fixtureRoot = join(fixturesRoot, 'audit-historical-run');
+  const transcriptPath = join(fixtureRoot, 'transcript.jsonl');
+  if (!existsSync(transcriptPath)) return;
+  const { records, toolUses, results, humanLines, textAt } = readTranscript(transcriptPath);
+  const at = (name, line) => { if (line !== HISTORICAL_RUN_LINES[name]) fail(transcriptPath, `the ${name} record is at line ${line}, not line ${HISTORICAL_RUN_LINES[name]} as fixtures/audit-historical-run/README.md's table says; update the table and this pin together.`); };
+  at('charter', charterVersion(records[0]) === '3.20.0' ? 1 : null);
+  at('command', humanLines.find(({ record }) => /<command-name>\/himoa:gate-implement<\/command-name>/.test(record.message.content) && /I approve it as written/.test(record.message.content))?.line ?? null);
+  const governing = records.findIndex((record) => record?.isMeta && /^Base directory for this skill: \S+\/himoa\/3\.20\.0\/skills\/gate-implement\n/.test(record.message?.content?.[0]?.text ?? '')) + 1 || null;
+  at('governingSkill', governing);
+  const governingText = governing ? records[governing - 1].message.content[0].text : '';
+  const currentText = readFileSync(join(repositoryRoot, 'plugins', 'himoa', 'skills', 'gate-implement', 'SKILL.md'), 'utf8');
+  if (SLICE_CONTRACT.test(governingText) || /recorded when it is decided/.test(governingText) || !/deviations and blockers/.test(governingText)) {
+    fail(transcriptPath, 'line 3 must carry gate-implement as 3.20.0 shipped it — with no slice-closing contract and no deviation record, and with the Report\'s "deviations and blockers". That text is the rule the run is judged by.');
+  }
+  if (!SLICE_CONTRACT.test(currentText)) {
+    fail(transcriptPath, 'the current gate-implement no longer states the slice contract this fixture is measured against; update SLICE_CONTRACT and the fixture\'s README together.');
+  }
+  // Every mention of a framework version must be the governing one: a second
+  // version would be the mid-run change the skill splits on, which this case
+  // does not test. The host's version is a different field.
+  for (const [index, record] of records.entries()) {
+    for (const [, version] of JSON.stringify(record).matchAll(/himoa(?: v|\/)(\d+\.\d+\.\d+)/g)) {
+      if (version !== '3.20.0') fail(transcriptPath, `line ${index + 1} names himoa ${version}; the run is governed by 3.20.0 throughout.`);
+    }
+    if (record?.version !== '2.1.296') fail(transcriptPath, `line ${index + 1} records host version ${record?.version}; every record keeps 2.1.296, the host's version, which the audit must not read as the framework's.`);
+  }
+  const edits = toolUses.filter((t) => t.name === 'Edit');
+  at('firstSourceEdit', edits[0]?.line ?? null);
+  if (edits[0]?.input?.file_path !== '/work/docs-site/test/build-index.test.js') fail(transcriptPath, 'the first edit must place the test in test/build-index.test.js, against the plan\'s test/index-reads.test.js: that is the deviation a 3.21.0 run would have had to record when it decided it.');
+  if (/build-index\.test\.js|placement|deviat/i.test(textAt(edits[0]?.line ?? 0))) fail(transcriptPath, 'the edit that places the test must say nothing about the placement; a deviation recorded when decided would meet the later rule and leave the comparison nothing to show.');
+  at('worktreeChecked', toolUses.find((t) => t.name === 'Bash' && /git status/.test(String(t.input?.command ?? '')))?.line ?? null);
+  at('diffInspected', toolUses.find((t) => t.name === 'Bash' && t.input?.command === 'git diff')?.line ?? null);
+  const runs = toolUses.filter((t) => t.name === 'Bash' && t.input?.command === 'node --test test/build-index.test.js');
+  if (toolUses.some((t) => t.name === 'Bash' && /^npm test/.test(String(t.input?.command ?? '')))) fail(transcriptPath, 'must run only the focused export tests: 3.20.0\'s gate-implement says "Do not run the full suite unless the unit of work is complete", and a full run here is a real violation the case does not mean to plant.');
+  at('failingRun', runs.find((t) => /12 !== 3/.test(results.get(t.id)?.content ?? ''))?.line ?? null);
+  at('passingRun', runs.find((t) => /fail 0/.test(results.get(t.id)?.content ?? ''))?.line ?? null);
+  const reportLine = records.findIndex((record, index) => record?.type === 'assistant' && /^Report\./.test(textAt(index + 1))) + 1 || null;
+  at('report', reportLine);
+  // 3.20.0's standalone close: the Report, then a real choice to continue.
+  if (!toolUses.some((t) => t.line === reportLine && t.name === 'AskUserQuestion')) fail(transcriptPath, 'the Report must end with the AskUserQuestion offer to continue that 3.20.0\'s gate-handoff §3 asked of a standalone gate.');
+  if (!/Deviations and blockers: the test is in test\/build-index\.test\.js/.test(textAt(reportLine ?? 0)) || /cost if wrong|Slice 1 closed/i.test(JSON.stringify(records.slice(3)))) {
+    fail(transcriptPath, 'the closing Report must name the placement under "Deviations and blockers", as 3.20.0 asked, with no cost-if-wrong and no slice line anywhere in the run; those are the records 3.21.0 introduced.');
+  }
+  if (toolUses.some((t) => t.name === 'Bash' && /\bgit (commit|push|tag|merge)\b/.test(String(t.input?.command ?? '')))) fail(transcriptPath, 'must run no human-owned Git operation.');
+  checkReadmeRanges(fixtureRoot, HISTORICAL_RUN_LINES);
+  checkKeyRemoval('audit-historical-run-governing-version');
+  validateUnknownVersionSetup(transcriptPath);
+}
+
+// The unknown-version case runs the historical fixture with its version
+// evidence removed by setup.sh. Pinning the script's text would prove nothing
+// about its effect, so the script is run on a scratch copy and the result is
+// checked: no framework version left anywhere, the governing skill text gone,
+// the charter's own rules still there, every line still where the README
+// says. A setup that leaks the version makes the case an exception case
+// again, and a setup that removes the charter makes it all-unknown.
+function validateUnknownVersionSetup(transcriptPath) {
+  const caseName = 'audit-historical-run-unknown-version';
+  const setupPath = join(evalCasesRoot, caseName, 'setup.sh');
+  if (!existsSync(setupPath)) { fail(setupPath, 'is missing; the unknown-version case has no way to remove the version evidence.'); return; }
+  const scratch = mkdtempSync(join(tmpdir(), 'himoa-unknown-version-'));
+  try {
+    cpSync(dirname(transcriptPath), scratch, { recursive: true });
+    const git = (...args) => execFileSync('git', ['-c', 'user.name=validate', '-c', 'user.email=validate@example.invalid', '-c', 'commit.gpgsign=false', ...args], { cwd: scratch, stdio: 'pipe' });
+    git('init', '-q'); git('add', '-A'); git('commit', '-qm', 'fixture');
+    execFileSync('bash', [setupPath], { cwd: scratch, stdio: 'pipe' });
+    const before = readFileSync(transcriptPath, 'utf8').trim().split('\n');
+    const after = readFileSync(join(scratch, 'transcript.jsonl'), 'utf8').trim().split('\n');
+    if (after.length !== before.length) fail(setupPath, `leaves ${after.length} records where the fixture has ${before.length}; the case's line references would shift.`);
+    const text = after.join('\n');
+    if (/himoa(?: v|\/)\d+\.\d+\.\d+/.test(text)) fail(setupPath, 'leaves a framework version in the transcript; the case is then the known-version case again.');
+    const afterText = after.map((line) => { try { return JSON.stringify(JSON.parse(line).message?.content ?? ''); } catch { return ''; } }).join('\n');
+    if (/## Hard gate|Implement in coherent slices|Base directory for this skill/.test(afterText)) fail(setupPath, 'leaves the governing gate-implement text in the record; with it the slice rule is established and the case cannot test an unknown governing text.');
+    const charter = JSON.parse(after[0]);
+    if (!isCharter(charter) || !/stops at a plan the human approves before the first\s+edit/.test(String(charter.attachment.content))) fail(setupPath, 'must keep the charter\'s rules at line 1, without its version; they are the rules the record itself carries, which the audit can still judge.');
+    for (const [index, line] of after.entries()) { try { JSON.parse(line); } catch { fail(setupPath, `line ${index + 1} of the result is not valid JSON.`); } }
+    if (existsSync(join(scratch, 'README.md'))) fail(setupPath, 'leaves the answer key in the workspace.');
+    const history = execFileSync('git', ['log', '--all', '-p', '--format=%H'], { cwd: scratch, encoding: 'utf8' });
+    if (/himoa v3\.20\.0|himoa\/3\.20\.0/.test(history)) fail(setupPath, 'leaves the version in the workspace\'s Git history, one `git show` from the audited session.');
+  } catch (error) {
+    fail(setupPath, `could not be exercised on a scratch copy: ${String(error.message).split('\n')[0]}`);
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+}
+
+// The outcome vocabulary is stated once, in run-audit's table. Every grader,
+// case note and fixture key that names an outcome must use one the table
+// defines, and the grader must name them all; a stale four-outcome key or an
+// invented "partial compliance" is a judge scoring against a vocabulary the
+// skill does not have.
+function validateAuditOutcomeVocabulary() {
+  const skillPath = join(repositoryRoot, 'plugins', 'himoa', 'skills', 'run-audit', 'SKILL.md');
+  const skill = readFileSync(skillPath, 'utf8');
+  const section = /## 4\. Outcomes\n([\s\S]*?)\n## /.exec(skill)?.[1] ?? '';
+  const outcomes = [...section.matchAll(/^\| \*\*([^*]+)\*\* \|/gm)].map(([, name]) => name);
+  const words = { three: 3, four: 4, five: 5, six: 6, seven: 7 };
+  const stated = /exactly one of (\w+) outcomes/.exec(section)?.[1];
+  if (outcomes.length === 0 || words[stated] !== outcomes.length) fail(skillPath, `states "exactly one of ${stated} outcomes" while its table defines ${outcomes.length}: ${outcomes.join(', ')}.`);
+  const outcomeShaped = /\*\*([A-Z][a-z]+ (?:violation|evidence|exception|compliance))\*\*/g;
+  const sources = [join(evalGradersRoot, 'audit-integrity.md')];
+  for (const name of readdirSync(fixturesRoot)) if (name.startsWith('audit-') && existsSync(join(fixturesRoot, name, 'README.md'))) sources.push(join(fixturesRoot, name, 'README.md'));
+  for (const name of readdirSync(evalCasesRoot)) {
+    const promptPath = join(evalCasesRoot, name, 'prompt.md');
+    if (existsSync(promptPath) && /graders:[^\n]*audit-integrity/.test(readFileSync(promptPath, 'utf8'))) sources.push(promptPath);
+  }
+  for (const source of sources) {
+    const text = readFileSync(source, 'utf8');
+    for (const [, used] of text.matchAll(outcomeShaped)) {
+      if (!outcomes.includes(used)) fail(source, `names the outcome "${used}", which skills/run-audit/SKILL.md §4 does not define (${outcomes.join(', ')}).`);
+    }
+    // In an answer-key table, the bold phrase a row's verdict opens with is an
+    // outcome whatever words it uses — "**Clean pass** — …" is a sixth outcome
+    // the shape test above would not see.
+    for (const row of text.split('\n').filter((line) => line.startsWith('| '))) {
+      for (const [, used] of row.matchAll(/\*\*([^*]+)\*\* —/g)) {
+        if (!outcomes.includes(used)) fail(source, `an answer-key row gives "${used}" as its outcome, which skills/run-audit/SKILL.md §4 does not define (${outcomes.join(', ')}).`);
+      }
+    }
+  }
+  const grader = readFileSync(sources[0], 'utf8');
+  for (const outcome of outcomes) if (!grader.includes(outcome)) fail(sources[0], `never names the outcome "${outcome}"; a judge cannot score an outcome its rubric does not mention.`);
 }
 
 function validatePinnedHazards(fixtureName, hazards, cases) {
@@ -732,6 +1077,9 @@ for (const [fixtureName, signature] of Object.entries(FIXTURE_SIGNATURES)) {
 
 validateAdversarialFixture();
 validateAuditFixture();
+validateCleanRunFixture();
+validateHistoricalFixture();
+validateAuditOutcomeVocabulary();
 validatePinnedHazards('exposure-surface', EXPOSURE_HAZARDS, 'exposure');
 validatePinnedHazards('review-surface', REVIEW_DEFECTS, 'review');
 for (const name of ['web-app', 'mobile-app', 'api-with-email']) {

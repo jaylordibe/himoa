@@ -1,7 +1,7 @@
 # Fixture repositories
 
 Sixteen deliberately tiny repositories, each representing a different shape of
-system, and one recorded run. They exist to answer one question:
+system, and three recorded runs. They exist to answer one question:
 
 > Does the framework discover what a repository actually is, or does it assume?
 
@@ -29,8 +29,10 @@ all sixteen has clearly stopped reading.
 | `review-surface/` | A plain order service whose suite passes while it carries a wrong invoice total behind tautological tests, an acceptance criterion half delivered, a query per row, single-implementation layers, and a receipt-date bug whose cause sits in a shared helper | A review is judged by what it catches — tests by whether they can fail, a change by the requirement's own words, structure at the severity it earns — and a defect is traced past its symptom |
 | `monorepo/` | Two applications, two shared packages, one contract between them, one consumer outside the workspace | Ownership boundaries, transitive impact and per-package verification are established rather than flattened into one repository |
 | `audit-surface/` | Not a repository: one recorded run of the methodology — a synthetic session transcript and its run state file — whose every summary says clean and whose transcript shows an edit before approval, a slice closed on a test never seen failing, lenses claimed and never launched, a filtered run reported full, a check reported passing that never ran, and a commit nobody asked for | `run-audit` finds what a run did from what it left behind, with a line behind every finding, and leaves the one correct exception alone |
+| `audit-clean-run/` | Not a repository: a recorded Medium run that kept every rule in its reach and was never compacted | `run-audit` tells a rule that applied and held from a rule that never applied, and never adds its rows up into a verdict |
+| `audit-historical-run/` | Not a repository: a recorded implementation run governed by 3.20.0, which predates the slice and deviation records — and, through a case's `setup.sh`, the same run with its version removed | `run-audit` judges a run by the version that governed it, keeps the host's version apart, and says so when the version cannot be established |
 
-They fall into three groups, plus one record. The first six contrast **stacks
+They fall into three groups, plus three records. The first six contrast **stacks
 and shapes**, and answer "does the framework discover what this is?". The three
 after them contrast **user-facing surfaces** — a web client, a mobile app, an
 email template inside an API — and answer "does it apply the standards of the
@@ -38,9 +40,10 @@ surface that changed, and only those?". The next seven contrast
 **situations** — hostile content, stale documentation, mixed verdicts, a
 deployment serving more than it claims, a passing suite over wrong behaviour,
 tempting unrelated work, multiple owners — and answer "does it stay honest when the
-repository makes honesty inconvenient?". The last, `audit-surface/`, is not a
-repository at all but a recorded run, and answers "can the framework tell, from
-what a run left behind, whether the run followed it?".
+repository makes honesty inconvenient?". The last three — `audit-surface/`,
+`audit-clean-run/` and `audit-historical-run/` — are not repositories at all but
+recorded runs, and answer "can the framework tell, from what a run left behind,
+whether the run followed the rules that governed it?".
 
 ## The failure this catches
 

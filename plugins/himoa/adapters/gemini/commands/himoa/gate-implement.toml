@@ -1,4 +1,4 @@
-# GENERATED from plugins/himoa/skills/gate-implement/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.21.0).
+# GENERATED from plugins/himoa/skills/gate-implement/SKILL.md by tests/validate-adapter-projection.mjs (himoa 3.22.0).
 # DO NOT EDIT. Edit the canonical source and run: node tests/validate-adapter-projection.mjs --write
 description = "Implements an explicitly approved plan and nothing else, preserving unrelated worktree changes, enforcing the contracts the repository itself declares, writing the tests as part of the change, and returning to the approval gate on any material divergence. Requires an approval evidenced by the human's own words, and re-checks a resumed run against the repository before editing."
 prompt = '''
@@ -77,14 +77,18 @@ slice:
    for the slices after it;
 2. read the complete relevant files and their tests — not just the region you
    intend to change;
-3. where the slice owes a test and the work allows it, write that test first
+3. if what you read makes this slice depart from the plan in a way that needs
+   no approval — a test placed where the repository's topology puts it, a name
+   changed to its convention — record the deviation now, before the edit that
+   makes it: what, why, and what it costs if wrong (below);
+4. where the slice owes a test and the work allows it, write that test first
    and see it fail for the reason the missing behaviour predicts
    (`@HIMOA_HOME@/standards/testing.md` §4);
-4. implement the smallest **coherent and complete** change, per
+5. implement the smallest **coherent and complete** change, per
    `@HIMOA_HOME@/standards/architecture.md` §3;
-5. add or update the remaining tests;
-6. run the focused checks and read their output;
-7. inspect the diff you just produced.
+6. add or update the remaining tests;
+7. run the focused checks and read their output;
+8. inspect the diff you just produced.
 
 **A slice is closed, and the next one started, only when** its focused checks
 ran and their output was read, its line is in the progress record, and — where
@@ -114,7 +118,7 @@ to the approval gate (Reconciliation below). The record survives compaction
 where the conversation does not, so a deviation written only into the final
 report is one a compacted run forgets it made and a resumed run cannot see.
 
-**"Smallest coherent and complete" has an actionable meaning, and step 4 is
+**"Smallest coherent and complete" has an actionable meaning, and step 5 is
 where it is paid.** `@HIMOA_HOME@/standards/architecture.md` §3 owns
 the complexity ladder and the list of what counts as unnecessary complexity;
 this gate does not restate it. What it adds is a threshold: **before you add a

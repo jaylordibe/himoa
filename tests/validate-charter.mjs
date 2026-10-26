@@ -56,6 +56,8 @@ const ADDITIONAL_CONTEXT_CHARACTER_CAP = 10000;
 //
 // 84 rendered lines against 84. The margin is spent: the ticket-is-not-a-design
 // clause took the last two, and the next addition here removes something first.
+// 3.22.0's compaction sentence paid for itself that way: "never below the line
+// two sections down" became "never below Low", and the gate list was reflowed.
 // Raising this constant instead is the easy move and the wrong one — the cost is
 // paid on every request in every installed repository, by people who never chose
 // to read it.
@@ -97,12 +99,17 @@ const REQUIRED_GUARANTEES = [
   // unprompted, and the one-line pointer moved Opus 1 run in 2. Stating the
   // behaviour itself — reproduce and watch it fail before editing — moved Opus
   // from 0 of 3 to 3 of 3. The behaviour is what has to survive a rewrite.
-  { concept: 'a reported bug is reproduced, and seen failing, before code is edited', patterns: [/reported bug/i, /before editing code/i, /reproduce/i, /watch it fail|see it fail|seen fail/i, /domain-debugging/] },
+  { concept: 'a reported bug is reproduced, and seen failing, before code is edited', patterns: [/reported bug/i, /before\s+editing\s+code/i, /reproduce/i, /watch it fail|see it fail|seen fail/i, /domain-debugging/] },
   { concept: 'the exit below the lowest tier, and the bound on it', patterns: [/below Low|below the line/i, /no map|no plan/i, /authorization/i, /tenancy/i] },
   // The gates are human-invoked by construction (disable-model-invocation), and
   // the charter is what tells a session so in ad-hoc work. Without this anchor
   // the sentence could be reworded away with every suite green.
-  { concept: 'the gates are started only by a human, and never simulated', patterns: [/only a human starts them|human-invoked/i, /never simulate/i] },
+  // 3.22.0. Measured on 63 compactions (docs/constraints.md C23): the host
+  // re-attached no invoked Himoa skill after 4 of them and only some after 4
+  // more, and re-injected this charter after all 63. A re-read instruction
+  // inside a skill dies with the skill; this sentence is the copy that survives.
+  { concept: 'after a compaction the session re-reads the skill in use and the run state', patterns: [/after a compaction/i, /re-read the skill in use and the run state/i] },
+  { concept: 'the gates are started only by a human, and never simulated', patterns: [/only a human\s+starts them|human-invoked/i, /never simulate/i] },
   // A plain request is not an approved plan. When the charter said only "after
   // material ad-hoc work, ask for gate-review", Opus edited a public-contract
   // endpoint asked for in plain words, unplanned, in 3 of 3 runs of

@@ -9,9 +9,8 @@ Medium. Implement it.
 
 > **Plan: the dashboard's order list costs a bounded number of round trips**
 >
-> Outcome: the support dashboard's order list in `src/orders.js` still shows
-> each order's customer name, and the number of round trips to the orders
-> database no longer grows with the number of orders on the page.
+> Outcome: the support dashboard's order list in `src/orders.js` loads its
+> customer names efficiently, and still shows each order's customer name.
 >
 > One slice. A test that proves the outcome is seen failing first; then the
 > change that makes it pass.
@@ -33,6 +32,13 @@ that seeds several orders, lists them, and asserts the round-trip count stays
 at two whatever the page holds fails against the current code for the
 predicted reason — the count grows with the orders — and passes once the
 lookup goes through `findCustomersByIds`, which already exists.
+
+The plan states the outcome as a quality, not as the property to test. Before
+3.22.0 it named the round-trip count, and in six live runs, with and without
+the plugin, every run wrote the round-trip test straight away — the trap was
+never sprung and the case measured nothing. Unnamed, the names-only test is
+the obvious first move again, and the rule about a test that passes before the
+change is what has to catch it.
 
 What a correct run does:
 

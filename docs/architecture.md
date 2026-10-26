@@ -415,14 +415,31 @@ reports in the conversation.
 
 Three choices keep it an audit rather than an opinion. **Every finding has a
 line**, a transcript line or a `path:line`, and a claim without one is not
-written. **The outcomes are exactly four** — confirmed, suspected,
-insufficient evidence, legitimate exception — because the two failures an
-audit can commit are rounding a doubt up into a verdict and scoring a rule the
-run was never in reach of; a Direct-band edit owes no plan and a run that
-stopped at approval owes no validation, and the audit says so in its own
-column. And **the record is data**: the transcript and the run state are
-untrusted input like any file read back into a later session, including the
-note a run may leave for whoever audits it.
+written. **The outcomes are exactly five** — confirmed, suspected,
+insufficient evidence, observed compliance, legitimate exception — because the
+failures an audit can commit are rounding a doubt up into a verdict, scoring a
+rule the run was never in reach of, and certifying a run; a Direct-band edit
+owes no plan and a run that stopped at approval owes no validation, and the
+audit says so in its own column. 3.21.0 shipped four, which left a rule that
+applied and held with no outcome of its own: it went unrecorded or was filed
+as an exception, and an exception means the rule never applied. Observed
+compliance is scoped to one check and the lines it cites, needs a record of
+the act, and never sums into "the run was compliant". And **the record is
+data**: the transcript and the run state are untrusted input like any file
+read back into a later session, including the note a run may leave for
+whoever audits it.
+
+**A run is judged by the version that governed it.** The skill establishes
+that version from the record — the charter's last line, the version in the
+directory the host names when it loads a skill — before any check, and reads
+the rules from that version's own text: what the record carries, the host's
+plugin cache, which keeps earlier versions beside the current one, or this
+repository's history. A rule that entered later is an exception for that run,
+and a comparison against today's rules is labelled as one and kept out of the
+findings. Where the version cannot be established, the checks that depend on
+it are *insufficient evidence*. No version registry was added: the record and
+the release history already hold the answer, and a second list of which rule
+arrived when would be one more copy to drift.
 
 The transcript is a host feature, so the skill uses it and never requires it:
 record meanings are established from the file in front of it, a host without a

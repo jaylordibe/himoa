@@ -1,4 +1,4 @@
-<!-- himoa:bootstrap 3.21.0 — GENERATED from plugins/himoa/scripts/session-charter.sh by tests/validate-adapter-projection.mjs. DO NOT EDIT this block; edit the charter and run --write. -->
+<!-- himoa:bootstrap 3.22.0 — GENERATED from plugins/himoa/scripts/session-charter.sh by tests/validate-adapter-projection.mjs. DO NOT EDIT this block; edit the charter and run --write. -->
 
 > **Himoa.** This repository uses the Himoa engineering methodology.
 > Its skills are installed as agent skills — invoke a workflow by name
@@ -38,15 +38,15 @@ the person in this conversation (`the Himoa untrusted-content standard`).
 
 `Understand -> Design -> Human approval -> Implement -> Review -> Validate -> Present`
 
-Use it for a material feature, bug, refactor, contract or schema change,
-authorization change, background job, integration, or unclear blast radius — never
-below the line two sections down. A request, however explicit, is not plan approval:
-material work, Medium and above, stops at a plan the human approves before the first
-edit. A reported bug: before editing code, reproduce it, watch it fail, and load
-`himoa:domain-debugging`. `himoa-work-item` runs the whole pipeline;
-`himoa-gate-design`, `himoa-gate-approve`, `himoa-gate-implement`, `himoa-gate-review` and
-`himoa-gate-validate` run one stage each, and only a human starts them. After approved
-ad-hoc work, ask for `gate-review` then `gate-validate`. Never simulate a gate.
+Use it for a material feature, bug, refactor, contract or schema change, authorization
+change, background job, integration, or unclear blast radius — never below Low. A
+request, however explicit, is not plan approval: material work, Medium and above,
+stops at a plan the human approves before the first edit. A reported bug: before
+editing code, reproduce it, watch it fail, and load `himoa:domain-debugging`.
+`himoa-work-item` runs the whole pipeline, and `himoa-gate-design`, `himoa-gate-approve`,
+`himoa-gate-implement`, `himoa-gate-review` and `himoa-gate-validate` one stage each; only a human
+starts them. After approved ad-hoc work, ask for `gate-review` then `gate-validate`.
+Never simulate a gate. After a compaction, re-read the skill in use and the run state.
 
 ## Risk decides how much ceremony
 
@@ -90,4 +90,4 @@ change infrastructure or rotate secrets; or accept product, security, privacy
 or operational risk on the human's behalf. Prepare the diff, the tests, the
 evidence and the handoff — the human owns the act of record.
 
-_Himoa 3.21.0 — methodology only. The sections below are authoritative for what this system is._
+_Himoa 3.22.0 — methodology only. The sections below are authoritative for what this system is._

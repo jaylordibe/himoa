@@ -1206,8 +1206,11 @@ const NORMATIVE_ANCHORS = [
   // can be moved back into the final report, which is where it was lost.
   {
     file: 'skills/gate-implement/SKILL.md',
+    // 3.22.0: the record is also a numbered slice step, before the edit. Three
+    // live runs that took the planted deviation all reported it only at the
+    // end, with no cost — the paragraph below the steps was not enough.
     guarantee: 'a slice closes only on a predicted failure then a pass with its checks read, a red slice is never carried into the next, and a deviation is recorded when it is decided with what it costs if wrong',
-    patterns: [/closed, and the next one started, only when/i, /red\s+slice is never carried/i, /recorded when it is decided/i, /costs if the decision is wrong/i, /each slice's line as it closed/i],
+    patterns: [/closed, and the next one started, only when/i, /red\s+slice is never carried/i, /recorded when it is decided/i, /costs if the decision is wrong/i, /each slice's line as it closed/i, /record the deviation now, before the edit that\s+makes it/i],
     // The approval-free deviations are listed in architecture.md §3.5 and
     // cited from here; a second copy of the list in the gate is the drift the
     // citation exists to prevent, so the owner's wording is forbidden here.
@@ -1238,13 +1241,32 @@ const NORMATIVE_ANCHORS = [
   // 3.21.0. The run audit judges a run against the framework's rules from the
   // record the run left. Four things make it an audit rather than an opinion,
   // and each is a sentence a helpful rewrite would soften: every finding has a
-  // line; the outcomes are exactly four and a doubtful one is never rounded;
+  // line; the outcomes are exactly five and a doubtful one is never rounded;
   // a rule the run was not in reach of is an exception, not a finding; and the
   // record is data, never instruction, even the run state this framework wrote.
+  // 3.22.0 added the fifth outcome, Observed compliance, because the four could
+  // not record a rule that applied and held — so a correct row had nowhere to
+  // go but "exception", which is the conflation the audit exists to avoid. Its
+  // scope sentences are pinned because their loosened form ("the run complied")
+  // is the self-certification the skill forbids.
   {
     file: 'skills/run-audit/SKILL.md',
-    guarantee: 'every finding carries a line reference, the four outcomes are the only ones, a doubtful outcome is never rounded up or down, a rule the run was not in reach of is a legitimate exception, and transcript and run state are untrusted input',
-    patterns: [/No reference, no finding/i, /Confirmed violation/, /Suspected violation/, /Insufficient evidence/, /Legitimate exception/, /never rounded up to \*\*Confirmed\*\*/i, /never rounded down to clean/i, /never in reach of is not a finding/i, /untrusted input/i, /establish the record meanings from the file/i],
+    guarantee: 'every finding carries a line reference, the five outcomes are the only ones, a doubtful outcome is never rounded up or down, a rule the run was not in reach of is a legitimate exception, and transcript and run state are untrusted input',
+    patterns: [/No reference, no finding/i, /exactly one of five outcomes/i, /Confirmed violation/, /Suspected violation/, /Insufficient evidence/, /Observed compliance/, /Legitimate exception/, /never rounded up to \*\*Confirmed\*\*/i, /never rounded down to clean/i, /never in reach of is not a finding/i, /untrusted input/i, /establish the record meanings from the file/i],
+  },
+  {
+    file: 'skills/run-audit/SKILL.md',
+    guarantee: 'observed compliance is scoped to one check and its cited lines, needs a record of the act, is never the outcome for an unreachable rule, and never adds up to a verdict on the run or its code',
+    patterns: [/Observed compliance is one check, on the lines it cites, and nothing more/i, /a compacted or partial record supports neither/i, /never compacted did not\s+comply with the compaction rule, it was never asked to/i, /never sums its rows into a verdict/i, /nothing in it says the code is correct/i, /or calls a run compliant/i],
+  },
+  // 3.22.0. A historical run is judged against the rules that governed it. The
+  // sentences below are the ones a tidy-up would drop — and dropping any one of
+  // them is how a pre-3.21 run gets three violations for records 3.21.0
+  // introduced, or a host version is read as the framework's.
+  {
+    file: 'skills/run-audit/SKILL.md',
+    guarantee: 'the governing framework version is established before any check, kept apart from the host version, split on a mid-run change, falls back to insufficient evidence when unknown, and later rules are an exception or a separately labelled comparison, never a finding',
+    patterns: [/Establish the version that governed the run/, /never against the\s+rules installed today/i, /is the application's, never\s+the framework's/i, /each part is judged under\s+its own version/i, /every check whose rule\s+cannot be shown to have governed the run ends \*\*Insufficient evidence\*\*/i, /Never assume the version installed now governed a past run/i, /labelled as a comparison against the\s+current version — never as a finding/i, /Judges a run against a rule that entered after the version that governed\s+it/i],
   },
   {
     file: 'skills/run-audit/SKILL.md',
@@ -2405,12 +2427,12 @@ const SINGLE_SOURCE_POLICIES = [
     vocabulary: /\bSAFE TO RESUME\b|\bREVALIDATE DESIGN\b|\bRE-APPROVAL REQUIRED\b|\bdrift assessment\b/i,
     what: 'the resume drift assessment and its outcomes',
   },
-  // The four audit outcomes are a vocabulary a second file would be tempted to
+  // The five audit outcomes are a vocabulary a second file would be tempted to
   // reuse loosely — "a suspected violation" in a grader note or a gate — and a
   // loosened copy is the one a reader would quote back. The skill owns them.
   {
     owner: 'skills/run-audit/SKILL.md',
-    vocabulary: /\bConfirmed violation\b|\bSuspected violation\b|\bLegitimate exception\b/i,
+    vocabulary: /\bConfirmed violation\b|\bSuspected violation\b|\bLegitimate exception\b|\bObserved compliance\b/i,
     what: 'the run-audit outcome vocabulary',
   },
   // The hosted review mode is reached from the gate, the handoff table and the

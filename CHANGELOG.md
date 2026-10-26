@@ -12,6 +12,143 @@ act, and MINOR and PATCH never do. Entries below `1.0.0` were released under the
 
 ---
 
+## 3.22.0 — 2026-10-26
+
+**`run-audit` gains a fifth outcome for a rule that applied and held, and
+judges a past run by the version of the framework that governed it; the
+charter now tells a compacted session to re-read the skill in use and the run
+state; and `gate-implement` records a deviation as a slice step, before the
+edit that makes it. No gate is renamed, nothing new is required of a consuming
+repository, and nothing that ran before now stops — MINOR. No consumer
+action.**
+
+### Changed workflow
+- **Observed compliance** (`skills/run-audit` §4). The four outcomes of 3.21.0
+  had no way to say a rule applied and was followed: a 3.21.0 audit of
+  `fixtures/audit-surface` put the mapper launched before the plan under
+  "checks with no finding", outside its own vocabulary, in 2 of 3 runs. The new
+  outcome covers one check and the lines it cites, needs a record of the act,
+  is never used for a rule the run was not in reach of — a run that never
+  compacted did not comply with the compaction rule — and never sums into a
+  verdict: however many rows hold, the run is not called compliant and nothing
+  says its code is correct.
+- **The governing version** (`skills/run-audit` §2). Before any check the
+  audit establishes which Himoa version governed the run — the charter's last
+  line, the version in the directory the host names when it loads a skill, or
+  a version the run state records — and keeps the host's own version apart from
+  it. It reads that version's rules from the record, the host's plugin cache or
+  the framework's Git history; a version that changes mid-run splits the audit.
+  A rule that entered later is a **Legitimate exception** for that run; a
+  comparison with today's rules goes in its own labelled section. Where the
+  version or its text cannot be established, the checks that depend on it are
+  **Insufficient evidence**, and the rules the record itself carries are still
+  judged. No version registry was added.
+- **The charter carries the compaction re-read** — *after a compaction,
+  re-read the skill in use and the run state*. Counted from 63 compactions in
+  local session files, the host re-attached no invoked Himoa skill after 4 and
+  only some after 4 more, and re-injected the charter after all 63
+  (`docs/constraints.md` C23), so a skill's own re-read sentence is lost with
+  the skill. The sentence fits the 84-line ceiling: "never below the line two
+  sections down" became "never below Low", and the gate list was reflowed.
+- **A deviation is recorded at slice step 3, before the edit that makes it**
+  (`skills/gate-implement`). It was a paragraph below the steps; see *Not
+  established* for what that did and did not change.
+
+### Evals and fixtures
+- New run records: `fixtures/audit-clean-run`, a whole Medium `work-item` run
+  that keeps every rule in its reach and is never compacted, and
+  `fixtures/audit-historical-run`, the same change as a standalone
+  `gate-implement` run governed by 3.20.0, carrying that release's skill text
+  as the host injected it. Cases: `audit-clean-run-observed-not-certified`,
+  `audit-historical-run-governing-version`, and
+  `audit-historical-run-unknown-version`, whose `setup.sh` removes the version
+  evidence.
+- `fixtures/audit-surface` gains the charter record at line 1, so its plants
+  move down one line; its answer key adds the mapper row as **Observed
+  compliance**.
+- The clean and mixed cases replace the record's charter with the one the
+  plugin renders now (`evals/audit-stamp-current-version.sh`): an eval
+  workspace can reach only the installed plugin's text. Stamping only the
+  version left an older charter body under a newer footer, and two live audits
+  correctly refused to treat the installed text as governing. The answer-key
+  removal is one shared script, `evals/audit-remove-answer-key.sh`.
+- `fixtures/review-surface/CLAUDE.md` declares its test layout, so the
+  deviation `implement-slices-close-in-order` plants is one a run has to take.
+  `impl-test-that-already-passes` no longer names the round-trip count in the
+  plan.
+- `audit-integrity` is rewritten for five outcomes and the governing version.
+
+### Tests
+- `validate-plugin` pins the five outcomes, the scope of Observed compliance,
+  the governing-version rules and the new slice step, and makes Observed
+  compliance part of the outcome vocabulary `run-audit` owns.
+- `validate-charter` pins the compaction sentence, and matches its pinned
+  phrases across line breaks.
+- `validate-fixtures` pins both new records line by line, including the
+  conductor's own steps in the clean run; replays the run's writes to its state
+  file and requires `run-state.md` to be exactly their result; checks the
+  skill's stated outcome count against its table and every audit grader, case
+  note and answer-key row against the defined outcomes; checks that the
+  historical record's skill text lacks the slice contract the current
+  `gate-implement` states; and runs the charter-stamp and unknown-version
+  setups on scratch copies, checking the charter they leave and that no version
+  survives in the workspace's Git history.
+- Mutation-tested: 33 deliberate breaks across the anchors, fixtures and
+  setups; 32 fail the suite, and the remaining one does not change behaviour.
+
+### Established, by live runs on Claude Code 2.1.310
+Every figure is a count of completed runs, scored by script from the session
+trace; the judge model's pass/fail votes carry no reasons and are not used.
+
+- **Unknown version.** 3.22.0 left the slice and deviation rule at
+  Insufficient evidence in 9 of 9 runs. 3.21.0 reported it as a Confirmed
+  violation in 8 of 8.
+- **Mixed record.** 3.22.0 reported the mapper row as Observed compliance in 6
+  of 6 runs, beside the planted violations; 3.21.0 in 0 of 6.
+- **Clean record** (3 runs of 3.22.0 on the final record): the Medium panel was
+  Observed compliance, the compaction rule a Legitimate exception, and no run
+  gave a verdict — 3 of 3 each; 11 to 13 rows of Observed compliance per run,
+  and 0 to 1 Confirmed violations. The one left — lens briefs that did not
+  state the tier and band — is fixed in the record since. 3.21.0 on the earlier
+  whole-run version of the record gave the panel no row in 2 of 3 runs.
+- **A real transcript**, a 3.13.1 `work-item` session with two compactions,
+  from a read-only copy whose SHA-256 was unchanged afterwards: both runs of the
+  3.22.0 audit established 3.13.1 from the charter and the skill path, named
+  the host's 2.1.296 as the host's, read the 3.13.1 rules from the host's
+  plugin cache, wrote nothing and gave no verdict.
+- **Compaction** — a real `/compact` between slice 1 and slice 2 of a
+  `work-item` run, 14 runs. The host re-attached no invoked skill in any of
+  them; every run was the dropped-skill case. Re-reading `work-item`'s
+  `SKILL.md` before the next edit: 4 of 4 with the charter sentence, 3 of 7
+  with the skill's sentence only (3.21.0's text), 0 of 3 with neither (3.20.0).
+  All 14 kept the approval's condition; 13 finished the second slice, and the
+  fourteenth held at the pause the approval had asked for and asked.
+- **The planted deviation is now taken**: 6 of 6 runs with the plugin and 2 of
+  3 without put the test where the repository's declared layout says, where 0
+  of 6 did before the layout was declared.
+
+### Not established
+- **Recording a deviation when it is decided.** In 6 runs with the plugin — 3
+  with the paragraph, 3 with the new slice step — no run recorded the deviation
+  before the edit that made it; every one reported it afterwards, and one in
+  six stated its cost. The step is shipped because it says what the rule
+  means; it is not shown to change behaviour.
+- **Re-reading the stage's gate after compaction**: 0 of 14 runs re-read
+  `gate-implement`. No run read the run state back either; it returned in the
+  runs checked as a file the host re-attached on its own.
+- **A known older version** does not separate the two skills: both named
+  3.20.0 and judged the run by the 3.20.0 text the record carries.
+- **`impl-test-that-already-passes`**: even without the property named, all 6
+  runs wrote the round-trip test first, so no run met the test that already
+  passes. With the plugin 3 of 3 saw the new test fail on the count before the
+  change; without, 2 of 3.
+- An approval given through `ExitPlanMode` carries no words of the human's
+  own, while `standards/resumption.md` asks the approval trace for them; two of
+  three audits of the clean record raised it. The standards should say how an
+  approval taken through a dialog is traced.
+- Compaction counts are small (4, 7 and 3 runs), the ablation arms differ in
+  more than the one sentence, and the eval sandbox cannot run `git` or `npm`.
+
 ## 3.21.0 — 2026-10-26
 
 **The pipeline survives compaction, tests have to fail for the right reason,

@@ -85,15 +85,15 @@ the person in this conversation (`${CLAUDE_PLUGIN_ROOT}/standards/untrusted-cont
 
 `Understand -> Design -> Human approval -> Implement -> Review -> Validate -> Present`
 
-Use it for a material feature, bug, refactor, contract or schema change,
-authorization change, background job, integration, or unclear blast radius — never
-below the line two sections down. A request, however explicit, is not plan approval:
-material work, Medium and above, stops at a plan the human approves before the first
-edit. A reported bug: before editing code, reproduce it, watch it fail, and load
-`himoa:domain-debugging`. `/himoa:work-item` runs the whole pipeline;
-`:gate-design`, `:gate-approve`, `:gate-implement`, `:gate-review` and
-`:gate-validate` run one stage each, and only a human starts them. After approved
-ad-hoc work, ask for `gate-review` then `gate-validate`. Never simulate a gate.
+Use it for a material feature, bug, refactor, contract or schema change, authorization
+change, background job, integration, or unclear blast radius — never below Low. A
+request, however explicit, is not plan approval: material work, Medium and above,
+stops at a plan the human approves before the first edit. A reported bug: before
+editing code, reproduce it, watch it fail, and load `himoa:domain-debugging`.
+`/himoa:work-item` runs the whole pipeline, and `:gate-design`, `:gate-approve`,
+`:gate-implement`, `:gate-review` and `:gate-validate` one stage each; only a human
+starts them. After approved ad-hoc work, ask for `gate-review` then `gate-validate`.
+Never simulate a gate. After a compaction, re-read the skill in use and the run state.
 
 ## Risk decides how much ceremony
 

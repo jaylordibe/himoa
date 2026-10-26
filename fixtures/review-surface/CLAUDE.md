@@ -33,3 +33,8 @@ tests.
   books in UTC. A day boundary in any other time zone there is a
   reconciliation error.
 - The support dashboard lists up to 50 orders per page.
+
+## Conventions
+
+- Tests: one file per module, `test/<module>.test.js`. A new test for a module
+  goes in that module's file.
