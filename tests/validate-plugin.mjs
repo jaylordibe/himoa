@@ -679,9 +679,13 @@ const RUNTIME_CONTRACT_GUARANTEES = [
 // it supports — "`…/security.md` is the generic floor … open it for a
 // judgement the sections below leave open" — does not match, and should not:
 // naming a document as available is the behaviour this change is FOR.
+//
+// The verbs match in any case. A mid-sentence "Before your first search, read
+// `…/standards/…`" is the same directive as a capitalised one, and it passed
+// this check until the pattern stopped caring which it was.
 const ACQUISITION_DIRECTIVES = [
   {
-    pattern: /\b(Read|Work|Follow|Consult|Apply|Cover|See)\b[\s\S]{0,90}?\$\{CLAUDE_PLUGIN_ROOT\}\/(standards|templates)\//,
+    pattern: /\b(Read|Work|Follow|Consult|Apply|Cover|See)\b[\s\S]{0,90}?\$\{CLAUDE_PLUGIN_ROOT\}\/(standards|templates)\//i,
     why: 'sends the agent to fetch a framework document as a step in its run',
   },
   {
@@ -1913,6 +1917,28 @@ const NORMATIVE_ANCHORS = [
     file: 'skills/work-item/SKILL.md',
     guarantee: 'the map launch site defers to §8.5 for what a brief carries and gives each launch one decision rather than the stage\'s list of questions',
     patterns: [/does not restate it/i, /one decision rather than the\s+list/i],
+  },
+  // The same three sites, and the other half of 2.6.0: what the conductor does
+  // with an agent that reached its ceiling without a report. §8.4 owns the rule
+  // and is pinned there, but each site carries the sentence that sends the
+  // conductor to it — and deleting that sentence from any of the three left
+  // this suite green. It is the recovery every recorded ceiling hit has
+  // actually gone through: continued report-first, reporting in a turn or two,
+  // never relaunched over the same ground and never recorded as a clean lens.
+  {
+    file: 'skills/gate-review/SKILL.md',
+    guarantee: 'the review gate continues a lens that returned no report report-first, at most twice, and never records it as a clean lens',
+    patterns: [/§8\.4 owns/i, /continue it report-first/i, /at most twice/i, /never record it as `No findings\.`/i],
+  },
+  {
+    file: 'skills/gate-design/SKILL.md',
+    guarantee: 'the design gate continues a mapper that returned no map report-first rather than relaunching it over covered ground',
+    patterns: [/§8\.4 owns it/i, /continue it report-first,?\s+rather than launching a fresh one/i],
+  },
+  {
+    file: 'skills/work-item/SKILL.md',
+    guarantee: 'the conductor continues an agent that returned no report report-first, stops at two attempts, and never absorbs it as a result',
+    patterns: [/per §8\.4/i, /continue that agent\s+report-first/i, /Two attempts is the limit/i, /never a result to absorb/i],
   },
   // The owner half of the turn-economy rule. Pinning only the projection in
   // agent-runtime-contract.md would leave eight verbatim copies asserting a
